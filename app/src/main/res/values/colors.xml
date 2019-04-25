@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#FF5C97CA</color>
+    <color name="colorPrimaryDark">#FF396891</color>
+    <color name="colorPrimaryLight">#BBDEFB</color>
+    <color name="colorAccent">@android:color/holo_orange_light</color>
+    <color name="colorAccentSecondary">#1ea9c8</color>
+    <color name="colorPrimaryText">#212121</color>
+    <color name="colorSecondaryText">#757575</color>
+    <color name="colorIcons">#FFFFFF</color>
+    <color name="colorDivider">#BDBDBD</color>
+    <color name="colorMain">#0A467E</color>
+
+    <color name="colorRed">#d32f2f</color>
+    <color name="colorOrange">#f9a825</color>
+    <color name="colorWhite">#ffffff</color>
+    <color name="colorBlack">#000000</color>
+    <color name="colorBlue">#03a8f3</color>
+    <color name="colorTransparent">#00000000</color>
+
+    <color name="colorLightAddBg">#f2f2f2</color>
+
+    <color name="colorGreyPageBackground">#d7d7d7</color>
+    <color name="colorDividerLine">#e0e0e0</color>
+
+    <!--20% transparent-->
+    <color name="black_transparent">#33000000</color>
+
+
+    <color name="colorHomeBlockOne">#0bb89a</color>
+    <color name="colorHomeBlockTwo">#03a8f3</color>
+    <color name="colorHomeBlockThree">#fb4736</color>
+    <color name="colorHomeBlockFive">#71a570</color>
+    <color name="colorHomeBlockFour">#F9A02D</color>
+    <color name="colorHomeSubTitle">#666</color>
+    <color name="colorHomeBlockSix">#a4579d</color>
+    <color name="colorHomeBlockSeven">#3988d0</color>
+
+    <color name="colorLinearLayoutBorder">#f2f2f2</color>
+</resources>
