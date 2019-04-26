@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 android {
     compileSdkVersion 28
@@ -40,10 +41,13 @@ dependencies {
     //Google Play services
 
 
-   implementation 'com.google.android.gms:play-services-location:15.0.1'
-   implementation 'com.google.android.gms:play-services-maps:15.0.1'
-    implementation 'com.google.android.gms:play-services-places:15.0.1'
+    implementation 'com.google.android.gms:play-services-location:16.0.0'
+    implementation 'com.google.android.gms:play-services-maps:16.1.0'
+    implementation 'com.google.android.gms:play-services-places:16.0.0'
 
-    implementation 'com.google.android.libraries.places:places:1.0.0'
+    implementation 'com.google.android.libraries.places:places:1.1.0'
+
+    implementation 'com.google.maps.android:android-maps-utils:0.5+'
+
 
 }
