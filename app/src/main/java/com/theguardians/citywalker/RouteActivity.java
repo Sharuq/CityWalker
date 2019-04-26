@@ -85,7 +85,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     @BindView(R.id.send)
     ImageView send;
     private static final String LOG_TAG = "RouteActivity";
-    protected GoogleApiClient mGoogleApiClient;
     private ProgressDialog progressDialog;
     private List<Polyline> polylines;
 
@@ -115,7 +114,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private Marker cctvMarker;
     private List<Marker> selectedStationMarkers;
     private List<Marker> selectedCCTVMarkers;
-    private DataFromFirebase dataFromFirebase;
+    private DataFromFirebase dataFromFirebase = new DataFromFirebase ();
 
     /**
      * This activity loads a map and then displays the route and pushpins on it.
@@ -125,7 +124,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         super.onCreate (savedInstanceState);
         setContentView (R.layout.route_activity);
         ButterKnife.bind (this);
-       // getActionBar().setDisplayHomeAsUpEnabled(true);
 
         polylines = new ArrayList<> ();
         selectedStationMarkers =new ArrayList<> ();
@@ -136,100 +134,9 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         policeStationRef = mFirebaseDatabase.getReference("police_location");
         cctvRef =mFirebaseDatabase.getReference ("cctv_location");
 
-        //dataFromFirebase
 
-        policeStationRef.addValueEventListener(new ValueEventListener () {
-
-            @Override
-
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                for (DataSnapshot ds : dataSnapshot.getChildren ()) {
-
-                    //System.out.println("This is ds " +ds);
-                    pInfo = new PoliceStation ();
-                    pInfo.setLatitude (Double.parseDouble (ds.child("latitude").getValue ().toString ()));
-                    pInfo.setLongitude (Double.parseDouble (ds.child("longitude").getValue ().toString ()));
-                    pInfo.setPolice_station (ds.child ("police_station").getValue ().toString ());
-                    pInfo.setAddress (ds.child ("address").getValue ().toString ());
-                    pInfo.setTel (ds.child ("tel").getValue ().toString ());
-
-
-                    try {
-
-                        JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("police_station", pInfo.getPolice_station ());
-                        jsonObject.put("latitude", pInfo.getLatitude ());
-                        jsonObject.put("longitude", pInfo.getLongitude ());
-                        jsonObject.put("address", pInfo.getAddress ());
-                        jsonObject.put("tel", pInfo.getTel ());
-
-                        policeStationArray.put (jsonObject);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-                //Log.d (TAG, "$$$$ Array: " + policeStationArray);
-            }
-            @Override
-
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-
-            });
-
-             cctvRef.addValueEventListener(new ValueEventListener () {
-
-                @Override
-
-                public void onDataChange(DataSnapshot dataSnapshot) {
-
-
-
-                    for (DataSnapshot ds : dataSnapshot.getChildren ()) {
-
-
-                        //System.out.println("This is cctv ds " +ds);
-                        cInfo.setLatitude (Double.parseDouble (ds.child("latitude").getValue ().toString ()));
-                        cInfo.setLongitude (Double.parseDouble (ds.child("longitude").getValue ().toString ()));
-                        cInfo.setCctvNo (ds.child ("cctv").getValue ().toString ());
-                        cInfo.setDetail (ds.child ("detail").getValue ().toString ());
-                        //display all the information
-
-
-                        try {
-
-                            JSONObject jsonObject = new JSONObject();
-                            jsonObject.put("cctv", cInfo.getCctvNo ());
-                            jsonObject.put("detail", cInfo.getDetail ());
-                            jsonObject.put("latitude", cInfo.getLatitude ());
-                            jsonObject.put("longitude", cInfo.getLongitude ());
-
-                            cctvLocationArray.put (jsonObject);
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-
-                    //Log.d (TAG, "$$$$ Array: " + cctvLocationArray);
-                }
-
-
-
-            @Override
-
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-
-        });
-
+        policeStationArray = dataFromFirebase.getPoliceStationArray (policeStationRef);
+        cctvLocationArray = dataFromFirebase.getCctvLocationArray (cctvRef);
 
         com.google.android.libraries.places.api.Places.initialize(getApplicationContext(), getString(R.string.google_maps_API_key));
 
@@ -243,6 +150,11 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                 getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment2);
         autocompleteFragment1.setHint("To");
         autocompleteFragment2.setHint("From");
+        //Set image icon
+        ImageView searchIcon1 = (ImageView)((LinearLayout)autocompleteFragment1.getView()).getChildAt(0);
+        ImageView searchIcon2 = (ImageView)((LinearLayout)autocompleteFragment2.getView()).getChildAt(0);
+        searchIcon1.setImageDrawable(getResources().getDrawable(R.mipmap.to));
+        searchIcon2.setImageDrawable(getResources().getDrawable(R.mipmap.from));
 
         //Setting country to Australia
         autocompleteFragment1.setCountry ("AU");
@@ -256,27 +168,14 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                 new LatLng(-37.904116, 144.907608 ),
                 new LatLng(-37.785368, 145.067425)));
 
-        ImageView searchIcon1 = (ImageView)((LinearLayout)autocompleteFragment1.getView()).getChildAt(0);
-        ImageView searchIcon2 = (ImageView)((LinearLayout)autocompleteFragment2.getView()).getChildAt(0);
-
-        // Set the desired icon
-        searchIcon1.setImageDrawable(getResources().getDrawable(R.mipmap.to));
-        searchIcon2.setImageDrawable(getResources().getDrawable(R.mipmap.from));
-
-
         // Specify the types of place data to return.
         autocompleteFragment1.setPlaceFields(Arrays.asList(com.google.android.libraries.places.api.model.Place.Field.ID, com.google.android.libraries.places.api.model.Place.Field.NAME, com.google.android.libraries.places.api.model.Place.Field.LAT_LNG));
         autocompleteFragment2.setPlaceFields(Arrays.asList(com.google.android.libraries.places.api.model.Place.Field.ID, com.google.android.libraries.places.api.model.Place.Field.NAME, com.google.android.libraries.places.api.model.Place.Field.LAT_LNG));
-
 
         // Set up a PlaceSelectionListener to handle the response.
         autocompleteFragment1.setOnPlaceSelectedListener(new PlaceSelectionListener () {
             @Override
             public void onPlaceSelected(com.google.android.libraries.places.api.model.Place originPlace) {
-                // Get info about the selected place.
-                //Log.i(LOG_TAG, "Place: " + originPlace.getName() + ", " + originPlace.getId());
-                //System.out.println ("*****************Place1: " + originPlace.getName());
-
                 start = originPlace.getLatLng();
             }
 
@@ -291,10 +190,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         autocompleteFragment2.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place destinationPlace) {
-                //Get info about the selected place.
-                //Log.i(LOG_TAG, "Place: " + destinationPlace.getName() + ", " + destinationPlace.getId());
-                //System.out.print ("**********************************Place2: " + destinationPlace.getName());
-
                 end = destinationPlace.getLatLng();
             }
 
@@ -313,8 +208,9 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         }
         mapFragment.getMapAsync (this);
     }
-        @Override
-        public void onMapReady(GoogleMap googleMap) {
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
                                                          
         map=googleMap;
 
@@ -325,9 +221,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         .position (new LatLng (-37.815018, 144.946014 )));
 
         map.animateCamera (CameraUpdateFactory.newLatLngZoom (new LatLng (-37.815018, 144.946014),16 ));
-
-
-
 
     }
 
