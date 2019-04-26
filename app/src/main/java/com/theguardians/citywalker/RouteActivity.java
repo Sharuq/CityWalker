@@ -8,6 +8,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -60,6 +61,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.PolyUtil;
 import com.theguardians.citywalker.Model.CCTVLocation;
 import com.theguardians.citywalker.Model.PoliceStation;
+import com.theguardians.citywalker.Service.DataFromFirebase;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -75,7 +77,7 @@ import butterknife.ButterKnife;
 
 import butterknife.OnClick;
 
-public class RouteActivity extends AppCompatActivity implements RoutingListener, GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks {
+public class RouteActivity extends AppCompatActivity implements RoutingListener,GoogleMap.OnPolylineClickListener, GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks {
     protected GoogleMap map;
     protected LatLng start;
     protected LatLng end;
@@ -102,6 +104,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
 
     private HashMap<String,PoliceStation> selectedPoliceStation = new HashMap<> ();
+    private HashMap<String,CCTVLocation> selectedCCTVLocation =new HashMap<> ();
 
     private static final int[] COLORS = new int[]{R.color.colorOrange, R.color.colorHomeBlockSix, R.color.colorPrimaryDark, R.color.colorHomeBlockFour, R.color.primary_dark_material_light};
 
@@ -109,7 +112,10 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private Marker originMarker;
     private Marker destinationMarker;
     private Marker policeStationMarker;
+    private Marker cctvMarker;
     private List<Marker> selectedStationMarkers;
+    private List<Marker> selectedCCTVMarkers;
+    private DataFromFirebase dataFromFirebase;
 
     /**
      * This activity loads a map and then displays the route and pushpins on it.
@@ -123,12 +129,14 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         polylines = new ArrayList<> ();
         selectedStationMarkers =new ArrayList<> ();
+        selectedCCTVMarkers =new ArrayList<> ();
 
         FirebaseApp.initializeApp(this);
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         policeStationRef = mFirebaseDatabase.getReference("police_location");
         cctvRef =mFirebaseDatabase.getReference ("cctv_location");
 
+        //dataFromFirebase
 
         policeStationRef.addValueEventListener(new ValueEventListener () {
 
@@ -249,11 +257,11 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                 new LatLng(-37.785368, 145.067425)));
 
         ImageView searchIcon1 = (ImageView)((LinearLayout)autocompleteFragment1.getView()).getChildAt(0);
-       ImageView searchIcon2 = (ImageView)((LinearLayout)autocompleteFragment2.getView()).getChildAt(0);
+        ImageView searchIcon2 = (ImageView)((LinearLayout)autocompleteFragment2.getView()).getChildAt(0);
 
         // Set the desired icon
-        searchIcon1.setImageDrawable(getResources().getDrawable(R.mipmap.from));
-        searchIcon2.setImageDrawable(getResources().getDrawable(R.mipmap.to));
+        searchIcon1.setImageDrawable(getResources().getDrawable(R.mipmap.to));
+        searchIcon2.setImageDrawable(getResources().getDrawable(R.mipmap.from));
 
 
         // Specify the types of place data to return.
@@ -310,6 +318,8 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                                                          
         map=googleMap;
 
+
+            map.setOnPolylineClickListener(this);
 
         startingMarker = map.addMarker (new MarkerOptions ()
         .position (new LatLng (-37.815018, 144.946014 )));
@@ -420,6 +430,15 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             }
             selectedStationMarkers.clear ();
         }
+        if(selectedCCTVMarkers.size ()>0) {
+            for (Marker m : selectedCCTVMarkers) {
+                if(m!=null)
+                {
+                    m.remove();
+                }
+            }
+            selectedCCTVMarkers.clear ();
+        }
         polylines = new ArrayList<> ();
             //add route(s) to the map.
 
@@ -432,8 +451,10 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                 PolylineOptions polyOptions = new PolylineOptions ();
                 polyOptions.color (getResources ().getColor (COLORS[colorIndex]));
 
+
                 polyOptions.width (12 + i * 3);
                 polyOptions.addAll (route.get (i).getPoints ());
+                polyOptions.clickable (true);
                 Polyline polyline = map.addPolyline (polyOptions);
                 polylines.add (polyline);
 
@@ -444,6 +465,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             }
 
         selectedPoliceStation = new HashMap<> ();
+        selectedCCTVLocation = new HashMap<> ();
         for(Polyline polyline: polylines) {
 
             try {
@@ -482,12 +504,46 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             } catch (JSONException e) {
                 e.printStackTrace ();
             }
+
+            try {
+
+                for (int j = 0; j < cctvLocationArray.length (); j++) {
+                    JSONObject jsonobject = cctvLocationArray.getJSONObject (j);
+
+                    String lat = jsonobject.getString("latitude");
+                    String lon = jsonobject.getString("longitude");
+                    String cctvLocNo = jsonobject.getString("cctv");
+                    String detail = jsonobject.getString("detail");
+
+
+                    cInfo=new CCTVLocation ();
+                    //System.out.println("This is ds " +ds);
+
+                    cInfo.setLatitude (Double.parseDouble (lat));
+                    cInfo.setLongitude (Double.parseDouble (lon));
+                    cInfo.setCctvNo (cctvLocNo);
+                    cInfo.setDetail (detail);
+
+
+                    LatLng pt = new LatLng (cInfo.getLatitude (), cInfo.getLongitude ());
+
+                    if (PolyUtil.isLocationOnPath (pt, polyline.getPoints (), true, 100)) {
+                        System.out.println ("Yes is Location on path CCTV name" + cInfo.getDetail ());
+                        selectedCCTVLocation.put (cInfo.getCctvNo (), cInfo);
+
+                    } else {
+                        System.out.println ("No is  not Location on path CCTV name " + cInfo.getDetail ());
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace ();
+            }
         }
 
             // Start marker
         MarkerOptions options = new MarkerOptions ();
         options.position (start);
-        options.icon (BitmapDescriptorFactory.fromResource (R.mipmap.to));
+        options.icon (BitmapDescriptorFactory.fromResource (R.mipmap.walking));
         originMarker = map.addMarker (options);
 
         // End marker
@@ -497,17 +553,14 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         destinationMarker = map.addMarker (options);
 
 
-         System.out.println ("@@ Selected Stations  @@  " +selectedPoliceStation);
+        //System.out.println ("@@ Selected Stations  @@  " +selectedPoliceStation);
 
         selectedStationMarkers = new ArrayList ();
+        selectedCCTVMarkers =new ArrayList<> ();
 
         for (PoliceStation policeStation : selectedPoliceStation.values ()) {
 
-
-
             policeStationMarker = null;
-            System.out.println (policeStation.getAddress ());
-            System.out.println (policeStation.getPolice_station ());
             MarkerOptions options1 = new MarkerOptions ();
             LatLng policeStationLatLng = new LatLng (policeStation.getLatitude (),policeStation.getLongitude ());
             options1.position (policeStationLatLng);
@@ -519,8 +572,24 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
             selectedStationMarkers.add (policeStationMarker);
         }
+        for (CCTVLocation cctvLocation : selectedCCTVLocation.values ()) {
+
+            cctvMarker = null;
+            MarkerOptions options1 = new MarkerOptions ();
+            LatLng policeStationLatLng = new LatLng (cctvLocation.getLatitude (),cctvLocation.getLongitude ());
+            options1.position (policeStationLatLng);
+            options1.icon (BitmapDescriptorFactory.fromResource (R.mipmap.cctv_small));
+            options1.title ("Safe City Camera");
+            options1.snippet ("Detail: "+cctvLocation.getDetail ());
+
+            cctvMarker=map.addMarker (options1);
+
+            selectedCCTVMarkers.add (cctvMarker);
+        }
 
         System.out.println ("@@ Selected Stations Marker Size @@  " +selectedStationMarkers.size ());
+
+        System.out.println ("@@ Selected CCTV Marker Size @@  " +selectedCCTVMarkers.size ());
 
 
     }
@@ -546,8 +615,21 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     }
 
 
+    @Override
+    public void onPolylineClick(Polyline polyline) {
 
+        for(Polyline polyline1:polylines){
+            //Log.d(TAG, "onPolylineClick: toString: " + polylineData.toString());
+            if(polyline.getId().equals(polyline1.getId())){
+                polyline1.setColor(ContextCompat.getColor(this, R.color.colorBlue));
+                polyline1.setZIndex(1);
+            }
+            else{
+                polyline1.setColor(ContextCompat.getColor(this, R.color.colorSecondaryText));
+                polyline1.setZIndex(1);
+            }
+        }
 
-
+    }
 }
 

@@ -1,4 +1,4 @@
-package com.theguardians.citywalker;
+package com.theguardians.citywalker.ui;
 
 import android.app.Dialog;
 import android.content.Intent;
@@ -16,6 +16,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.theguardians.citywalker.R;
+import com.theguardians.citywalker.RouteActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         btnMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this,RouteActivity.class);
+                Intent intent = new Intent(MainActivity.this, RouteActivity.class);
                 startActivity(intent);
             }
         });
