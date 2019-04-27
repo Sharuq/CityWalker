@@ -1,21 +1,15 @@
 package com.theguardians.citywalker;
 
-import android.Manifest;
 import android.app.ProgressDialog;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
+import android.content.res.Resources;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -27,25 +21,23 @@ import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.CustomCap;
+import com.google.android.gms.maps.model.Dot;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.SquareCap;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
@@ -53,11 +45,8 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.PolyUtil;
 import com.theguardians.citywalker.Model.CCTVLocation;
 import com.theguardians.citywalker.Model.PoliceStation;
@@ -84,6 +73,8 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
     @BindView(R.id.send)
     ImageView send;
+    @BindView (R.id.nestedScrollView)
+    View nestedScrollView;
     private static final String LOG_TAG = "RouteActivity";
     private ProgressDialog progressDialog;
     private List<Polyline> polylines;
@@ -116,6 +107,10 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private List<Marker> selectedCCTVMarkers;
     private DataFromFirebase dataFromFirebase = new DataFromFirebase ();
 
+    private BottomSheetBehavior mBottomSheetBehaviour;
+
+    private AutocompleteSupportFragment autocompleteFragment1;
+    private AutocompleteSupportFragment autocompleteFragment2;
     /**
      * This activity loads a map and then displays the route and pushpins on it.
      */
@@ -124,6 +119,14 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         super.onCreate (savedInstanceState);
         setContentView (R.layout.route_activity);
         ButterKnife.bind (this);
+
+        nestedScrollView.setVisibility (View.INVISIBLE);
+
+        //View nestedScrollView = (View) findViewById(R.id.nestedScrollView);
+
+        //mBottomSheetBehaviour.setPeekHeight(200);
+
+
 
         polylines = new ArrayList<> ();
         selectedStationMarkers =new ArrayList<> ();
@@ -143,10 +146,10 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         // Create a new Places client instance.
         PlacesClient placesClient = Places.createClient(getApplicationContext ());
 
-        AutocompleteSupportFragment autocompleteFragment1 = (AutocompleteSupportFragment)
+        autocompleteFragment1 = (AutocompleteSupportFragment)
                 getSupportFragmentManager ().findFragmentById(R.id.autocomplete_fragment1);
 
-        AutocompleteSupportFragment autocompleteFragment2 = (AutocompleteSupportFragment)
+        autocompleteFragment2 = (AutocompleteSupportFragment)
                 getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment2);
         autocompleteFragment1.setHint("To");
         autocompleteFragment2.setHint("From");
@@ -212,10 +215,23 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     @Override
     public void onMapReady(GoogleMap googleMap) {
                                                          
+
+
+        try {
+            // Customise the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            boolean success = googleMap.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                            this, R.raw.custom_style_map));
+
+            if (!success) {
+                Log.e(LOG_TAG, "Style parsing failed.");
+            }
+        } catch (Resources.NotFoundException e) {
+            Log.e(LOG_TAG, "Can't find style. Error: ", e);
+        }
         map=googleMap;
-
-
-            map.setOnPolylineClickListener(this);
+        map.setOnPolylineClickListener(this);
 
         startingMarker = map.addMarker (new MarkerOptions ()
         .position (new LatLng (-37.815018, 144.946014 )));
@@ -227,9 +243,36 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     @OnClick(R.id.send)
     public void sendRequest()
     {
+
         if(Util.Operations.isOnline(this))
         {
-            route();
+            if(start==null || end==null)
+            {
+                if(start==null)
+
+                {
+                    Snackbar.make (autocompleteFragment1.getView (), "Origin place can't be empty", Snackbar.LENGTH_LONG)
+                            .setAction ("Action", null).show ();
+
+                    //Toast.makeText(this,"Please choose a starting point.",Toast.LENGTH_SHORT).show();
+
+                }
+                if(end==null)
+                {
+
+
+                    Snackbar.make (autocompleteFragment2.getView (), "Destination place can't be empty", Snackbar.LENGTH_LONG)
+                            .setAction ("Action", null).show ();
+                    //Toast.makeText(this,"Please choose a destination.",Toast.LENGTH_SHORT).show();
+
+                }
+            }
+            else {
+                route ();
+                nestedScrollView.setVisibility (View.VISIBLE);
+                mBottomSheetBehaviour = BottomSheetBehavior.from (nestedScrollView);
+                mBottomSheetBehaviour.setState (BottomSheetBehavior.STATE_EXPANDED);
+            }
         }
         else
         {
@@ -239,23 +282,8 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
     public void route()
     {
-        if(start==null || end==null)
-        {
-            if(start==null)
-            {
 
-                    Toast.makeText(this,"Please choose a starting point.",Toast.LENGTH_SHORT).show();
 
-            }
-            if(end==null)
-            {
-
-                    Toast.makeText(this,"Please choose a destination.",Toast.LENGTH_SHORT).show();
-
-            }
-        }
-        else
-        {
             progressDialog = ProgressDialog.show(this, "Please wait.",
                     "Fetching route information.", true);
 
@@ -268,7 +296,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                     .key (getString (R.string.google_maps_API_key))
                     .build();
             routing.execute();
-        }
+
     }
 
 
@@ -336,16 +364,19 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             //add route(s) to the map.
 
             //
+        java.util.List<PatternItem> pattern = Arrays.<PatternItem>asList(new Dot());
         for (int i = 0; i < route.size (); i++) {
 
                 //In case of more than 5 alternative routes
-            int colorIndex = i % COLORS.length;
+            //int colorIndex = i % COLORS.length;
 
                 PolylineOptions polyOptions = new PolylineOptions ();
-                polyOptions.color (getResources ().getColor (COLORS[colorIndex]));
+                //polyOptions.color (getResources ().getColor (COLORS[colorIndex]));
 
 
-                polyOptions.width (12 + i * 3);
+                polyOptions.pattern (pattern);
+                polyOptions.width (20);
+                polyOptions.zIndex (100);
                 polyOptions.addAll (route.get (i).getPoints ());
                 polyOptions.clickable (true);
                 Polyline polyline = map.addPolyline (polyOptions);
@@ -515,7 +546,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             //Log.d(TAG, "onPolylineClick: toString: " + polylineData.toString());
             if(polyline.getId().equals(polyline1.getId())){
                 polyline1.setColor(ContextCompat.getColor(this, R.color.colorBlue));
-                polyline1.setZIndex(1);
+                polyline1.setZIndex(1000);
             }
             else{
                 polyline1.setColor(ContextCompat.getColor(this, R.color.colorSecondaryText));
