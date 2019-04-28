@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.directions.route.AbstractRouting;
@@ -47,6 +48,7 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.gson.JsonObject;
 import com.google.maps.android.PolyUtil;
 import com.theguardians.citywalker.Model.CCTVLocation;
 import com.theguardians.citywalker.Model.PoliceStation;
@@ -58,6 +60,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -75,6 +78,15 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     ImageView send;
     @BindView (R.id.nestedScrollView)
     View nestedScrollView;
+    @BindView (R.id.timeValue)
+    TextView routeDuration;
+    @BindView (R.id.distanceValue)
+    TextView routeDistance;
+    @BindView (R.id.stationCount)
+    TextView stationCount;
+    @BindView (R.id.cctvCount)
+    TextView cctvCount;
+
     private static final String LOG_TAG = "RouteActivity";
     private ProgressDialog progressDialog;
     private List<Polyline> polylines;
@@ -85,6 +97,9 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
     private JSONArray policeStationArray = new JSONArray ();
     private JSONArray cctvLocationArray = new JSONArray ();
+
+    private JSONArray polylineRouteDetailsArray = new JSONArray ();
+    private JSONArray polylineCountDetailsArray =new JSONArray ();
 
     //add Firebase Database stuff
 
@@ -215,7 +230,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     @Override
     public void onMapReady(GoogleMap googleMap) {
                                                          
-
+        /*
 
         try {
             // Customise the styling of the base map using a JSON object defined
@@ -230,6 +245,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         } catch (Resources.NotFoundException e) {
             Log.e(LOG_TAG, "Can't find style. Error: ", e);
         }
+        */
         map=googleMap;
         map.setOnPolylineClickListener(this);
 
@@ -269,9 +285,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             }
             else {
                 route ();
-                nestedScrollView.setVisibility (View.VISIBLE);
-                mBottomSheetBehaviour = BottomSheetBehavior.from (nestedScrollView);
-                mBottomSheetBehaviour.setState (BottomSheetBehavior.STATE_EXPANDED);
+
             }
         }
         else
@@ -363,35 +377,107 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         polylines = new ArrayList<> ();
             //add route(s) to the map.
 
-            //
+        List<Integer> pathDistances = new ArrayList<> ();
+        for(Route path: route)
+        {
+            int x = path.getDistanceValue ();
+            pathDistances.add (x);
+
+        }
+        System.out.println("Distances: " +pathDistances);
         java.util.List<PatternItem> pattern = Arrays.<PatternItem>asList(new Dot());
+
+        LatLng origin = new LatLng (route.get (0).getPoints ().get (0).latitude,route.get (0).getPoints ().get (0).longitude);
+        LatLng destination = new LatLng (route.get (0).getPoints ().get ((route.get (0).getPoints ().size ())-1).latitude,route.get (0).getPoints ().get ((route.get (0).getPoints ().size ())-1).longitude);
+        // Start marker
+        MarkerOptions options = new MarkerOptions ();
+        options.position (origin);
+        options.icon (BitmapDescriptorFactory.fromResource (R.mipmap.walking));
+
+        originMarker = map.addMarker (options);
+
+        // End marker
+        options = new MarkerOptions ();
+        options.position (destination);
+        options.icon (BitmapDescriptorFactory.fromResource (R.mipmap.to));
+        destinationMarker = map.addMarker (options);
+
+
+        polylineRouteDetailsArray =new JSONArray ();
+
+        polylineCountDetailsArray =new JSONArray ();
+
+
+        nestedScrollView.setVisibility (View.VISIBLE);
+        mBottomSheetBehaviour = BottomSheetBehavior.from (nestedScrollView);
+        mBottomSheetBehaviour.setState (BottomSheetBehavior.STATE_COLLAPSED);
+
+        int minDistance = getMinValue (pathDistances);
+        System.out.println("Minimum Distance" +minDistance);
+
         for (int i = 0; i < route.size (); i++) {
 
                 //In case of more than 5 alternative routes
-            //int colorIndex = i % COLORS.length;
+                //int colorIndex = i % COLORS.length;
 
-                PolylineOptions polyOptions = new PolylineOptions ();
-                //polyOptions.color (getResources ().getColor (COLORS[colorIndex]));
+                if(route.get (i).getDistanceValue () == minDistance) {
+
+                    PolylineOptions polyOptions = new PolylineOptions ();
+                    //polyOptions.color (getResources ().getColor (COLORS[colorIndex]));
+                    polyOptions.pattern (pattern);
+                    polyOptions.color (R.color.colorBlue);
+                    polyOptions.width (20);
+                    polyOptions.zIndex (1000);
+                    polyOptions.addAll (route.get (i).getPoints ());
+                    polyOptions.clickable (true);
+                    Polyline polyline = map.addPolyline (polyOptions);
+                    polylines.add (polyline);
+                }
+                else {
+
+                    PolylineOptions polyOptions = new PolylineOptions ();
+                    //polyOptions.color (getResources ().getColor (COLORS[colorIndex]));
+                    polyOptions.pattern (pattern);
+                    polyOptions.color (R.color.colorRed);
+                    polyOptions.width (20);
+                    polyOptions.zIndex (1);
+                    polyOptions.addAll (route.get (i).getPoints ());
+                    polyOptions.clickable (true);
+                    Polyline polyline = map.addPolyline (polyOptions);
+                    polylines.add (polyline);
+                }
+
+                 try {
+
+                JSONObject jsonObject = new JSONObject ();
+                jsonObject.put ("polylineId", polylines.get (i).getId ());
+                jsonObject.put ("routeDistance", route.get (i).getDistanceText ());
+                jsonObject.put ("routeDuration", route.get (i).getDurationText ());
+
+                     polylineRouteDetailsArray.put (jsonObject);
+
+                } catch (JSONException e) {
+                e.printStackTrace ();
+                }
 
 
-                polyOptions.pattern (pattern);
-                polyOptions.width (20);
-                polyOptions.zIndex (100);
-                polyOptions.addAll (route.get (i).getPoints ());
-                polyOptions.clickable (true);
-                Polyline polyline = map.addPolyline (polyOptions);
-                polylines.add (polyline);
 
-
-
-
-                Toast.makeText (getApplicationContext (), "Route " + (i + 1) + ": distance - " + route.get (i).getDistanceValue () + ": duration - " + route.get (i).getDurationValue (), Toast.LENGTH_SHORT).show ();
+                Toast.makeText (getApplicationContext (), "Route " + (i + 1) + ": distance - " + route.get (i).getDistanceText () + ": duration - " + route.get (i).getDurationText (), Toast.LENGTH_SHORT).show ();
             }
+
+        routeDistance.setText (route.get (0).getDistanceText ());
+        routeDuration.setText (route.get (0).getDurationText ());
+
+
+        System.out.println ("polylineRouteDetailsArray  "+polylineRouteDetailsArray);
 
         selectedPoliceStation = new HashMap<> ();
         selectedCCTVLocation = new HashMap<> ();
+
         for(Polyline polyline: polylines) {
 
+            int cctvCount =0;
+            int stationCount =0;
             try {
 
                 for (int j = 0; j < policeStationArray.length (); j++) {
@@ -417,12 +503,13 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                     LatLng pt = new LatLng (pInfo.getLatitude (), pInfo.getLongitude ());
 
                     if (PolyUtil.isLocationOnPath (pt, polyline.getPoints (), true, 100)) {
-                        System.out.println ("Yes is Location on path station name" + pInfo.getPolice_station ());
-                        System.out.println ("pinfo" + pInfo.getAddress ());
+                       // System.out.println ("Yes is Location on path station name" + pInfo.getPolice_station ());
+                        //System.out.println ("pinfo" + pInfo.getAddress ());
+                        stationCount=stationCount+1;
                         selectedPoliceStation.put (pInfo.getPolice_station (), pInfo);
 
                     } else {
-                        System.out.println ("No is  not Location on path station name " + polSat);
+                       // System.out.println ("No is  not Location on path station name " + polSat);
                     }
                 }
             } catch (JSONException e) {
@@ -451,30 +538,39 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
                     LatLng pt = new LatLng (cInfo.getLatitude (), cInfo.getLongitude ());
 
-                    if (PolyUtil.isLocationOnPath (pt, polyline.getPoints (), true, 100)) {
-                        System.out.println ("Yes is Location on path CCTV name" + cInfo.getDetail ());
+                    if (PolyUtil.isLocationOnPath (pt, polyline.getPoints (), true, 50)) {
+                       // System.out.println ("Yes is Location on path CCTV name" + cInfo.getDetail ());
+                        cctvCount=cctvCount+1;
                         selectedCCTVLocation.put (cInfo.getCctvNo (), cInfo);
 
                     } else {
-                        System.out.println ("No is  not Location on path CCTV name " + cInfo.getDetail ());
+                        //System.out.println ("No is  not Location on path CCTV name " + cInfo.getDetail ());
                     }
                 }
             } catch (JSONException e) {
                 e.printStackTrace ();
             }
+
+            try {
+
+                JSONObject jsonObject = new JSONObject ();
+                jsonObject.put ("polylineId", polyline.getId ());
+                jsonObject.put ("selectedStationCount",stationCount );
+                jsonObject.put ("selectedCCTVCount",cctvCount);
+
+                polylineCountDetailsArray.put (jsonObject);
+
+            } catch (JSONException e) {
+                e.printStackTrace ();
+            }
+
+
         }
 
-            // Start marker
-        MarkerOptions options = new MarkerOptions ();
-        options.position (start);
-        options.icon (BitmapDescriptorFactory.fromResource (R.mipmap.walking));
-        originMarker = map.addMarker (options);
 
-        // End marker
-        options = new MarkerOptions ();
-        options.position (end);
-        options.icon (BitmapDescriptorFactory.fromResource (R.mipmap.to));
-        destinationMarker = map.addMarker (options);
+
+
+        System.out.println ("polylineCountDetailsArray  "+polylineCountDetailsArray);
 
 
         //System.out.println ("@@ Selected Stations  @@  " +selectedPoliceStation);
@@ -490,6 +586,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             options1.position (policeStationLatLng);
             options1.icon (BitmapDescriptorFactory.fromResource (R.mipmap.police_small));
             options1.title (policeStation.getPolice_station ());
+            options1.zIndex (2);
             options1.snippet ("Address: "+policeStation.getAddress () + " Telephone: " +policeStation.getTel ());
 
             policeStationMarker=map.addMarker (options1);
@@ -515,6 +612,16 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         System.out.println ("@@ Selected CCTV Marker Size @@  " +selectedCCTVMarkers.size ());
 
+        try {
+            stationCount.setText (polylineCountDetailsArray.getJSONObject (0).getString ("selectedStationCount"));
+        } catch (JSONException e) {
+            e.printStackTrace ();
+        }
+        try {
+            cctvCount.setText (polylineCountDetailsArray.getJSONObject (0).getString ("selectedCCTVCount"));
+        } catch (JSONException e) {
+            e.printStackTrace ();
+        }
 
     }
 
@@ -542,11 +649,47 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     @Override
     public void onPolylineClick(Polyline polyline) {
 
+        System.out.println ("highlight polyline id" +polyline.getId ());
         for(Polyline polyline1:polylines){
             //Log.d(TAG, "onPolylineClick: toString: " + polylineData.toString());
             if(polyline.getId().equals(polyline1.getId())){
                 polyline1.setColor(ContextCompat.getColor(this, R.color.colorBlue));
                 polyline1.setZIndex(1000);
+                try {
+                    for (int i = 0; i < polylineRouteDetailsArray.length (); i++) {
+                        JSONObject jsonObject  = polylineRouteDetailsArray.getJSONObject (i);
+                        String polylineId = jsonObject.getString ("polylineId");
+                        String routeDis =jsonObject.getString ("routeDistance");
+                        String routeDur = jsonObject.getString ("routeDuration");
+
+                        if(polylineId.equals (polyline.getId ())) {
+                            routeDistance.setText (routeDis);
+                            routeDuration.setText (routeDur);
+                        }
+                    }
+
+                }
+                catch (JSONException e) {
+                    e.printStackTrace ();
+                }
+                try {
+                    for (int i = 0; i < polylineCountDetailsArray.length (); i++) {
+                        JSONObject jsonObject  = polylineCountDetailsArray.getJSONObject (i);
+                        String polylineId = jsonObject.getString ("polylineId");
+                        String satCount =jsonObject.getString ("selectedStationCount");
+                        String ccCount = jsonObject.getString ("selectedCCTVCount");
+
+                        if(polylineId.equals (polyline.getId ())) {
+                            stationCount.setText (satCount);
+                            cctvCount.setText (ccCount);
+                        }
+                    }
+
+                }
+                catch (JSONException e) {
+                    e.printStackTrace ();
+                }
+
             }
             else{
                 polyline1.setColor(ContextCompat.getColor(this, R.color.colorSecondaryText));
@@ -554,6 +697,17 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             }
         }
 
+
+    }
+
+    public static int getMinValue(List<Integer> numbers){
+        int minValue = numbers.get (0);
+        for(int i=1;i<numbers.size ();i++){
+            if(numbers.get (i) < minValue){
+                minValue = numbers.get (i);
+            }
+        }
+        return minValue;
     }
 }
 
