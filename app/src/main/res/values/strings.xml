@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">CityWalker</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">About</string>
 
     <string name="google_maps_API_key">AIzaSyA6BPdyQ9lbcBv2vyarJbjqyrQ95JqhX4g</string>
+    <string name="version_1">NightWalker</string>
+    <string name="dev"> Developed by The Guardians (TA16)</string>
+    <string name="intro">NightWalker is an application designed for international students who live in the City of Melbourne. Users can use it to check the road situation when they walk alone at night. Users can select the starting point and destination. After that, a route, together with the road situation, will be provided for users. The road situation includes distribution of CCTV cameras, open shops and police stations along the route.</string>
+    <string name="dataset">Open Data Source: \u2022 MapBox API (https://www.mapbox.com/maps/) \u2022 Google Map API (https://developers.google.com/maps/documentation/) \u2022 Safe City cameras of the City of Melbourne (https://www.melbourne.vic.gov.au/community/safety-emergency/Pages/safe-citycameras.aspx) \u2022 Local police station location (https://www.police.vic.gov.au/location)</string>
+
 </resources>

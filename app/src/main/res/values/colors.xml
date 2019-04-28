@@ -35,6 +35,7 @@
     <color name="colorHomeSubTitle">#666</color>
     <color name="colorHomeBlockSix">#a4579d</color>
     <color name="colorHomeBlockSeven">#3988d0</color>
+    <color name="colorButton">#363c70</color>
 
     <color name="colorLinearLayoutBorder">#f2f2f2</color>
 </resources>

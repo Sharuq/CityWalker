@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/wallpaper"
     tools:context=".ui.MainActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -15,37 +16,64 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:background="@color/colorButton"
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
 
     <include layout="@layout/content_main" />
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="vertical">
     <Button
         android:id="@+id/searchRouteBtn"
-        android:layout_width="115dp"
-        android:layout_height="115dp"
-        android:layout_below="@+id/password"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:paddingTop="20dp"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_gravity="center"
-        android:layout_marginTop="37dp"
-        android:background="@color/colorAccent"
+        android:background="@drawable/button_bg_rounded_corners"
         android:gravity="center"
-        android:text="Route Analysis"
+        android:drawableTop="@drawable/route"
+        android:text="Route Check"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/cardview_light_background"
         android:textStyle="bold"
         android:typeface="sans" />
 
+    <Button
+        android:id="@+id/emergencySupportBtn"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_below="@id/searchRouteBtn"
+        android:layout_marginTop="50dp"
+        android:paddingTop="20dp"
+        android:background="@drawable/button_bg_rounded_corners"
+        android:gravity="center"
+        android:drawableTop="@drawable/emergency"
+        android:text="Emergency Support"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/cardview_light_background"
+        android:textStyle="bold"
+        android:typeface="sans" />
+    </LinearLayout>
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
+        android:layout_gravity="center|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
+        app:srcCompat="@drawable/call"
+        app:fabSize="auto"
+        app:maxImageSize="35dp"
+        app:fabCustomSize="70dp"
+        app:backgroundTint="@color/colorOrange"
+        />
 
 
 
