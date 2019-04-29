@@ -26,12 +26,15 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.theguardians.citywalker.Model.ContactHandler;
+import com.theguardians.citywalker.Model.UserContact;
 import com.theguardians.citywalker.R;
 import com.theguardians.citywalker.RouteActivity;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean mLocationPermissionGranted = false;
     private boolean mSMSPermissionGranted = false;
     private Context context;
-
+    private List<UserContact> contacts;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate (savedInstanceState);
@@ -54,7 +57,11 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById (R.id.toolbar);
         setSupportActionBar (toolbar);
 
-       context =this;
+        ContactHandler handler =new ContactHandler (this);
+        // Reading all contacts
+        contacts = handler.readAllContacts();
+
+        context =this;
         FloatingActionButton fab = findViewById (R.id.fab);
         fab.setOnClickListener (new View.OnClickListener () {
             @Override
@@ -202,11 +209,18 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
         btnMap2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, EmergencyActivity.class);
-                startActivity(intent);
+                if(contacts.size ()>0) {
+                    Intent intent = new Intent (MainActivity.this, ContactEmergencyActivity.class);
+                    startActivity (intent);
+                }
+                else{
+                    Intent intent = new Intent (MainActivity.this, EmergencyActivity.class);
+                    startActivity (intent);
+                }
             }
         });
 

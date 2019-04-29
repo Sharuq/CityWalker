@@ -60,7 +60,7 @@ public class ContactEmergencyActivity extends AppCompatActivity {
     private String userPhoneNumber;
     private TextView name;
     private TextView userPhNo;
-
+    Bundle extras = new Bundle ();;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // ...
@@ -78,7 +78,7 @@ public class ContactEmergencyActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
+        extras = getIntent().getExtras();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient (this);
         sendLocation = findViewById(R.id.sendLocation);
         editContact =findViewById (R.id.editContact);
@@ -123,7 +123,8 @@ public class ContactEmergencyActivity extends AppCompatActivity {
         editContact.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ContactEmergencyActivity.this, AddContactActivity.class);
+                Intent intent = new Intent(ContactEmergencyActivity.this, UpdateContactActivity.class);
+                intent.putExtras(extras);
                 startActivity(intent);
             }
         });
