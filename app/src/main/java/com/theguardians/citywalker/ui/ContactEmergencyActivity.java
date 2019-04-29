@@ -60,6 +60,7 @@ public class ContactEmergencyActivity extends AppCompatActivity {
     private String userPhoneNumber;
     private TextView name;
     private TextView userPhNo;
+    private int Id;
     Bundle extras = new Bundle ();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +90,7 @@ public class ContactEmergencyActivity extends AppCompatActivity {
         ContactHandler handler =new ContactHandler (this);
         // Reading all contacts
         List<UserContact> contacts = handler.readAllContacts();
+        Id=contacts.get (0).getId ();
         userName = contacts.get (0).getName ();
         userPhoneNumber = contacts.get (0).getPhoneNumber ();
 
@@ -124,7 +126,8 @@ public class ContactEmergencyActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ContactEmergencyActivity.this, UpdateContactActivity.class);
-                intent.putExtras(extras);
+                //extras.putExtra ("Id",Id);
+                intent.putExtra("Id",Id);
                 startActivity(intent);
             }
         });

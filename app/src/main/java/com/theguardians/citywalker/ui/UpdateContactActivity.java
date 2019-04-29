@@ -26,7 +26,7 @@ public class UpdateContactActivity extends AppCompatActivity {
     private Button updateContactBtn;
     SQLiteDatabase db;
     Bundle extras =new Bundle ();
-
+    private int Id;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +36,8 @@ public class UpdateContactActivity extends AppCompatActivity {
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp);
         setSupportActionBar (toolbar);
         extras = getIntent().getExtras();
+        Intent mIntent = getIntent();
+        Id = mIntent.getIntExtra("Id", 0);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -58,7 +60,7 @@ public class UpdateContactActivity extends AppCompatActivity {
                 name = et_name.getText().toString();
                 phone = et_phone.getText().toString();
                 UserContact contact = new UserContact();
-                contact.setId(extras.getInt("id"));
+                contact.setId(Id);
                 contact.setName(name);
                 contact.setPhoneNumber(phone);
                // db.execSQL("DROP TABLE IF EXISTS contacts");
