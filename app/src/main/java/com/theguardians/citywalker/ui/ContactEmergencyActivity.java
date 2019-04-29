@@ -36,7 +36,7 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.OnClick;
 
-public class EmergencyActivity extends AppCompatActivity {
+public class ContactEmergencyActivity extends AppCompatActivity {
 
 
     private FusedLocationProviderClient fusedLocationClient;
@@ -55,14 +55,17 @@ public class EmergencyActivity extends AppCompatActivity {
     private String userLocationAddress;
     private Button sendLocation;
     private  Button infoShare;
-    private Button infoAddContact;
-    private  Button addContact;
+    private  Button editContact;
+    private String userName;
+    private String userPhoneNumber;
+    private TextView name;
+    private TextView userPhNo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // ...
         super.onCreate (savedInstanceState);
-        setContentView (R.layout.emergency_support);
+        setContentView (R.layout.contact_emergency_support);
         Toolbar toolbar = findViewById (R.id.toolbar);
         toolbar.setTitle ("Emergency Support");
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp);
@@ -71,19 +74,27 @@ public class EmergencyActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(EmergencyActivity.this, MainActivity.class);
+                Intent intent = new Intent(ContactEmergencyActivity.this, MainActivity.class);
                 startActivity(intent);
             }
         });
 
-
-
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient (this);
         sendLocation = findViewById(R.id.sendLocation);
-        addContact =findViewById (R.id.addContact);
+        editContact =findViewById (R.id.editContact);
         infoShare = findViewById (R.id.infoShareLocation);
-        infoAddContact = findViewById (R.id.infoAddContact);
+        userPhNo = findViewById (R.id.phoneNumberValue);
+        name = findViewById (R.id.nameValue);
+
+        ContactHandler handler =new ContactHandler (this);
+        // Reading all contacts
+        List<UserContact> contacts = handler.readAllContacts();
+        userName = contacts.get (0).getName ();
+        userPhoneNumber = contacts.get (0).getPhoneNumber ();
+
+        userPhNo.setText (userPhoneNumber);
+        name.setText (userName);
+
 
         if (mLocationPermissionGranted) {
             getUserLocation();
@@ -94,7 +105,7 @@ public class EmergencyActivity extends AppCompatActivity {
 
         if (mSMSPermissionGranted){
 
-             System.out.print ("SMS is there");
+            System.out.print ("SMS is there");
         }
         else
         {
@@ -104,44 +115,38 @@ public class EmergencyActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                Toast.makeText(EmergencyActivity.this, "Share your current location with your emergency contact guardian", Toast.LENGTH_SHORT).show();
-            }
-        });
-        infoAddContact.setOnClickListener (new View.OnClickListener () {
-            @Override
-            public void onClick(View v) {
-
-                Toast.makeText(EmergencyActivity.this, "Press the  Add  Button to add an emergency Guardian contact", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ContactEmergencyActivity.this, "Share your current location with your emergency contact guardian", Toast.LENGTH_SHORT).show();
             }
         });
 
-        addContact.setOnClickListener (new View.OnClickListener () {
+
+        editContact.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(EmergencyActivity.this, AddContactActivity.class);
+                Intent intent = new Intent(ContactEmergencyActivity.this, AddContactActivity.class);
                 startActivity(intent);
             }
         });
 
         sendLocation.setOnClickListener (new View.OnClickListener () {
-                @Override
-                public void onClick(View v) {
-                    //userLocationValue.setText (userLocation.toString ());
+            @Override
+            public void onClick(View v) {
+                //userLocationValue.setText (userLocation.toString ());
 
-                    try {
-                        getUserLocation ();
-                        userLocationAddress = getUserLocationDetails (userLocation.latitude, userLocation.longitude);
-                        phoneNo = "0431360617";
-                        message = "HELP ME !!!! I am at Location: " + userLocationAddress + " Coordinates: " + userLocation + " **Emergency Distress Message sent from CityWalker App**";
+                try {
+                    getUserLocation ();
+                    userLocationAddress = getUserLocationDetails (userLocation.latitude, userLocation.longitude);
+                    phoneNo = userPhoneNumber;
+                    message = "HELP ME !!!! I am at Location: " + userLocationAddress + " Coordinates: " + userLocation + " **Emergency Distress Message sent from CityWalker App**";
 
-                        sendSMSMessage ();
-                    } catch (IOException e) {
-                        e.printStackTrace ();
-                    }
-
-
+                    sendSMSMessage ();
+                } catch (IOException e) {
+                    e.printStackTrace ();
                 }
-            });
+
+
+            }
+        });
 
 
     }
@@ -205,7 +210,7 @@ public class EmergencyActivity extends AppCompatActivity {
                         // Got last known location. In some rare situations this can be null.
                         if (location != null) {
                             // Logic to handle location object
-                             userLocation= new LatLng(location.getLatitude (),location.getLongitude ());
+                            userLocation= new LatLng(location.getLatitude (),location.getLongitude ());
 
                             System.out.println ("NEw user location" +userLocation);
                         }
@@ -218,25 +223,25 @@ public class EmergencyActivity extends AppCompatActivity {
     public void sendSMSMessage(){
         try{
 
-                    String SENT = "SMS_SENT";
-                    String DELIVERED = "SMS_DELIVERED";
-                    SmsManager sms = SmsManager.getDefault();
-                    ArrayList<String> parts = sms.divideMessage(message);
+            String SENT = "SMS_SENT";
+            String DELIVERED = "SMS_DELIVERED";
+            SmsManager sms = SmsManager.getDefault();
+            ArrayList<String> parts = sms.divideMessage(message);
 
 
-                    ArrayList<PendingIntent> sentPIarr = new ArrayList<PendingIntent>();
-                    ArrayList<PendingIntent> deliveredPIarr = new ArrayList<PendingIntent>();
+            ArrayList<PendingIntent> sentPIarr = new ArrayList<PendingIntent>();
+            ArrayList<PendingIntent> deliveredPIarr = new ArrayList<PendingIntent>();
 
-                    for (int i = 0; i < parts.size(); i++) {
-                        sentPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(SENT), 0));
-                        deliveredPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(DELIVERED), 0));
-                    }
+            for (int i = 0; i < parts.size(); i++) {
+                sentPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(SENT), 0));
+                deliveredPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(DELIVERED), 0));
+            }
 
-                    sms.sendMultipartTextMessage(phoneNo, null, parts, sentPIarr, deliveredPIarr);
-            Toast.makeText(EmergencyActivity.this, "Message Sent Successfully to Your Guardian", Toast.LENGTH_SHORT).show();
+            sms.sendMultipartTextMessage(phoneNo, null, parts, sentPIarr, deliveredPIarr);
+            Toast.makeText(ContactEmergencyActivity.this, "Message Sent Successfully to Your Guardian", Toast.LENGTH_SHORT).show();
         }
         catch (Exception e){
-            Toast.makeText(EmergencyActivity.this, "SMS Failed to Send, Please try again", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ContactEmergencyActivity.this, "SMS Failed to Send, Please try again", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -263,7 +268,7 @@ public class EmergencyActivity extends AppCompatActivity {
             case MY_PERMISSIONS_REQUEST_SEND_SMS: {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                          mSMSPermissionGranted = true;
+                    mSMSPermissionGranted = true;
                 }
             }
 
