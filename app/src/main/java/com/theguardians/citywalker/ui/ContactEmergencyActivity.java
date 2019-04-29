@@ -60,7 +60,7 @@ public class ContactEmergencyActivity extends AppCompatActivity {
     private String userPhoneNumber;
     private TextView name;
     private TextView userPhNo;
-    Bundle extras = new Bundle ();;
+    Bundle extras = new Bundle ();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // ...

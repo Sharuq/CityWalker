@@ -25,7 +25,7 @@ public class UpdateContactActivity extends AppCompatActivity {
     private EditText et_phone;
     private Button updateContactBtn;
     SQLiteDatabase db;
-    Bundle extras;
+    Bundle extras =new Bundle ();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
