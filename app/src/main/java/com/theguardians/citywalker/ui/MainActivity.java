@@ -1,5 +1,6 @@
 package com.theguardians.citywalker.ui;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -38,9 +39,12 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private static final int ERROR_DIALOG_REQUEST = 9001;
 
+
+    private static final int MY_PERMISSIONS_REQUEST_SEND_SMS =0 ;
     private static final int  PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9003;
     private static final int PERMISSIONS_REQUEST_ENABLE_GPS = 9002;
     private boolean mLocationPermissionGranted = false;
+    private boolean mSMSPermissionGranted = false;
     private Context context;
 
     @Override
@@ -131,8 +135,8 @@ public class MainActivity extends AppCompatActivity {
 
             if (aBoolean) {
 
-                //isAppOpenedFirstTime();
                 checkLocationServices();
+                checkSMSServices();
             }
             else {
 
@@ -176,21 +180,21 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-    private void init(){
 
-        Button btnMap = (Button) findViewById(R.id.searchRouteBtn);
-        btnMap.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, RouteActivity.class);
-                startActivity(intent);
-            }
-        });
+    private  void checkSMSServices(){
+
+        if(mSMSPermissionGranted){
+
+            getNextActivity ();
+        }
+        else {
+            getSMSPermission ();
+        }
     }
-
     public void getNextActivity(){
 
         Button btnMap = (Button) findViewById(R.id.searchRouteBtn);
+        Button btnMap2 = (Button) findViewById(R.id.emergencySupportBtn);
         btnMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -198,6 +202,14 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        btnMap2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, EmergencyActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
     /**
      *  Check whether maps service is available
@@ -232,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     * Checck if location is enabled
+     * Check if location is enabled
      * @return
      */
     public boolean isMapsEnabled(){
@@ -267,6 +279,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    protected void getSMSPermission() {
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.SEND_SMS)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.SEND_SMS)) {
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.SEND_SMS},
+                        MY_PERMISSIONS_REQUEST_SEND_SMS);
+
+            }
+        }
+    }
 
     /**
      * Is all services okay and app ready for use
@@ -311,6 +338,12 @@ public class MainActivity extends AppCompatActivity {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mLocationPermissionGranted = true;
+                }
+            }
+            case MY_PERMISSIONS_REQUEST_SEND_SMS: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    mSMSPermissionGranted =true;
                 }
             }
         }

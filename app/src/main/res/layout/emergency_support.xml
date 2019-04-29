@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorButton"
+            tools:popupTheme="@style/ThemeOverlay.AppCompat.Dark" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            card_view:cardCornerRadius="10dp"
+            card_view:contentPadding="10dp"
+            card_view:cardBackgroundColor="@color/colorWhite"
+            android:gravity="center"
+            >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_weight="3"
+                android:id="@+id/addContactLayout">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:paddingTop="5dp"
+                    android:text="Add Emergency Contact"
+                    android:textSize="25sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorButton"
+                    />
+
+
+                <Button
+                    android:id="@+id/infoShareLocation1"
+                    android:layout_width="25dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="fill_vertical"
+                    android:background="@drawable/tooltips"
+                    android:backgroundTint="@color/colorButton" />
+
+                <Button
+                    android:id="@+id/addContact"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:layout_gravity="right"
+                    android:layout_marginLeft="25dp"
+
+                    android:background="@drawable/add"
+                    android:backgroundTint="@color/colorButton" />
+
+
+            </LinearLayout>
+
+
+        </android.support.v7.widget.CardView>
+
+
+    </LinearLayout>
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        card_view:cardCornerRadius="10dp"
+        card_view:contentPadding="10dp"
+        card_view:cardBackgroundColor="@color/colorWhite"
+        android:gravity="center"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_weight="3">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingTop="5dp"
+                android:text="Location Sharing"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                android:textColor="@color/colorButton"
+                />
+
+
+            <Button
+                android:id="@+id/infoShareLocation"
+                android:layout_width="25dp"
+                android:layout_height="20dp"
+                android:layout_gravity="fill_vertical"
+                android:background="@drawable/tooltips"
+                android:backgroundTint="@color/colorButton" />
+
+            <Button
+                android:id="@+id/sendLocation"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_gravity="right"
+                android:layout_marginLeft="80dp"
+
+                android:background="@drawable/share"
+                android:backgroundTint="@color/colorButton" />
+
+
+        </LinearLayout>
+
+
+    </android.support.v7.widget.CardView>
+
+
+
+</RelativeLayout>
+
+</LinearLayout>

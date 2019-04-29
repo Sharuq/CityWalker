@@ -194,7 +194,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:text="Google Places API"
+                        android:text="Google Maps and Places API"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -202,7 +202,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_marginTop="8dp"
-                        android:text="Google Places for places autocomplete  suggestions."
+                        android:text="Google Places for places autocomplete  suggestions. For showing walking route on maps."
                         android:textSize="14sp" />
 
                     <TextView
@@ -218,45 +218,6 @@
 
             </android.support.v7.widget.CardView>
 
-            <android.support.v7.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="20dp"
-                card_view:cardCornerRadius="5dp"
-                card_view:contentPadding="10dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="MapBox API"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginTop="8dp"
-                        android:text="For showing walking route on maps."
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginTop="8dp"
-                        android:autoLink="web"
-                        android:clickable="true"
-                        android:text="https://www.mapbox.com/maps/"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-
-            </android.support.v7.widget.CardView>
 
 
 
