@@ -40,6 +40,7 @@
 
                 <fragment
                     android:id="@+id/autocomplete_fragment1"
+                    android:layout_marginRight="15dp"
                     android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -57,6 +58,7 @@
 
                 <fragment
                     android:id="@+id/autocomplete_fragment2"
+                    android:layout_marginRight="15dp"
                     android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -66,7 +68,6 @@
             </LinearLayout>
             <ImageView
                 android:id="@+id/send"
-                android:layout_marginRight="5dp"
                 android:layout_centerVertical="true"
                 android:layout_alignParentRight="true"
                 android:layout_width="45dp"

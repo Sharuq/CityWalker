@@ -74,7 +74,18 @@
         app:fabCustomSize="70dp"
         app:backgroundTint="@color/colorOrange"
         />
-
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|left"
+        android:layout_margin="@dimen/fab_margin"
+        app:srcCompat="@drawable/share"
+        app:fabSize="auto"
+        app:maxImageSize="35dp"
+        app:fabCustomSize="70dp"
+        app:backgroundTint="@color/colorOrange"
+        />
 
 
 </android.support.design.widget.CoordinatorLayout>

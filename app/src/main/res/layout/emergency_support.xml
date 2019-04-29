@@ -70,7 +70,7 @@
                     android:layout_width="45dp"
                     android:layout_height="45dp"
                     android:layout_gravity="right"
-                    android:layout_marginLeft="20dp"
+                    android:layout_marginLeft="15dp"
 
                     android:background="@drawable/add"
                     android:backgroundTint="@color/colorButton" />

@@ -13,6 +13,8 @@ import com.theguardians.citywalker.Model.ContactHandler;
 import com.theguardians.citywalker.Model.UserContact;
 import com.theguardians.citywalker.R;
 
+import java.util.List;
+
 
 public class UpdateContactActivity extends AppCompatActivity {
 
@@ -25,7 +27,7 @@ public class UpdateContactActivity extends AppCompatActivity {
     private EditText et_phone;
     private Button updateContactBtn;
     SQLiteDatabase db;
-    Bundle extras =new Bundle ();
+    //Bundle extras =new Bundle ();
     private int Id;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +37,6 @@ public class UpdateContactActivity extends AppCompatActivity {
         toolbar.setTitle ("Update Emergency Contact");
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp);
         setSupportActionBar (toolbar);
-        extras = getIntent().getExtras();
         Intent mIntent = getIntent();
         Id = mIntent.getIntExtra("Id", 0);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -52,6 +53,12 @@ public class UpdateContactActivity extends AppCompatActivity {
         et_name = (EditText) findViewById(R.id.userName);
         et_phone = (EditText) findViewById(R.id.phoneNumber);
 
+        // Reading all contacts
+        List<UserContact> contacts = handler.readAllContacts();
+
+        et_name.setText (contacts.get (0).getName ());
+        et_phone.setText (contacts.get (0).getPhoneNumber ());
+
 
         db = handler.getReadableDatabase ();
         updateContactBtn.setOnClickListener (new View.OnClickListener () {
@@ -63,15 +70,29 @@ public class UpdateContactActivity extends AppCompatActivity {
                 contact.setId(Id);
                 contact.setName(name);
                 contact.setPhoneNumber(phone);
-               // db.execSQL("DROP TABLE IF EXISTS contacts");
-               // handler.onCreate (db);
-                Boolean updated = handler.editContact (contact);
+                if(name.length()==0){
+                    et_name.requestFocus();
+                    et_name.setError("Field cannot be empty");
+                }else if (!name.matches("[a-zA-Z]+")){
+                    et_name.requestFocus();
+                    et_name.setError("Enter only alphabetical characters");
+                }else if (phone.length()==0){
+                    et_phone.requestFocus();
+                    et_phone.setError("Field cannot be empty");
+                }else if (!phone.matches("^[0][0-9]{9}$")){
+                    et_phone.requestFocus();
+                    et_phone.setError("Please enter a Australia 10 digits phone number start from 0");
+                }else {
+                    // db.execSQL("DROP TABLE IF EXISTS contacts");
+                    // handler.onCreate (db);
+                    Boolean updated = handler.editContact (contact);
 
-                if(updated){
-                    Intent intent = new Intent(UpdateContactActivity.this, ContactEmergencyActivity.class);
-                    startActivity(intent);
-                }else{
-                    Toast.makeText(getApplicationContext(), "Contact data not updated. Please try again", Toast.LENGTH_LONG).show();
+                    if (updated) {
+                        Intent intent = new Intent (UpdateContactActivity.this, ContactEmergencyActivity.class);
+                        startActivity (intent);
+                    } else {
+                        Toast.makeText (getApplicationContext (), "Contact data not updated. Please try again", Toast.LENGTH_LONG).show ();
+                    }
                 }
             }
         });

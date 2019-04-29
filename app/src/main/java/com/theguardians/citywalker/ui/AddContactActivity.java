@@ -60,13 +60,28 @@ public class AddContactActivity extends AppCompatActivity {
                 contact.setPhoneNumber(phone);
                 db.execSQL("DROP TABLE IF EXISTS contacts");
                 handler.onCreate (db);
-                Boolean added = handler.addContactDetails(contact);
-                if(added){
-                    Intent intent = new Intent(AddContactActivity.this, ContactEmergencyActivity.class);
-                    startActivity(intent);
-                    System.out.println ("Added");
-                }else{
-                    Toast.makeText(getApplicationContext(), "Contact data not added. Please try again", Toast.LENGTH_LONG).show();
+                if(name.length()==0){
+                    et_name.requestFocus();
+                    et_name.setError("Field cannot be empty");
+                }else if (!name.matches("[a-zA-Z]+")){
+                    et_name.requestFocus();
+                    et_name.setError("Enter only alphabetical characters");
+                }else if (phone.length()==0){
+                    et_phone.requestFocus();
+                    et_phone.setError("Field cannot be empty");
+                }else if (!phone.matches("^[0][0-9]{9}$")){
+                    et_phone.requestFocus();
+                    et_phone.setError("Please enter a Australia 10 digits phone number start from 0");
+                }
+                else {
+                    Boolean added = handler.addContactDetails (contact);
+                    if (added) {
+                        Intent intent = new Intent (AddContactActivity.this, ContactEmergencyActivity.class);
+                        startActivity (intent);
+                        System.out.println ("Added");
+                    } else {
+                        Toast.makeText (getApplicationContext (), "Contact data not added. Please try again", Toast.LENGTH_LONG).show ();
+                    }
                 }
             }
         });

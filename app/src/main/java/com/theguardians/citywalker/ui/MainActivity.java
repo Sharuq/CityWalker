@@ -3,10 +3,14 @@ package com.theguardians.citywalker.ui;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -18,6 +22,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
@@ -27,30 +32,42 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.theguardians.citywalker.Model.ContactHandler;
 import com.theguardians.citywalker.Model.UserContact;
 import com.theguardians.citywalker.R;
 import com.theguardians.citywalker.RouteActivity;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
+    private FusedLocationProviderClient fusedLocationClient;
 
     private static final String TAG = "MainActivity";
     private static final int ERROR_DIALOG_REQUEST = 9001;
-    private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE=1;
-    private static final int MY_PERMISSIONS_REQUEST_SEND_SMS =0 ;
-    private static final int  PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9003;
+    private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
+    private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9003;
     private static final int PERMISSIONS_REQUEST_ENABLE_GPS = 9002;
     private boolean mLocationPermissionGranted = false;
     private boolean mSMSPermissionGranted = false;
     private boolean mCallPermissionGranted = false;
     private Context context;
     private List<UserContact> contacts;
+    private LatLng userLocation;
+    private String userLocationAddress;
+    private String message;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate (savedInstanceState);
@@ -58,17 +75,20 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById (R.id.toolbar);
         setSupportActionBar (toolbar);
 
-        ContactHandler handler =new ContactHandler (this);
-        // Reading all contacts
-        contacts = handler.readAllContacts();
 
-        context =this;
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient (this);
+        ContactHandler handler = new ContactHandler (this);
+        // Reading all contacts
+        contacts = handler.readAllContacts ();
+
+        context = this;
         FloatingActionButton fab = findViewById (R.id.fab);
         fab.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View view) {
 
-                if(contacts.size ()>0) {
+                if (contacts.size () > 0) {
                     String phNo = contacts.get (0).getPhoneNumber ();
                     System.out.println (phNo);
                     if (mCallPermissionGranted) {
@@ -76,10 +96,49 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         getCallPermission (phNo);
                     }
+                } else {
+                    Snackbar.make (view, "Please Add an Emergency Contact Number", Snackbar.LENGTH_LONG)
+                            .setAction ("Action", null).show ();
                 }
-                else{
-                     Snackbar.make (view, "Please Add an Emergency Contact Number", Snackbar.LENGTH_LONG)
-                       .setAction ("Action", null).show ();
+            }
+        });
+
+
+
+        FloatingActionButton fab1 = findViewById (R.id.fab2);
+        fab1.setOnClickListener (new View.OnClickListener () {
+            @Override
+            public void onClick(View view) {
+
+                if (contacts.size () > 0) {
+                    String phNo = contacts.get (0).getPhoneNumber ();
+                    System.out.println (phNo);
+                    if(mLocationPermissionGranted){
+
+                        getUserLocation ();
+                    }
+                    else {
+
+                        getLocationPermission ();
+                    }
+                    try {
+
+                        userLocationAddress = getUserLocationDetails (userLocation.latitude, userLocation.longitude);
+                        System.out.println ("Hello " +userLocationAddress);
+                        message = "HELP ME !!!! I am at Location: " + userLocationAddress + " Coordinates: " + userLocation + " **Emergency Distress Message sent from CityWalker App**";
+
+                        if (mSMSPermissionGranted) {
+                            sendSMSMessage (phNo, message);
+                        } else {
+                            getSMSPermission (phNo,message);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace ();
+                    }
+
+                } else {
+                    Snackbar.make (view, "Please Add an Emergency Contact Number", Snackbar.LENGTH_LONG)
+                            .setAction ("Action", null).show ();
                 }
             }
         });
@@ -101,8 +160,8 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            Intent intent =  new Intent(this,AboutUsActivity.class);
-            startActivity(intent);
+            Intent intent = new Intent (this, AboutUsActivity.class);
+            startActivity (intent);
             return true;
         }
 
@@ -114,8 +173,8 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     protected void onResume() {
-        super.onResume();
-        new CheckInternetConnection().execute();
+        super.onResume ();
+        new CheckInternetConnection ().execute ();
 
     }
 
@@ -123,31 +182,27 @@ public class MainActivity extends AppCompatActivity {
      * Check if internet connection is available or not through async task
      */
 
-    public class CheckInternetConnection extends AsyncTask<Void,Void, Boolean> {
+    public class CheckInternetConnection extends AsyncTask<Void, Void, Boolean> {
 
 
         @Override
         protected Boolean doInBackground(Void... voids) {
             try {
                 int timeoutMs = 1500;
-                Socket sock = new Socket();
+                Socket sock = new Socket ();
                 SocketAddress sockaddr = new InetSocketAddress ("8.8.8.8", 53);
 
-                sock.connect(sockaddr, timeoutMs);
-                sock.close();
+                sock.connect (sockaddr, timeoutMs);
+                sock.close ();
 
                 return true;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
 
                 return false;
 
 
-
             }
         }
-
-
 
 
         @Override
@@ -155,25 +210,24 @@ public class MainActivity extends AppCompatActivity {
 
             if (aBoolean) {
 
-                checkLocationServices();
-                checkSMSServices();
-            }
-            else {
+                checkLocationServices ();
+                checkSMSServices ();
+                getUserLocation ();
+            } else {
 
                 //Toast.makeText(this, "No Internet Connection", Toast.LENGTH_SHORT).show();
-                new AlertDialog.Builder(context)
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setTitle("Closing the App")
-                        .setMessage("No Internet Connection,check your settings")
-                        .setPositiveButton("Close", new DialogInterface.OnClickListener()
-                        {
+                new AlertDialog.Builder (context)
+                        .setIcon (android.R.drawable.ic_dialog_alert)
+                        .setTitle ("Closing the App")
+                        .setMessage ("No Internet Connection,check your settings")
+                        .setPositiveButton ("Close", new DialogInterface.OnClickListener () {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                finish();
+                                finish ();
                             }
 
                         })
-                        .show();
+                        .show ();
             }
         }
     }
@@ -185,14 +239,13 @@ public class MainActivity extends AppCompatActivity {
      */
     private void checkLocationServices() {
 
-        if (checkMapServices()) {
+        if (checkMapServices ()) {
 
             if (mLocationPermissionGranted) {
 
-                getNextActivity();
-            }
-            else {
-                getLocationPermission();
+                getNextActivity ();
+            } else {
+                getLocationPermission ();
             }
 
         }
@@ -201,25 +254,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-    private void checkCallServices(String phNo){
-        if(mCallPermissionGranted){
+    private void checkCallServices(String phNo) {
+        if (mCallPermissionGranted) {
 
             callNumber (phNo);
-        }
-        else {
+        } else {
             getCallPermission (phNo);
         }
     }
 
-    private  void checkSMSServices(){
+    private void checkSMSServices() {
 
-        if(mSMSPermissionGranted){
+        if (mSMSPermissionGranted) {
 
             getNextActivity ();
-        }
-        else {
-            getSMSPermission ();
+        } else {
+            getNewSMSPermission ();
         }
     }
 
@@ -248,26 +298,26 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-    public void getNextActivity(){
 
-        Button btnMap = (Button) findViewById(R.id.searchRouteBtn);
-        Button btnMap2 = (Button) findViewById(R.id.emergencySupportBtn);
-        btnMap.setOnClickListener(new View.OnClickListener() {
+    public void getNextActivity() {
+
+        Button btnMap = (Button) findViewById (R.id.searchRouteBtn);
+        Button btnMap2 = (Button) findViewById (R.id.emergencySupportBtn);
+        btnMap.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, RouteActivity.class);
-                startActivity(intent);
+                Intent intent = new Intent (MainActivity.this, RouteActivity.class);
+                startActivity (intent);
             }
         });
 
-        btnMap2.setOnClickListener(new View.OnClickListener() {
+        btnMap2.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
-                if(contacts.size ()>0) {
+                if (contacts.size () > 0) {
                     Intent intent = new Intent (MainActivity.this, ContactEmergencyActivity.class);
                     startActivity (intent);
-                }
-                else{
+                } else {
                     Intent intent = new Intent (MainActivity.this, EmergencyActivity.class);
                     startActivity (intent);
                 }
@@ -275,13 +325,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
     /**
      *  Check whether maps service is available
      */
 
-    private boolean checkMapServices(){
-        if(isServicesOK()){
-            if(isMapsEnabled()){
+    private boolean checkMapServices() {
+        if (isServicesOK ()) {
+            if (isMapsEnabled ()) {
                 return true;
             }
         }
@@ -293,17 +344,17 @@ public class MainActivity extends AppCompatActivity {
      * No GPS alert message
      */
     private void buildAlertMessageNoGps() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("This application requires GPS to work properly, do you want to enable it?")
-                .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder (this);
+        builder.setMessage ("This application requires GPS to work properly, do you want to enable it?")
+                .setCancelable (false)
+                .setPositiveButton ("Yes", new DialogInterface.OnClickListener () {
                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        Intent enableGpsIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        startActivityForResult(enableGpsIntent, PERMISSIONS_REQUEST_ENABLE_GPS);
+                        Intent enableGpsIntent = new Intent (android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        startActivityForResult (enableGpsIntent, PERMISSIONS_REQUEST_ENABLE_GPS);
                     }
                 });
-        final AlertDialog alert = builder.create();
-        alert.show();
+        final AlertDialog alert = builder.create ();
+        alert.show ();
     }
 
 
@@ -311,11 +362,11 @@ public class MainActivity extends AppCompatActivity {
      * Check if location is enabled
      * @return
      */
-    public boolean isMapsEnabled(){
-        final LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
+    public boolean isMapsEnabled() {
+        final LocationManager manager = (LocationManager) getSystemService (Context.LOCATION_SERVICE);
 
-        if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
-            buildAlertMessageNoGps();
+        if (!manager.isProviderEnabled (LocationManager.GPS_PROVIDER)) {
+            buildAlertMessageNoGps ();
             return false;
         }
         return true;
@@ -331,25 +382,26 @@ public class MainActivity extends AppCompatActivity {
          * device. The result of the permission request is handled by a callback,
          * onRequestPermissionsResult.
          */
-        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+        if (ContextCompat.checkSelfPermission (this.getApplicationContext (),
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mLocationPermissionGranted = true;
-            getNextActivity();
+            getNextActivity ();
         } else {
-            ActivityCompat.requestPermissions(this,
+            ActivityCompat.requestPermissions (this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
     }
+
     private void getCallPermission(String phNo) {
-        if (ContextCompat.checkSelfPermission(this,
+        if (ContextCompat.checkSelfPermission (this,
                 Manifest.permission.CALL_PHONE)
                 != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+            if (ActivityCompat.shouldShowRequestPermissionRationale (this,
                     Manifest.permission.CALL_PHONE)) {
             } else {
-                ActivityCompat.requestPermissions(this,
+                ActivityCompat.requestPermissions (this,
                         new String[]{Manifest.permission.CALL_PHONE},
                         MY_PERMISSIONS_REQUEST_CALL_PHONE);
 
@@ -358,8 +410,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent (Intent.ACTION_CALL);
             intent.setData (Uri.parse ("tel:" + phNo));
             startActivity (intent);
-        }
-        else {
+        } else {
 
             Intent intent = new Intent (Intent.ACTION_CALL);
             intent.setData (Uri.parse ("tel:" + phNo));
@@ -367,16 +418,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+    protected void getNewSMSPermission() {
 
-    protected void getSMSPermission() {
-
-        if (ContextCompat.checkSelfPermission(this,
+        if (ContextCompat.checkSelfPermission (this,
                 Manifest.permission.SEND_SMS)
                 != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+            if (ActivityCompat.shouldShowRequestPermissionRationale (this,
                     Manifest.permission.SEND_SMS)) {
             } else {
-                ActivityCompat.requestPermissions(this,
+                ActivityCompat.requestPermissions (this,
                         new String[]{Manifest.permission.SEND_SMS},
                         MY_PERMISSIONS_REQUEST_SEND_SMS);
 
@@ -384,31 +434,102 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    protected void getSMSPermission(String phNo,String message) {
+
+        if (ContextCompat.checkSelfPermission (this,
+                Manifest.permission.SEND_SMS)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale (this,
+                    Manifest.permission.SEND_SMS)) {
+            } else {
+                ActivityCompat.requestPermissions (this,
+                        new String[]{Manifest.permission.SEND_SMS},
+                        MY_PERMISSIONS_REQUEST_SEND_SMS);
+
+            }
+        }
+        try{
+
+
+            String SENT = "SMS_SENT";
+            String DELIVERED = "SMS_DELIVERED";
+            SmsManager sms = SmsManager.getDefault();
+            ArrayList<String> parts = sms.divideMessage(message);
+
+
+            ArrayList<PendingIntent> sentPIarr = new ArrayList<PendingIntent>();
+            ArrayList<PendingIntent> deliveredPIarr = new ArrayList<PendingIntent>();
+
+            for (int i = 0; i < parts.size(); i++) {
+                sentPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(SENT), 0));
+                deliveredPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(DELIVERED), 0));
+            }
+
+            sms.sendMultipartTextMessage(phNo, null, parts, sentPIarr, deliveredPIarr);
+            Toast.makeText(MainActivity.this, "Message Sent Successfully to Your Guardian", Toast.LENGTH_SHORT).show();
+        }
+        catch (Exception e){
+            Toast.makeText(MainActivity.this, "SMS Failed to Send, Please try again", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     /**
      * Is all services okay and app ready for use
      * @return
      */
-    public boolean isServicesOK(){
+    public boolean isServicesOK() {
 
 
-        int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(MainActivity.this);
+        int available = GoogleApiAvailability.getInstance ().isGooglePlayServicesAvailable (MainActivity.this);
 
-        if(available == ConnectionResult.SUCCESS){
+        if (available == ConnectionResult.SUCCESS) {
             //everything is fine and the user can make map requests
 
             return true;
-        }
-        else if(GoogleApiAvailability.getInstance().isUserResolvableError(available)){
+        } else if (GoogleApiAvailability.getInstance ().isUserResolvableError (available)) {
             //an error occured but we can resolve it
 
-            Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(MainActivity.this, available, ERROR_DIALOG_REQUEST);
-            dialog.show();
-        }else{
-            Toast.makeText(this, "You can't make map requests", Toast.LENGTH_SHORT).show();
+            Dialog dialog = GoogleApiAvailability.getInstance ().getErrorDialog (MainActivity.this, available, ERROR_DIALOG_REQUEST);
+            dialog.show ();
+        } else {
+            Toast.makeText (this, "You can't make map requests", Toast.LENGTH_SHORT).show ();
         }
         return false;
     }
 
+    public void getUserLocation(){
+
+
+        if (ActivityCompat.checkSelfPermission (this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission (this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            return;
+        }
+
+        fusedLocationClient.getLastLocation ()
+                .addOnSuccessListener (this, new OnSuccessListener<Location> () {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            // Logic to handle location object
+                            userLocation= new LatLng(location.getLatitude (),location.getLongitude ());
+
+                            System.out.println ("NEw user location" +userLocation);
+                        }
+                    }
+                });
+
+
+    }
 
     /**
      * On Request permission callback override
@@ -457,6 +578,43 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void sendSMSMessage(String phoneNo,String message){
+        try{
+
+
+            String SENT = "SMS_SENT";
+            String DELIVERED = "SMS_DELIVERED";
+            SmsManager sms = SmsManager.getDefault();
+            ArrayList<String> parts = sms.divideMessage(message);
+
+
+            ArrayList<PendingIntent> sentPIarr = new ArrayList<PendingIntent>();
+            ArrayList<PendingIntent> deliveredPIarr = new ArrayList<PendingIntent>();
+
+            for (int i = 0; i < parts.size(); i++) {
+                sentPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(SENT), 0));
+                deliveredPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(DELIVERED), 0));
+            }
+
+            sms.sendMultipartTextMessage(phoneNo, null, parts, sentPIarr, deliveredPIarr);
+            Toast.makeText(MainActivity.this, "Message Sent Successfully to Your Guardian", Toast.LENGTH_SHORT).show();
+        }
+        catch (Exception e){
+            Toast.makeText(MainActivity.this, "SMS Failed to Send, Please try again", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private String getUserLocationDetails(Double latitude,Double longitude) throws IOException {
+        Geocoder geocoder;
+        List<Address> addresses;
+        geocoder = new Geocoder(this, Locale.getDefault());
+
+        addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+
+        String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+
+        return address;
+    }
 
     /**
      * Calling location granting activity for result
