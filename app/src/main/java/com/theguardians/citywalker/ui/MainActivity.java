@@ -445,7 +445,29 @@ public class MainActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions (this,
                         new String[]{Manifest.permission.SEND_SMS},
                         MY_PERMISSIONS_REQUEST_SEND_SMS);
+                try{
 
+
+                    String SENT = "SMS_SENT";
+                    String DELIVERED = "SMS_DELIVERED";
+                    SmsManager sms = SmsManager.getDefault();
+                    ArrayList<String> parts = sms.divideMessage(message);
+
+
+                    ArrayList<PendingIntent> sentPIarr = new ArrayList<PendingIntent>();
+                    ArrayList<PendingIntent> deliveredPIarr = new ArrayList<PendingIntent>();
+
+                    for (int i = 0; i < parts.size(); i++) {
+                        sentPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(SENT), 0));
+                        deliveredPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(DELIVERED), 0));
+                    }
+
+                    sms.sendMultipartTextMessage(phNo, null, parts, sentPIarr, deliveredPIarr);
+                    Toast.makeText(MainActivity.this, "Message Sent Successfully to Your Guardian", Toast.LENGTH_SHORT).show();
+                }
+                catch (Exception e){
+                    Toast.makeText(MainActivity.this, "SMS Failed to Send, Please try again", Toast.LENGTH_SHORT).show();
+                }
             }
         }
         try{
