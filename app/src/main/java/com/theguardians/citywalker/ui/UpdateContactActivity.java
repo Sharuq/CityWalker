@@ -34,7 +34,7 @@ public class UpdateContactActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.update_contact);
         Toolbar toolbar = findViewById (R.id.toolbar);
-        toolbar.setTitle ("Update Emergency Contact");
+        toolbar.setTitle ("Emergency Support");
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp);
         setSupportActionBar (toolbar);
         Intent mIntent = getIntent();

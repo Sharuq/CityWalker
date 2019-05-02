@@ -30,7 +30,7 @@ public class AddContactActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_contact);
         Toolbar toolbar = findViewById (R.id.toolbar);
-        toolbar.setTitle ("Add Emergency Contact");
+        toolbar.setTitle ("Emergency Support");
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp);
         setSupportActionBar (toolbar);
 

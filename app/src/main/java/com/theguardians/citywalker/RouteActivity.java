@@ -2,6 +2,7 @@ package com.theguardians.citywalker;
 
 import android.app.ProgressDialog;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
@@ -166,13 +167,13 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         autocompleteFragment2 = (AutocompleteSupportFragment)
                 getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment2);
-        autocompleteFragment1.setHint("To");
-        autocompleteFragment2.setHint("From");
+        autocompleteFragment1.setHint("From");
+        autocompleteFragment2.setHint("To");
         //Set image icon
         ImageView searchIcon1 = (ImageView)((LinearLayout)autocompleteFragment1.getView()).getChildAt(0);
         ImageView searchIcon2 = (ImageView)((LinearLayout)autocompleteFragment2.getView()).getChildAt(0);
-        searchIcon1.setImageDrawable(getResources().getDrawable(R.mipmap.to));
-        searchIcon2.setImageDrawable(getResources().getDrawable(R.mipmap.from));
+        searchIcon1.setImageDrawable(getResources().getDrawable(R.mipmap.from));
+        searchIcon2.setImageDrawable(getResources().getDrawable(R.mipmap.to));
 
         //Setting country to Australia
         autocompleteFragment1.setCountry ("AU");
@@ -415,15 +416,16 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         for (int i = 0; i < route.size (); i++) {
 
                 //In case of more than 5 alternative routes
-                //int colorIndex = i % COLORS.length;
+                int colorIndex = i % COLORS.length;
 
                 if(route.get (i).getDistanceValue () == minDistance) {
 
                     PolylineOptions polyOptions = new PolylineOptions ();
                     //polyOptions.color (getResources ().getColor (COLORS[colorIndex]));
                     polyOptions.pattern (pattern);
-                    polyOptions.color (R.color.colorBlue);
-                    polyOptions.width (20);
+                    //polyOptions.color (colorIndex);
+                    //polyOptions.color (R.color.colorBlue);
+                    polyOptions.width (25);
                     polyOptions.zIndex (1000);
                     polyOptions.addAll (route.get (i).getPoints ());
                     polyOptions.clickable (true);
@@ -435,12 +437,14 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                     PolylineOptions polyOptions = new PolylineOptions ();
                     //polyOptions.color (getResources ().getColor (COLORS[colorIndex]));
                     polyOptions.pattern (pattern);
-                    polyOptions.color (R.color.colorRed);
-                    polyOptions.width (20);
+                    //polyOptions.color (colorIndex);
+                    polyOptions.width (25);
                     polyOptions.zIndex (1);
                     polyOptions.addAll (route.get (i).getPoints ());
                     polyOptions.clickable (true);
+
                     Polyline polyline = map.addPolyline (polyOptions);
+
                     polylines.add (polyline);
                 }
 
