@@ -425,8 +425,9 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                     polyOptions.pattern (pattern);
                     //polyOptions.color (colorIndex);
                     //polyOptions.color (R.color.colorBlue);
-                    polyOptions.width (25);
+                    polyOptions.width (28);
                     polyOptions.zIndex (1000);
+                    polyOptions.color (Color.parseColor ("#03a8f3"));
                     polyOptions.addAll (route.get (i).getPoints ());
                     polyOptions.clickable (true);
                     Polyline polyline = map.addPolyline (polyOptions);
@@ -438,7 +439,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                     //polyOptions.color (getResources ().getColor (COLORS[colorIndex]));
                     polyOptions.pattern (pattern);
                     //polyOptions.color (colorIndex);
-                    polyOptions.width (25);
+                    polyOptions.width (28);
                     polyOptions.zIndex (1);
                     polyOptions.addAll (route.get (i).getPoints ());
                     polyOptions.clickable (true);
