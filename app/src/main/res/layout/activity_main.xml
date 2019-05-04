@@ -66,25 +66,25 @@
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center|end"
+        android:layout_gravity="center|bottom|right"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/call"
+        android:src="@drawable/emergencycall"
+        app:borderWidth="0dp"
+        app:maxImageSize = "72dp"
         app:fabSize="auto"
-        app:maxImageSize="35dp"
         app:fabCustomSize="70dp"
-        app:backgroundTint="@color/colorOrange"
         />
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center|left"
+        android:layout_gravity="center|bottom|left"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/share"
+        android:src="@drawable/emergencymessage"
+        app:borderWidth="0dp"
+        app:maxImageSize = "72dp"
         app:fabSize="auto"
-        app:maxImageSize="35dp"
         app:fabCustomSize="70dp"
-        app:backgroundTint="@color/colorOrange"
         />
 
 

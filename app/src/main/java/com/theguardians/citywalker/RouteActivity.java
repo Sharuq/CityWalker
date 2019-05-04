@@ -1,10 +1,8 @@
 package com.theguardians.citywalker;
 
 import android.app.ProgressDialog;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -30,16 +28,13 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CustomCap;
 import com.google.android.gms.maps.model.Dot;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.maps.model.SquareCap;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
@@ -49,11 +44,10 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.gson.JsonObject;
-import com.google.maps.android.PolyUtil;
 import com.theguardians.citywalker.Model.CCTVLocation;
 import com.theguardians.citywalker.Model.PoliceStation;
 import com.theguardians.citywalker.Service.DataFromFirebase;
+import com.theguardians.citywalker.Service.DataPointsCountDetail;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,8 +55,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import butterknife.BindView;
@@ -127,6 +121,11 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
     private AutocompleteSupportFragment autocompleteFragment1;
     private AutocompleteSupportFragment autocompleteFragment2;
+
+
+
+    private JSONArray resultArray = new JSONArray ();
+
     /**
      * This activity loads a map and then displays the route and pushpins on it.
      */
@@ -383,6 +382,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         }
         System.out.println("Distances: " +pathDistances);
+
         java.util.List<PatternItem> pattern = Arrays.<PatternItem>asList(new Dot());
 
         LatLng origin = new LatLng (route.get (0).getPoints ().get (0).latitude,route.get (0).getPoints ().get (0).longitude);
@@ -476,104 +476,12 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         selectedPoliceStation = new HashMap<> ();
         selectedCCTVLocation = new HashMap<> ();
 
-        for(Polyline polyline: polylines) {
-
-            int cctvCount =0;
-            int stationCount =0;
-            try {
-
-                for (int j = 0; j < policeStationArray.length (); j++) {
-                    JSONObject jsonobject = policeStationArray.getJSONObject (j);
-
-                    String lat = jsonobject.getString ("latitude");
-                    String lon = jsonobject.getString ("longitude");
-                    String polSat = jsonobject.getString ("police_station");
-                    String address = jsonobject.getString ("address");
-                    String tel = jsonobject.getString ("tel");
-
-
-                    pInfo=new PoliceStation ();
-                    //System.out.println("This is ds " +ds);
-
-                    pInfo.setLatitude (Double.parseDouble (lat));
-                    pInfo.setLongitude (Double.parseDouble (lon));
-                    pInfo.setPolice_station (polSat);
-                    pInfo.setAddress (address);
-                    pInfo.setTel (tel);
-
-
-                    LatLng pt = new LatLng (pInfo.getLatitude (), pInfo.getLongitude ());
-
-                    if (PolyUtil.isLocationOnPath (pt, polyline.getPoints (), true, 100)) {
-                       // System.out.println ("Yes is Location on path station name" + pInfo.getPolice_station ());
-                        //System.out.println ("pinfo" + pInfo.getAddress ());
-                        stationCount=stationCount+1;
-                        selectedPoliceStation.put (pInfo.getPolice_station (), pInfo);
-
-                    } else {
-                       // System.out.println ("No is  not Location on path station name " + polSat);
-                    }
-                }
-            } catch (JSONException e) {
-                e.printStackTrace ();
-            }
-
-            try {
-
-                for (int j = 0; j < cctvLocationArray.length (); j++) {
-                    JSONObject jsonobject = cctvLocationArray.getJSONObject (j);
-
-                    String lat = jsonobject.getString("latitude");
-                    String lon = jsonobject.getString("longitude");
-                    String cctvLocNo = jsonobject.getString("cctv");
-                    String detail = jsonobject.getString("detail");
-
-
-                    cInfo=new CCTVLocation ();
-                    //System.out.println("This is ds " +ds);
-
-                    cInfo.setLatitude (Double.parseDouble (lat));
-                    cInfo.setLongitude (Double.parseDouble (lon));
-                    cInfo.setCctvNo (cctvLocNo);
-                    cInfo.setDetail (detail);
-
-
-                    LatLng pt = new LatLng (cInfo.getLatitude (), cInfo.getLongitude ());
-
-                    if (PolyUtil.isLocationOnPath (pt, polyline.getPoints (), true, 50)) {
-                       // System.out.println ("Yes is Location on path CCTV name" + cInfo.getDetail ());
-                        cctvCount=cctvCount+1;
-                        selectedCCTVLocation.put (cInfo.getCctvNo (), cInfo);
-
-                    } else {
-                        //System.out.println ("No is  not Location on path CCTV name " + cInfo.getDetail ());
-                    }
-                }
-            } catch (JSONException e) {
-                e.printStackTrace ();
-            }
-
-            try {
-
-                JSONObject jsonObject = new JSONObject ();
-                jsonObject.put ("polylineId", polyline.getId ());
-                jsonObject.put ("selectedStationCount",stationCount );
-                jsonObject.put ("selectedCCTVCount",cctvCount);
-
-                polylineCountDetailsArray.put (jsonObject);
-
-            } catch (JSONException e) {
-                e.printStackTrace ();
-            }
-
-
-        }
-
-
+        polylineCountDetailsArray= DataPointsCountDetail.getpolylineCountDetailsArray(polylines,policeStationArray, cctvLocationArray,selectedPoliceStation,selectedCCTVLocation,polylineCountDetailsArray) ;
+        selectedPoliceStation=DataPointsCountDetail.getselectedPoliceStation (polylines,policeStationArray,selectedPoliceStation);
+        selectedCCTVLocation=DataPointsCountDetail.getselectedCCTVLocation (polylines,cctvLocationArray,selectedCCTVLocation);
 
 
         System.out.println ("polylineCountDetailsArray  "+polylineCountDetailsArray);
-
 
         //System.out.println ("@@ Selected Stations  @@  " +selectedPoliceStation);
 
@@ -651,51 +559,48 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     @Override
     public void onPolylineClick(Polyline polyline) {
 
-        System.out.println ("highlight polyline id" +polyline.getId ());
-        for(Polyline polyline1:polylines){
+        System.out.println ("highlight polyline id" + polyline.getId ());
+        for (Polyline polyline1 : polylines) {
             //Log.d(TAG, "onPolylineClick: toString: " + polylineData.toString());
-            if(polyline.getId().equals(polyline1.getId())){
-                polyline1.setColor(ContextCompat.getColor(this, R.color.colorBlue));
-                polyline1.setZIndex(1000);
+            if (polyline.getId ().equals (polyline1.getId ())) {
+                polyline1.setColor (ContextCompat.getColor (this, R.color.colorBlue));
+                polyline1.setZIndex (1000);
                 try {
                     for (int i = 0; i < polylineRouteDetailsArray.length (); i++) {
-                        JSONObject jsonObject  = polylineRouteDetailsArray.getJSONObject (i);
+                        JSONObject jsonObject = polylineRouteDetailsArray.getJSONObject (i);
                         String polylineId = jsonObject.getString ("polylineId");
-                        String routeDis =jsonObject.getString ("routeDistance");
+                        String routeDis = jsonObject.getString ("routeDistance");
                         String routeDur = jsonObject.getString ("routeDuration");
 
-                        if(polylineId.equals (polyline.getId ())) {
+                        if (polylineId.equals (polyline.getId ())) {
                             routeDistance.setText (routeDis);
                             routeDuration.setText (routeDur);
                         }
                     }
 
-                }
-                catch (JSONException e) {
+                } catch (JSONException e) {
                     e.printStackTrace ();
                 }
                 try {
                     for (int i = 0; i < polylineCountDetailsArray.length (); i++) {
-                        JSONObject jsonObject  = polylineCountDetailsArray.getJSONObject (i);
+                        JSONObject jsonObject = polylineCountDetailsArray.getJSONObject (i);
                         String polylineId = jsonObject.getString ("polylineId");
-                        String satCount =jsonObject.getString ("selectedStationCount");
+                        String satCount = jsonObject.getString ("selectedStationCount");
                         String ccCount = jsonObject.getString ("selectedCCTVCount");
 
-                        if(polylineId.equals (polyline.getId ())) {
+                        if (polylineId.equals (polyline.getId ())) {
                             stationCount.setText (satCount);
                             cctvCount.setText (ccCount);
                         }
                     }
 
-                }
-                catch (JSONException e) {
+                } catch (JSONException e) {
                     e.printStackTrace ();
                 }
 
-            }
-            else{
-                polyline1.setColor(ContextCompat.getColor(this, R.color.colorSecondaryText));
-                polyline1.setZIndex(1);
+            } else {
+                polyline1.setColor (ContextCompat.getColor (this, R.color.colorSecondaryText));
+                polyline1.setZIndex (1);
             }
         }
 
