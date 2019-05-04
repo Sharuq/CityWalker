@@ -15,67 +15,69 @@
 
     <android.support.v7.widget.CardView
         android:id="@+id/cardview"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal|top"
-        android:layout_marginBottom="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
         android:layout_marginTop="5dp"
         android:elevation="100dp"
         card_view:cardBackgroundColor="@android:color/white"
-        card_view:cardCornerRadius="7dp">
+        card_view:cardCornerRadius="2dp">
 
         <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            >
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_marginRight="25dp"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="0dp">
+            <android.support.v7.widget.CardView
+            android:id="@+id/cardview2"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_gravity="center_horizontal|top"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="8dp"
+            android:elevation="100dp"
+            card_view:cardBackgroundColor="@android:color/white"
+            card_view:cardCornerRadius="5dp">
 
                 <fragment
                     android:id="@+id/autocomplete_fragment1"
-                    android:layout_marginRight="15dp"
                     android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/colorHomeSubTitle"
                     android:hint="Starting Place" />
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="5dp"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginRight="48dp"
-                    android:layout_marginLeft="3dp"
-                    android:layout_marginTop="5dp"
-                    android:background="@drawable/dotted" />
+
+    </android.support.v7.widget.CardView>
+
+             <android.support.v7.widget.CardView
+                android:id="@+id/cardview3"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_gravity="center_horizontal|top"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="8dp"
+                android:elevation="100dp"
+                card_view:cardBackgroundColor="@android:color/white"
+                card_view:cardCornerRadius="5dp"
+                android:layout_below="@+id/cardview2"
+                android:layout_marginBottom="8dp">
 
                 <fragment
                     android:id="@+id/autocomplete_fragment2"
-                    android:layout_marginRight="15dp"
                     android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/colorHomeSubTitle"
                     android:hint="Destination Place" />
 
-            </LinearLayout>
-            <ImageView
-                android:id="@+id/send"
-                android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"
-                android:layout_width="45dp"
-                android:src="@mipmap/map_search"
-                android:layout_height="45dp" />
 
-        </RelativeLayout>
 
+    </android.support.v7.widget.CardView>
+</RelativeLayout>
     </android.support.v7.widget.CardView>
     <LinearLayout
         android:layout_width="wrap_content"

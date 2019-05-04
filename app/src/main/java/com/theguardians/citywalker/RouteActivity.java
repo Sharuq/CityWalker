@@ -1,12 +1,14 @@
 package com.theguardians.citywalker;
 
 import android.app.ProgressDialog;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -30,6 +32,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Dot;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PatternItem;
@@ -69,8 +72,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     protected LatLng start;
     protected LatLng end;
 
-    @BindView(R.id.send)
-    ImageView send;
+
     @BindView (R.id.nestedScrollView)
     View nestedScrollView;
     @BindView (R.id.timeValue)
@@ -121,9 +123,11 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
     private AutocompleteSupportFragment autocompleteFragment1;
     private AutocompleteSupportFragment autocompleteFragment2;
+    private boolean frag1 =false;
+    private boolean frag2=false;
+    private boolean clickedMap =false;
 
-
-
+    private CardView cardView ;
     private JSONArray resultArray = new JSONArray ();
 
     /**
@@ -140,7 +144,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         //View nestedScrollView = (View) findViewById(R.id.nestedScrollView);
 
         //mBottomSheetBehaviour.setPeekHeight(200);
-
+        cardView = findViewById (R.id.cardview);
 
 
         polylines = new ArrayList<> ();
@@ -171,8 +175,13 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         //Set image icon
         ImageView searchIcon1 = (ImageView)((LinearLayout)autocompleteFragment1.getView()).getChildAt(0);
         ImageView searchIcon2 = (ImageView)((LinearLayout)autocompleteFragment2.getView()).getChildAt(0);
-        searchIcon1.setImageDrawable(getResources().getDrawable(R.mipmap.from));
-        searchIcon2.setImageDrawable(getResources().getDrawable(R.mipmap.to));
+        searchIcon1.setMaxHeight (30);
+        searchIcon2.setMaxHeight (30);
+        searchIcon1.setMaxWidth (30);
+        searchIcon2.setMaxWidth (30);
+        searchIcon1.setImageDrawable(getResources().getDrawable(R.drawable.from));
+        searchIcon2.setImageDrawable(getResources().getDrawable(R.drawable.to));
+
 
         //Setting country to Australia
         autocompleteFragment1.setCountry ("AU");
@@ -190,11 +199,18 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         autocompleteFragment1.setPlaceFields(Arrays.asList(com.google.android.libraries.places.api.model.Place.Field.ID, com.google.android.libraries.places.api.model.Place.Field.NAME, com.google.android.libraries.places.api.model.Place.Field.LAT_LNG));
         autocompleteFragment2.setPlaceFields(Arrays.asList(com.google.android.libraries.places.api.model.Place.Field.ID, com.google.android.libraries.places.api.model.Place.Field.NAME, com.google.android.libraries.places.api.model.Place.Field.LAT_LNG));
 
+        autocompleteFragment1.setText ("Current Location");
         // Set up a PlaceSelectionListener to handle the response.
         autocompleteFragment1.setOnPlaceSelectedListener(new PlaceSelectionListener () {
+
             @Override
             public void onPlaceSelected(com.google.android.libraries.places.api.model.Place originPlace) {
                 start = originPlace.getLatLng();
+                frag1 = true;
+                if(frag2==true){
+                    sendRequest ();
+                }
+
             }
 
             @Override
@@ -206,9 +222,15 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         // Set up a PlaceSelectionListener to handle the response.
         autocompleteFragment2.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+
             @Override
             public void onPlaceSelected(Place destinationPlace) {
                 end = destinationPlace.getLatLng();
+                frag2=true;
+                if (frag1 == true && frag2==true ){
+                    sendRequest ();
+                }
+
             }
 
             @Override
@@ -217,6 +239,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                 Log.i(LOG_TAG, "An error occurred: " + status);
             }
         });
+
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager ().findFragmentById (R.id.map);
 
@@ -230,7 +253,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     @Override
     public void onMapReady(GoogleMap googleMap) {
                                                          
-        /*
+
 
         try {
             // Customise the styling of the base map using a JSON object defined
@@ -245,15 +268,15 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         } catch (Resources.NotFoundException e) {
             Log.e(LOG_TAG, "Can't find style. Error: ", e);
         }
-        */
+
         map=googleMap;
         map.setOnPolylineClickListener(this);
 
         map.animateCamera (CameraUpdateFactory.newLatLngZoom (new LatLng (-37.814593, 144.966520),14 ));
 
+
     }
 
-    @OnClick(R.id.send)
     public void sendRequest()
     {
 
@@ -390,14 +413,14 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         // Start marker
         MarkerOptions options = new MarkerOptions ();
         options.position (origin);
-        options.icon (BitmapDescriptorFactory.fromResource (R.mipmap.walking));
+        options.icon (BitmapDescriptorFactory.fromResource (R.drawable.walking));
 
         originMarker = map.addMarker (options);
 
         // End marker
         options = new MarkerOptions ();
         options.position (destination);
-        options.icon (BitmapDescriptorFactory.fromResource (R.mipmap.to));
+        options.icon (BitmapDescriptorFactory.fromResource (R.drawable.to_marker));
         destinationMarker = map.addMarker (options);
 
 
@@ -439,6 +462,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                     //polyOptions.color (getResources ().getColor (COLORS[colorIndex]));
                     polyOptions.pattern (pattern);
                     //polyOptions.color (colorIndex);
+                    polyOptions.color (Color.parseColor ("#757575"));
                     polyOptions.width (28);
                     polyOptions.zIndex (1);
                     polyOptions.addAll (route.get (i).getPoints ());
@@ -533,6 +557,22 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             e.printStackTrace ();
         }
 
+        map.setOnMapClickListener(new GoogleMap.OnMapClickListener ()
+        {
+            @Override
+            public void onMapClick(LatLng arg0)
+            {
+                if(clickedMap==true){
+                    cardView.setVisibility (View.VISIBLE);
+                    clickedMap=false;
+                }
+                else {
+                    cardView.setVisibility (View.INVISIBLE);
+                    clickedMap=true;
+                }
+            }
+        });
+
     }
 
     @Override
@@ -554,6 +594,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     public void onConnectionSuspended(int i) {
 
     }
+
 
 
     @Override
