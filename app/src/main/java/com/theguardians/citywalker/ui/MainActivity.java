@@ -573,7 +573,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else {
 
-                    Toast.makeText(this, "Location permission not granted", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Location permission  granted", Toast.LENGTH_SHORT).show();
                 }
             }
             case MY_PERMISSIONS_REQUEST_SEND_SMS: {

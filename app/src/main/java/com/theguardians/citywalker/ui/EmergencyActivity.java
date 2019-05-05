@@ -205,7 +205,7 @@ public class EmergencyActivity extends AppCompatActivity {
                         // Got last known location. In some rare situations this can be null.
                         if (location != null) {
                             // Logic to handle location object
-                             userLocation= new LatLng(location.getLatitude (),location.getLongitude ());
+                             userLocation = new LatLng(location.getLatitude (),location.getLongitude ());
 
                             System.out.println ("NEw user location" +userLocation);
                         }

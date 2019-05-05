@@ -1,16 +1,22 @@
 package com.theguardians.citywalker;
 
+import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -24,6 +30,8 @@ import com.directions.route.RoutingListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -38,6 +46,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
@@ -72,6 +81,14 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     protected LatLng start;
     protected LatLng end;
 
+
+    private FusedLocationProviderClient fusedLocationClient;
+    private boolean mLocationPermissionGranted = false;
+    private boolean mSMSPermissionGranted =false;
+    private LatLng userLocation;
+    private static final int ERROR_DIALOG_REQUEST = 9001;
+
+    private static final int  PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9003;
 
     @BindView (R.id.nestedScrollView)
     View nestedScrollView;
@@ -128,7 +145,8 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private boolean clickedMap =false;
 
     private CardView cardView ;
-    private JSONArray resultArray = new JSONArray ();
+    private Button info2;
+    private Button currentLocation;
 
     /**
      * This activity loads a map and then displays the route and pushpins on it.
@@ -139,13 +157,24 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         setContentView (R.layout.route_activity);
         ButterKnife.bind (this);
 
+        info2 =findViewById (R.id.info2);
+        info2.setVisibility (View.INVISIBLE);
+        currentLocation =findViewById (R.id.currentlocation);
         nestedScrollView.setVisibility (View.INVISIBLE);
 
         //View nestedScrollView = (View) findViewById(R.id.nestedScrollView);
-
         //mBottomSheetBehaviour.setPeekHeight(200);
         cardView = findViewById (R.id.cardview);
 
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        if (mLocationPermissionGranted) {
+            getUserLocation();
+        }
+        else {
+            getLocationPermission();
+        }
 
         polylines = new ArrayList<> ();
         selectedStationMarkers =new ArrayList<> ();
@@ -199,7 +228,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         autocompleteFragment1.setPlaceFields(Arrays.asList(com.google.android.libraries.places.api.model.Place.Field.ID, com.google.android.libraries.places.api.model.Place.Field.NAME, com.google.android.libraries.places.api.model.Place.Field.LAT_LNG));
         autocompleteFragment2.setPlaceFields(Arrays.asList(com.google.android.libraries.places.api.model.Place.Field.ID, com.google.android.libraries.places.api.model.Place.Field.NAME, com.google.android.libraries.places.api.model.Place.Field.LAT_LNG));
 
-        autocompleteFragment1.setText ("Current Location");
         // Set up a PlaceSelectionListener to handle the response.
         autocompleteFragment1.setOnPlaceSelectedListener(new PlaceSelectionListener () {
 
@@ -240,6 +268,19 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             }
         });
 
+
+        currentLocation.setOnClickListener (new View.OnClickListener () {
+            @Override
+            public void onClick(View v) {
+                getUserLocation();
+                autocompleteFragment1.setText ("Current Location");
+                start =userLocation;
+                frag1 = true;
+                if(frag2==true){
+                    sendRequest ();
+                }
+            }
+        });
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager ().findFragmentById (R.id.map);
 
@@ -413,14 +454,14 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         // Start marker
         MarkerOptions options = new MarkerOptions ();
         options.position (origin);
-        options.icon (BitmapDescriptorFactory.fromResource (R.drawable.walking));
+        options.icon (BitmapDescriptorFactory.fromResource (R.drawable.walkingicononmap));
 
         originMarker = map.addMarker (options);
 
         // End marker
         options = new MarkerOptions ();
         options.position (destination);
-        options.icon (BitmapDescriptorFactory.fromResource (R.drawable.to_marker));
+        options.icon (BitmapDescriptorFactory.fromResource (R.drawable.destinationicon2));
         destinationMarker = map.addMarker (options);
 
 
@@ -656,6 +697,61 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             }
         }
         return minValue;
+    }
+
+
+    public void getUserLocation(){
+
+
+        if (ActivityCompat.checkSelfPermission (this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission (this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            return ;
+        }
+
+        fusedLocationClient.getLastLocation ()
+                .addOnSuccessListener (this, new OnSuccessListener<Location> () {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            // Logic to handle location object
+                            userLocation = new LatLng(location.getLatitude (),location.getLongitude ());
+
+                            System.out.println ("user location found" +userLocation);
+                        }
+                    }
+                });
+
+
+    }
+    /**
+     * Ask for location permission
+     */
+    private void getLocationPermission() {
+        /*
+         * Request location permission, so that we can get the location of the
+         * device. The result of the permission request is handled by a callback,
+         * onRequestPermissionsResult.
+         */
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            mLocationPermissionGranted = true;
+            getUserLocation();
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        }
     }
 }
 
