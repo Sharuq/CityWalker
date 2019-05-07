@@ -4,6 +4,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.maps.android.PolyUtil;
 import com.theguardians.citywalker.Model.CCTVLocation;
+import com.theguardians.citywalker.Model.PedestrianSensor;
 import com.theguardians.citywalker.Model.PoliceStation;
 
 import org.json.JSONArray;
@@ -18,14 +19,15 @@ public class DataPointsCountDetail {
 
     private static PoliceStation pInfo = new PoliceStation ();
     private static CCTVLocation cInfo = new CCTVLocation ();
-    //private static JSONArray resultArray = new JSONArray ();
+    private static PedestrianSensor sInfo = new PedestrianSensor ();
 
-    public  static JSONArray getpolylineCountDetailsArray(List<Polyline> polylines,JSONArray policeStationArray,JSONArray cctvLocationArray,HashMap<String,PoliceStation> selectedPoliceStation,HashMap<String,CCTVLocation> selectedCCTVLocation,JSONArray polylineCountDetailsArray) {
+    public  static JSONArray getpolylineCountDetailsArray(List<Polyline> polylines,JSONArray policeStationArray,JSONArray cctvLocationArray,JSONArray pedestrianSensorArray, HashMap<String,PoliceStation> selectedPoliceStation,HashMap<String,CCTVLocation> selectedCCTVLocation,HashMap<String,PedestrianSensor> selectedPedestrianSensor, JSONArray polylineCountDetailsArray) {
 
         for (Polyline polyline : polylines) {
 
             int cctvCount = 0;
             int stationCount = 0;
+            int pedestrianSensorCount = 0;
             try {
 
                 for (int j = 0; j < policeStationArray.length (); j++) {
@@ -102,10 +104,46 @@ public class DataPointsCountDetail {
 
             try {
 
+                for (int j = 0; j < pedestrianSensorArray.length (); j++) {
+                    JSONObject jsonobject = pedestrianSensorArray.getJSONObject (j);
+
+                    String lat = jsonobject.getString ("latitude");
+                    String lon = jsonobject.getString ("longitude");
+                    String sensor_id = jsonobject.getString ("sensor_id");
+                    String sensor_description = jsonobject.getString ("sensor_description");
+
+
+                    sInfo = new PedestrianSensor ();
+                    //System.out.println("This is ds " +ds);
+
+                    sInfo.setLatitude (Double.parseDouble (lat));
+                    sInfo.setLongitude (Double.parseDouble (lon));
+                    sInfo.setSensor_id (sensor_id);
+                    sInfo.setSensor_description (sensor_description);
+
+
+                    LatLng pt = new LatLng (sInfo.getLatitude (), sInfo.getLongitude ());
+
+                    if (PolyUtil.isLocationOnPath (pt, polyline.getPoints (), true, 50)) {
+                        // System.out.println ("Yes is Location on path CCTV name" + cInfo.getDetail ());
+                        pedestrianSensorCount = pedestrianSensorCount + 1;
+                        selectedPedestrianSensor.put (sInfo.getSensor_id (), sInfo);
+
+                    } else {
+                        //System.out.println ("No is  not Location on path CCTV name " + cInfo.getDetail ());
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace ();
+            }
+
+            try {
+
                 JSONObject jsonObject = new JSONObject ();
                 jsonObject.put ("polylineId", polyline.getId ());
                 jsonObject.put ("selectedStationCount", stationCount);
                 jsonObject.put ("selectedCCTVCount", cctvCount);
+                jsonObject.put ("pedestrianSensorCount", pedestrianSensorCount);
 
                 polylineCountDetailsArray.put (jsonObject);
 
@@ -214,4 +252,49 @@ public class DataPointsCountDetail {
         return selectedCCTVLocation;
     }
 
+
+    public  static HashMap<String,PedestrianSensor> getselectedPedestrianSensor(List<Polyline> polylines,JSONArray pedestrianSensorArray,HashMap<String,PedestrianSensor> selectedPedestrianSensor) {
+
+        for (Polyline polyline : polylines) {
+
+            int pedSensorCount = 0;
+
+            try {
+
+                for (int j = 0; j < pedestrianSensorArray.length (); j++) {
+                    JSONObject jsonobject = pedestrianSensorArray.getJSONObject (j);
+
+                    String lat = jsonobject.getString ("latitude");
+                    String lon = jsonobject.getString ("longitude");
+                    String sensor_id = jsonobject.getString ("sensor_id");
+                    String sensor_decription = jsonobject.getString ("sensor_description");
+
+
+                    sInfo = new PedestrianSensor ();
+                    //System.out.println("This is ds " +ds);
+
+                    sInfo.setLatitude (Double.parseDouble (lat));
+                    sInfo.setLongitude (Double.parseDouble (lon));
+                    sInfo.setSensor_id (sensor_id);
+                    sInfo.setSensor_description (sensor_decription);
+
+
+                    LatLng pt = new LatLng (sInfo.getLatitude (), sInfo.getLongitude ());
+
+                    if (PolyUtil.isLocationOnPath (pt, polyline.getPoints (), true, 50)) {
+                        // System.out.println ("Yes is Location on path CCTV name" + cInfo.getDetail ());
+                        pedSensorCount = pedSensorCount + 1;
+                        selectedPedestrianSensor.put (sInfo.getSensor_id (), sInfo);
+
+                    } else {
+                        //System.out.println ("No is  not Location on path CCTV name " + cInfo.getDetail ());
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace ();
+            }
+
+        }
+        return selectedPedestrianSensor;
+    }
 }

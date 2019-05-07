@@ -57,6 +57,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.theguardians.citywalker.Model.CCTVLocation;
+import com.theguardians.citywalker.Model.PedestrianSensor;
 import com.theguardians.citywalker.Model.PoliceStation;
 import com.theguardians.citywalker.Service.DataFromFirebase;
 import com.theguardians.citywalker.Service.DataPointsCountDetail;
@@ -77,17 +78,16 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 public class RouteActivity extends AppCompatActivity implements RoutingListener,GoogleMap.OnPolylineClickListener, GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks {
+
     protected GoogleMap map;
     protected LatLng start;
     protected LatLng end;
-
 
     private FusedLocationProviderClient fusedLocationClient;
     private boolean mLocationPermissionGranted = false;
     private boolean mSMSPermissionGranted =false;
     private LatLng userLocation;
     private static final int ERROR_DIALOG_REQUEST = 9001;
-
     private static final int  PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9003;
 
     @BindView (R.id.nestedScrollView)
@@ -100,6 +100,9 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     TextView stationCount;
     @BindView (R.id.cctvCount)
     TextView cctvCount;
+    @BindView (R.id.sensorCount)
+    TextView sensorCount;
+
 
     private static final String LOG_TAG = "RouteActivity";
     private ProgressDialog progressDialog;
@@ -111,6 +114,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
     private JSONArray policeStationArray = new JSONArray ();
     private JSONArray cctvLocationArray = new JSONArray ();
+    private JSONArray pedestrianSensorArray = new JSONArray ();
 
     private JSONArray polylineRouteDetailsArray = new JSONArray ();
     private JSONArray polylineCountDetailsArray =new JSONArray ();
@@ -120,24 +124,27 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference policeStationRef;
     private DatabaseReference cctvRef;
+    private DatabaseReference pedestrianSensorRef;
 
 
     private HashMap<String,PoliceStation> selectedPoliceStation = new HashMap<> ();
     private HashMap<String,CCTVLocation> selectedCCTVLocation =new HashMap<> ();
+    private HashMap<String, PedestrianSensor> selectedPedestrianSensor = new HashMap<> ();
 
-    private static final int[] COLORS = new int[]{R.color.colorOrange, R.color.colorHomeBlockSix, R.color.colorPrimaryDark, R.color.colorHomeBlockFour, R.color.primary_dark_material_light};
 
     private Marker startingMarker;
     private Marker originMarker;
     private Marker destinationMarker;
     private Marker policeStationMarker;
     private Marker cctvMarker;
+    private Marker pedestrianSensorMarker;
     private List<Marker> selectedStationMarkers;
     private List<Marker> selectedCCTVMarkers;
+    private List<Marker> selectedPedestrianSensorMarkers;
     private DataFromFirebase dataFromFirebase = new DataFromFirebase ();
 
-    private BottomSheetBehavior mBottomSheetBehaviour;
 
+    private BottomSheetBehavior mBottomSheetBehaviour;
     private AutocompleteSupportFragment autocompleteFragment1;
     private AutocompleteSupportFragment autocompleteFragment2;
     private boolean frag1 =false;
@@ -161,14 +168,9 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         info2.setVisibility (View.INVISIBLE);
         currentLocation =findViewById (R.id.currentlocation);
         nestedScrollView.setVisibility (View.INVISIBLE);
-
-        //View nestedScrollView = (View) findViewById(R.id.nestedScrollView);
-        //mBottomSheetBehaviour.setPeekHeight(200);
         cardView = findViewById (R.id.cardview);
 
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
         if (mLocationPermissionGranted) {
             getUserLocation();
         }
@@ -179,24 +181,28 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         polylines = new ArrayList<> ();
         selectedStationMarkers =new ArrayList<> ();
         selectedCCTVMarkers =new ArrayList<> ();
+        selectedPedestrianSensorMarkers =new ArrayList<> ();
 
+        /**
+        Collecting data from Firebase and storing to JSONArray
+         */
         FirebaseApp.initializeApp(this);
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         policeStationRef = mFirebaseDatabase.getReference("police_location");
         cctvRef =mFirebaseDatabase.getReference ("cctv_location");
-
-
+        pedestrianSensorRef =mFirebaseDatabase.getReference ("ped_sensor_location");
         policeStationArray = dataFromFirebase.getPoliceStationArray (policeStationRef);
         cctvLocationArray = dataFromFirebase.getCctvLocationArray (cctvRef);
+        pedestrianSensorArray =dataFromFirebase.getPedestrianSensorArray (pedestrianSensorRef);
 
+        /**
+         Getting and setting values on Places auto complete fragment
+         */
         com.google.android.libraries.places.api.Places.initialize(getApplicationContext(), getString(R.string.google_maps_API_key));
-
         // Create a new Places client instance.
         PlacesClient placesClient = Places.createClient(getApplicationContext ());
-
         autocompleteFragment1 = (AutocompleteSupportFragment)
                 getSupportFragmentManager ().findFragmentById(R.id.autocomplete_fragment1);
-
         autocompleteFragment2 = (AutocompleteSupportFragment)
                 getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment2);
         autocompleteFragment1.setHint("From");
@@ -215,11 +221,9 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         //Setting country to Australia
         autocompleteFragment1.setCountry ("AU");
         autocompleteFragment2.setCountry ("AU");
-
         autocompleteFragment1.setLocationRestriction(RectangularBounds.newInstance(
                 new LatLng(-37.904116, 144.907608 ),
                 new LatLng(-37.785368, 145.067425)));
-
         autocompleteFragment2.setLocationRestriction(RectangularBounds.newInstance(
                 new LatLng(-37.904116, 144.907608 ),
                 new LatLng(-37.785368, 145.067425)));
@@ -230,7 +234,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         // Set up a PlaceSelectionListener to handle the response.
         autocompleteFragment1.setOnPlaceSelectedListener(new PlaceSelectionListener () {
-
             @Override
             public void onPlaceSelected(com.google.android.libraries.places.api.model.Place originPlace) {
                 start = originPlace.getLatLng();
@@ -238,9 +241,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                 if(frag2==true){
                     sendRequest ();
                 }
-
             }
-
             @Override
             public void onError(Status status) {
                 //Handle the error.
@@ -250,7 +251,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         // Set up a PlaceSelectionListener to handle the response.
         autocompleteFragment2.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-
             @Override
             public void onPlaceSelected(Place destinationPlace) {
                 end = destinationPlace.getLatLng();
@@ -260,7 +260,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                 }
 
             }
-
             @Override
             public void onError(Status status) {
                 //Handle the error.
@@ -268,7 +267,9 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             }
         });
 
-
+        /**
+         On current location button clicked
+         */
         currentLocation.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
@@ -293,9 +294,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-                                                         
-
-
         try {
             // Customise the styling of the base map using a JSON object defined
             // in a raw resource file.
@@ -312,15 +310,15 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         map=googleMap;
         map.setOnPolylineClickListener(this);
-
         map.animateCamera (CameraUpdateFactory.newLatLngZoom (new LatLng (-37.814593, 144.966520),14 ));
 
 
     }
-
+    /**
+     Function to call route plotting with details
+     */
     public void sendRequest()
     {
-
         if(Util.Operations.isOnline(this))
         {
             if(start==null || end==null)
@@ -330,23 +328,15 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                 {
                     Snackbar.make (autocompleteFragment1.getView (), "Origin place can't be empty", Snackbar.LENGTH_LONG)
                             .setAction ("Action", null).show ();
-
-                    //Toast.makeText(this,"Please choose a starting point.",Toast.LENGTH_SHORT).show();
-
                 }
                 if(end==null)
                 {
-
-
                     Snackbar.make (autocompleteFragment2.getView (), "Destination place can't be empty", Snackbar.LENGTH_LONG)
                             .setAction ("Action", null).show ();
-                    //Toast.makeText(this,"Please choose a destination.",Toast.LENGTH_SHORT).show();
-
                 }
             }
             else {
                 route ();
-
             }
         }
         else
@@ -354,7 +344,9 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             Toast.makeText(this,"No internet connectivity",Toast.LENGTH_SHORT).show();
         }
     }
-
+    /**
+     Generating route on map
+     */
     public void route()
     {
 
@@ -399,11 +391,11 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         progressDialog.dismiss();
         CameraUpdate center = CameraUpdateFactory.newLatLng(start);
         CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
-
         map.moveCamera(center);
-
         map.animateCamera (zoom);
-
+        /**
+        Removing  Polylines and Markers initially
+        */
         if(firstTimeRun==true) {
             originMarker.remove ();
             destinationMarker.remove ();
@@ -416,7 +408,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                     poly.remove ();
             }
         }
-
         if(selectedStationMarkers.size ()>0) {
             for (Marker m : selectedStationMarkers) {
                 if(m!=null)
@@ -435,9 +426,21 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             }
             selectedCCTVMarkers.clear ();
         }
-        polylines = new ArrayList<> ();
-            //add route(s) to the map.
 
+        if(selectedPedestrianSensorMarkers.size ()>0) {
+            for (Marker m : selectedPedestrianSensorMarkers) {
+                if(m!=null)
+                {
+                    m.remove();
+                }
+            }
+            selectedPedestrianSensorMarkers.clear ();
+        }
+
+        polylines = new ArrayList<> ();
+        /**
+        Finding the minimum distance route
+         */
         List<Integer> pathDistances = new ArrayList<> ();
         for(Route path: route)
         {
@@ -445,17 +448,19 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             pathDistances.add (x);
 
         }
-        System.out.println("Distances: " +pathDistances);
+        int minDistance = getMinValue (pathDistances);
 
-        java.util.List<PatternItem> pattern = Arrays.<PatternItem>asList(new Dot());
 
+        /**
+         Plotting origin and destination marker
+         */
         LatLng origin = new LatLng (route.get (0).getPoints ().get (0).latitude,route.get (0).getPoints ().get (0).longitude);
         LatLng destination = new LatLng (route.get (0).getPoints ().get ((route.get (0).getPoints ().size ())-1).latitude,route.get (0).getPoints ().get ((route.get (0).getPoints ().size ())-1).longitude);
+
         // Start marker
         MarkerOptions options = new MarkerOptions ();
         options.position (origin);
-        options.icon (BitmapDescriptorFactory.fromResource (R.drawable.walkingicononmap));
-
+        options.icon (BitmapDescriptorFactory.fromResource (R.drawable.walkingicononmap32));
         originMarker = map.addMarker (options);
 
         // End marker
@@ -466,21 +471,19 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
 
         polylineRouteDetailsArray =new JSONArray ();
-
         polylineCountDetailsArray =new JSONArray ();
-
 
         nestedScrollView.setVisibility (View.VISIBLE);
         mBottomSheetBehaviour = BottomSheetBehavior.from (nestedScrollView);
         mBottomSheetBehaviour.setState (BottomSheetBehavior.STATE_COLLAPSED);
 
-        int minDistance = getMinValue (pathDistances);
-        System.out.println("Minimum Distance" +minDistance);
+        java.util.List<PatternItem> pattern = Arrays.<PatternItem>asList(new Dot());
 
+        /**
+         Getting polylines from routes and plotting
+         */
         for (int i = 0; i < route.size (); i++) {
 
-                //In case of more than 5 alternative routes
-                int colorIndex = i % COLORS.length;
 
                 if(route.get (i).getDistanceValue () == minDistance) {
 
@@ -531,27 +534,38 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
                 Toast.makeText (getApplicationContext (), "Route " + (i + 1) + ": distance - " + route.get (i).getDistanceText () + ": duration - " + route.get (i).getDurationText (), Toast.LENGTH_SHORT).show ();
             }
-
+        /**
+         Setting Bottom sheet values
+         */
         routeDistance.setText (route.get (0).getDistanceText ());
         routeDuration.setText (route.get (0).getDurationText ());
 
-
         System.out.println ("polylineRouteDetailsArray  "+polylineRouteDetailsArray);
+
 
         selectedPoliceStation = new HashMap<> ();
         selectedCCTVLocation = new HashMap<> ();
+        selectedPedestrianSensor = new HashMap<> ();
 
-        polylineCountDetailsArray= DataPointsCountDetail.getpolylineCountDetailsArray(polylines,policeStationArray, cctvLocationArray,selectedPoliceStation,selectedCCTVLocation,polylineCountDetailsArray) ;
+        /**
+        Getting values from {@link DataPointsCountDetail}
+         */
+
+        polylineCountDetailsArray= DataPointsCountDetail.getpolylineCountDetailsArray(polylines,policeStationArray, cctvLocationArray,pedestrianSensorArray,selectedPoliceStation,selectedCCTVLocation,selectedPedestrianSensor,polylineCountDetailsArray) ;
         selectedPoliceStation=DataPointsCountDetail.getselectedPoliceStation (polylines,policeStationArray,selectedPoliceStation);
         selectedCCTVLocation=DataPointsCountDetail.getselectedCCTVLocation (polylines,cctvLocationArray,selectedCCTVLocation);
+        selectedPedestrianSensor =DataPointsCountDetail.getselectedPedestrianSensor (polylines,pedestrianSensorArray,selectedPedestrianSensor);
 
 
         System.out.println ("polylineCountDetailsArray  "+polylineCountDetailsArray);
 
-        //System.out.println ("@@ Selected Stations  @@  " +selectedPoliceStation);
-
         selectedStationMarkers = new ArrayList ();
         selectedCCTVMarkers =new ArrayList<> ();
+        selectedPedestrianSensorMarkers =new ArrayList<> ();
+
+        /**
+         Displaying police station markers
+         */
 
         for (PoliceStation policeStation : selectedPoliceStation.values ()) {
 
@@ -559,7 +573,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             MarkerOptions options1 = new MarkerOptions ();
             LatLng policeStationLatLng = new LatLng (policeStation.getLatitude (),policeStation.getLongitude ());
             options1.position (policeStationLatLng);
-            options1.icon (BitmapDescriptorFactory.fromResource (R.mipmap.police_small));
+            options1.icon (BitmapDescriptorFactory.fromResource (R.drawable.mappolicestation2));
             options1.title (policeStation.getPolice_station ());
             options1.zIndex (2);
             options1.snippet ("Address: "+policeStation.getAddress () + " Telephone: " +policeStation.getTel ());
@@ -568,13 +582,16 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
             selectedStationMarkers.add (policeStationMarker);
         }
+        /**
+         Displaying cctv  markers
+         */
         for (CCTVLocation cctvLocation : selectedCCTVLocation.values ()) {
 
             cctvMarker = null;
             MarkerOptions options1 = new MarkerOptions ();
             LatLng policeStationLatLng = new LatLng (cctvLocation.getLatitude (),cctvLocation.getLongitude ());
             options1.position (policeStationLatLng);
-            options1.icon (BitmapDescriptorFactory.fromResource (R.mipmap.cctv_small));
+            options1.icon (BitmapDescriptorFactory.fromResource (R.drawable.mapcctv2));
             options1.title ("Safe City Camera");
             options1.snippet ("Detail: "+cctvLocation.getDetail ());
 
@@ -582,10 +599,30 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
             selectedCCTVMarkers.add (cctvMarker);
         }
+        /**
+         Displaying sensor  markers
 
+        for (PedestrianSensor pedestrianSensor : selectedPedestrianSensor.values ()) {
+
+            pedestrianSensorMarker = null;
+            MarkerOptions options2 = new MarkerOptions ();
+            LatLng sensorLatLng = new LatLng (pedestrianSensor.getLatitude (),pedestrianSensor.getLongitude ());
+            options2.position (sensorLatLng);
+            options2.icon (BitmapDescriptorFactory.fromResource (R.drawable.peoplesensor));
+            options2.title ("Sensor");
+            options2.snippet ("Detail: "+pedestrianSensor.getSensor_description ());
+
+            pedestrianSensorMarker=map.addMarker (options2);
+
+            selectedPedestrianSensorMarkers.add (pedestrianSensorMarker);
+        }
+         */
         System.out.println ("@@ Selected Stations Marker Size @@  " +selectedStationMarkers.size ());
-
         System.out.println ("@@ Selected CCTV Marker Size @@  " +selectedCCTVMarkers.size ());
+
+        /**
+        Setting value in bottom sheet
+         */
 
         try {
             stationCount.setText (polylineCountDetailsArray.getJSONObject (0).getString ("selectedStationCount"));
@@ -597,7 +634,15 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         } catch (JSONException e) {
             e.printStackTrace ();
         }
+        try {
+            sensorCount.setText (polylineCountDetailsArray.getJSONObject (0).getString ("pedestrianSensorCount"));
+        } catch (JSONException e) {
+            e.printStackTrace ();
+        }
 
+        /**
+         Hiding and showing search box
+         */
         map.setOnMapClickListener(new GoogleMap.OnMapClickListener ()
         {
             @Override
@@ -636,6 +681,9 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
     }
 
+    /**
+     On Polyline click
+     */
 
 
     @Override
@@ -669,11 +717,12 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                         String polylineId = jsonObject.getString ("polylineId");
                         String satCount = jsonObject.getString ("selectedStationCount");
                         String ccCount = jsonObject.getString ("selectedCCTVCount");
-
+                        String psCount = jsonObject.getString ("pedestrianSensorCount");
                         if (polylineId.equals (polyline.getId ())) {
                             stationCount.setText (satCount);
                             cctvCount.setText (ccCount);
-                        }
+                            sensorCount.setText (psCount);
+                    }
                     }
 
                 } catch (JSONException e) {
@@ -688,6 +737,10 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
 
     }
+    /**
+     * Return minimum value
+     */
+
 
     public static int getMinValue(List<Integer> numbers){
         int minValue = numbers.get (0);
@@ -698,7 +751,9 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         }
         return minValue;
     }
-
+    /**
+    Get user Location
+     */
 
     public void getUserLocation(){
 

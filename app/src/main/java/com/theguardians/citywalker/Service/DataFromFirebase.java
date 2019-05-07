@@ -7,6 +7,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.theguardians.citywalker.Model.CCTVLocation;
+import com.theguardians.citywalker.Model.PedestrianSensor;
 import com.theguardians.citywalker.Model.PoliceStation;
 
 import org.json.JSONArray;
@@ -18,8 +19,10 @@ public class DataFromFirebase {
 
     private PoliceStation pInfo = new PoliceStation ();
     private CCTVLocation cInfo = new CCTVLocation ();
+    private PedestrianSensor sInfo = new PedestrianSensor ();
     private JSONArray policeStationArray = new JSONArray ();
     private JSONArray cctvLocationArray = new JSONArray ();
+    private JSONArray pedestrianSensorArray = new JSONArray ();
 
    // private DatabaseReference policeStationRef;
    // private DatabaseReference cctvRef;
@@ -74,6 +77,8 @@ public class DataFromFirebase {
         });
         return policeStationArray;
     }
+
+
     public JSONArray getCctvLocationArray(DatabaseReference cctvReference) {
         cctvReference.addValueEventListener (new ValueEventListener () {
 
@@ -123,5 +128,52 @@ public class DataFromFirebase {
         return cctvLocationArray;
     }
 
+    public JSONArray getPedestrianSensorArray(DatabaseReference pedtrianSensorReference) {
+        pedtrianSensorReference.addValueEventListener (new ValueEventListener () {
 
+            @Override
+
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+
+                for (DataSnapshot ds : dataSnapshot.getChildren ()) {
+
+
+                    //System.out.println("This is cctv ds " +ds);
+                    sInfo.setLatitude (Double.parseDouble (ds.child ("latitude").getValue ().toString ()));
+                    sInfo.setLongitude (Double.parseDouble (ds.child ("longitude").getValue ().toString ()));
+                    sInfo.setSensor_id (ds.child ("sensor_id").getValue ().toString ());
+                    sInfo.setSensor_description (ds.child ("sensor_description").getValue ().toString ());
+                    //display all the information
+
+
+                    try {
+
+                        JSONObject jsonObject = new JSONObject ();
+                        jsonObject.put ("sensor_id", sInfo.getSensor_id ());
+                        jsonObject.put ("sensor_description", sInfo.getSensor_description ());
+                        jsonObject.put ("latitude", sInfo.getLatitude ());
+                        jsonObject.put ("longitude", sInfo.getLongitude ());
+
+                        pedestrianSensorArray.put (jsonObject);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace ();
+                    }
+
+                }
+
+                //Log.d (TAG, "$$$$ Array: " + cctvLocationArray);
+            }
+
+
+            @Override
+
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
+        return pedestrianSensorArray;
+    }
 }
