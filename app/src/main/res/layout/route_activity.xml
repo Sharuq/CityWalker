@@ -148,72 +148,118 @@
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="wrap_content"
         android:clipToPadding="true"
         android:background="@color/colorWhite"
         app:behavior_hideable="false"
-        app:behavior_peekHeight="80dp"
+        app:behavior_peekHeight="130dp"
         app:layout_behavior="@string/bottom_sheet_behavior">
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
-        <ImageView
+    <ImageView
             android:id="@+id/topDrawer"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_gravity="center"
             android:src="@drawable/slideupanddown" />
 
-        <LinearLayout
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center_vertical"
+        android:weightSum="4">
+
+        <ImageView
+            android:id="@+id/safetyScoreImage"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_weight="0.2"
+            android:src="@drawable/protection" />
+
+        <TextView
+            android:id="@+id/SafetyText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textStyle="bold"
+            android:textSize="23sp"
+            android:layout_marginLeft="5dp"
+            android:text="Safety Score:"></TextView>
+
+        <TextView
+            android:id="@+id/safetyScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:textStyle="bold"
+            android:textSize="23sp"
+            android:text="65"></TextView>
+
+        <ImageView
+            android:id="@+id/safestRoute"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+            android:src="@drawable/thumbs_up"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@color/colorDivider" />
+
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_gravity="center_vertical"
+            android:layout_marginTop="10dp"
             android:weightSum="3">
-
 
             <ImageView
                 android:id="@+id/walkingImage"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_weight="0.2"
-                android:src="@mipmap/walking" />
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/walking"
+                android:layout_marginLeft="10dp"/>
 
             <TextView
                 android:id="@+id/timeValue"
-                android:layout_width="0dp"
-                android:gravity="left"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.5"
+                android:layout_marginLeft="15dp"
                 android:textStyle="bold"
-                android:textSize="23dp"
+                android:textSize="20sp"
                 android:text="9 min"></TextView>
 
             <TextView
                 android:id="@+id/distanceValue"
-                android:layout_width="0dp"
-                android:gravity="left"
+                android:layout_width="wrap_content"
+                android:layout_marginLeft="15dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:textStyle="bold"
-                android:textSize="23dp"
+                android:textSize="20sp"
                 android:text="(500m)"></TextView>
-        </LinearLayout>
+    </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:background="@color/colorDivider" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/dotted" />
 
-        <LinearLayout
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_gravity="center_vertical"
-
             android:layout_marginTop="10dp"
             android:weightSum="3">
 
@@ -223,7 +269,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_weight="0.2"
-                android:src="@mipmap/police_small" />
+                android:src="@drawable/police" />
 
             <TextView
                 android:layout_width="0dp"
@@ -231,7 +277,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1.7"
                 android:textStyle="bold"
-                android:textSize="20dp"
+                android:textSize="20sp"
                 android:text="Police Stations"></TextView>
 
             <TextView
@@ -241,11 +287,62 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textStyle="bold"
-                android:textSize="20dp"
+                android:textSize="20sp"
                 android:text="2"></TextView>
-        </LinearLayout>
+    </LinearLayout>
 
-        <LinearLayout
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/dotted" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="10dp"
+        android:weightSum="3">
+
+
+        <ImageView
+            android:id="@+id/openShopImage"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_weight="0.2"
+            android:src="@drawable/shopper" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:gravity="left"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.7"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:text="24 hrs Open Shops"></TextView>
+
+        <TextView
+            android:id="@+id/openShopCount"
+            android:layout_width="0dp"
+            android:gravity="left"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:text="0"></TextView>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/dotted" />
+
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -259,7 +356,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_weight="0.2"
-                android:src="@mipmap/cctv_small" />
+                android:src="@drawable/cctv" />
 
             <TextView
                 android:layout_width="0dp"
@@ -267,7 +364,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1.7"
                 android:textStyle="bold"
-                android:textSize="20dp"
+                android:textSize="20sp"
                 android:text="Safe Cameras"></TextView>
 
             <TextView
@@ -277,10 +374,18 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textStyle="bold"
-                android:textSize="20dp"
+                android:textSize="20sp"
                 android:text="10"></TextView>
 
-        </LinearLayout>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/dotted" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -317,6 +422,7 @@
             android:text="10"></TextView>
 
     </LinearLayout>
+
 </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 

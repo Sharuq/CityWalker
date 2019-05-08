@@ -7,6 +7,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.theguardians.citywalker.Model.CCTVLocation;
+import com.theguardians.citywalker.Model.OpenShop;
 import com.theguardians.citywalker.Model.PedestrianSensor;
 import com.theguardians.citywalker.Model.PoliceStation;
 
@@ -20,9 +21,12 @@ public class DataFromFirebase {
     private PoliceStation pInfo = new PoliceStation ();
     private CCTVLocation cInfo = new CCTVLocation ();
     private PedestrianSensor sInfo = new PedestrianSensor ();
+    private OpenShop oInfo = new OpenShop ();
+
     private JSONArray policeStationArray = new JSONArray ();
     private JSONArray cctvLocationArray = new JSONArray ();
     private JSONArray pedestrianSensorArray = new JSONArray ();
+    private JSONArray openShopArray = new JSONArray ();
 
    // private DatabaseReference policeStationRef;
    // private DatabaseReference cctvRef;
@@ -175,5 +179,55 @@ public class DataFromFirebase {
 
         });
         return pedestrianSensorArray;
+    }
+
+
+    public JSONArray getOpenShopArray(DatabaseReference openShopReference) {
+        openShopReference.addValueEventListener (new ValueEventListener () {
+
+            @Override
+
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+
+                for (DataSnapshot ds : dataSnapshot.getChildren ()) {
+
+
+                    //System.out.println("This is cctv ds " +ds);
+                    oInfo.setLatitude (Double.parseDouble (ds.child ("latitude").getValue ().toString ()));
+                    oInfo.setLongitude (Double.parseDouble (ds.child ("longitude").getValue ().toString ()));
+                    oInfo.setName (ds.child ("name").getValue ().toString ());
+                    oInfo.setAddress (ds.child ("address").getValue ().toString ());
+                    //display all the information
+
+
+                    try {
+
+                        JSONObject jsonObject = new JSONObject ();
+                        jsonObject.put ("name", oInfo.getName ());
+                        jsonObject.put ("address", oInfo.getAddress ());
+                        jsonObject.put ("latitude", oInfo.getLatitude ());
+                        jsonObject.put ("longitude", oInfo.getLongitude ());
+
+                        openShopArray.put (jsonObject);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace ();
+                    }
+
+                }
+
+                //Log.d (TAG, "$$$$ Array: " + cctvLocationArray);
+            }
+
+
+            @Override
+
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
+        return openShopArray;
     }
 }

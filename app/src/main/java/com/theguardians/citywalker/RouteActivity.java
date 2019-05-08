@@ -5,6 +5,8 @@ import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -57,6 +59,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.theguardians.citywalker.Model.CCTVLocation;
+import com.theguardians.citywalker.Model.OpenShop;
 import com.theguardians.citywalker.Model.PedestrianSensor;
 import com.theguardians.citywalker.Model.PoliceStation;
 import com.theguardians.citywalker.Service.DataFromFirebase;
@@ -102,6 +105,8 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     TextView cctvCount;
     @BindView (R.id.sensorCount)
     TextView sensorCount;
+    @BindView (R.id.openShopCount)
+    TextView openShopCount;
 
 
     private static final String LOG_TAG = "RouteActivity";
@@ -115,6 +120,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private JSONArray policeStationArray = new JSONArray ();
     private JSONArray cctvLocationArray = new JSONArray ();
     private JSONArray pedestrianSensorArray = new JSONArray ();
+    private JSONArray openShopArray = new JSONArray ();
 
     private JSONArray polylineRouteDetailsArray = new JSONArray ();
     private JSONArray polylineCountDetailsArray =new JSONArray ();
@@ -125,11 +131,14 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private DatabaseReference policeStationRef;
     private DatabaseReference cctvRef;
     private DatabaseReference pedestrianSensorRef;
+    private DatabaseReference openShopRef;
 
 
     private HashMap<String,PoliceStation> selectedPoliceStation = new HashMap<> ();
     private HashMap<String,CCTVLocation> selectedCCTVLocation =new HashMap<> ();
     private HashMap<String, PedestrianSensor> selectedPedestrianSensor = new HashMap<> ();
+    private HashMap<String, OpenShop> selectedOpenShop = new HashMap<> ();
+
 
 
     private Marker startingMarker;
@@ -138,11 +147,13 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private Marker policeStationMarker;
     private Marker cctvMarker;
     private Marker pedestrianSensorMarker;
+    private Marker openShopMarker;
     private List<Marker> selectedStationMarkers;
     private List<Marker> selectedCCTVMarkers;
     private List<Marker> selectedPedestrianSensorMarkers;
-    private DataFromFirebase dataFromFirebase = new DataFromFirebase ();
+    private List<Marker> selectedOpenShopMarkers;
 
+    private DataFromFirebase dataFromFirebase = new DataFromFirebase ();
 
     private BottomSheetBehavior mBottomSheetBehaviour;
     private AutocompleteSupportFragment autocompleteFragment1;
@@ -182,6 +193,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         selectedStationMarkers =new ArrayList<> ();
         selectedCCTVMarkers =new ArrayList<> ();
         selectedPedestrianSensorMarkers =new ArrayList<> ();
+        selectedOpenShopMarkers =new ArrayList<> ();
 
         /**
         Collecting data from Firebase and storing to JSONArray
@@ -189,11 +201,14 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         FirebaseApp.initializeApp(this);
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         policeStationRef = mFirebaseDatabase.getReference("police_location");
-        cctvRef =mFirebaseDatabase.getReference ("cctv_location");
-        pedestrianSensorRef =mFirebaseDatabase.getReference ("ped_sensor_location");
+        cctvRef = mFirebaseDatabase.getReference ("cctv_location");
+        pedestrianSensorRef = mFirebaseDatabase.getReference ("ped_sensor_location");
+        openShopRef = mFirebaseDatabase.getReference ("24hr_stores");
+
         policeStationArray = dataFromFirebase.getPoliceStationArray (policeStationRef);
         cctvLocationArray = dataFromFirebase.getCctvLocationArray (cctvRef);
         pedestrianSensorArray =dataFromFirebase.getPedestrianSensorArray (pedestrianSensorRef);
+        openShopArray =dataFromFirebase.getOpenShopArray (openShopRef);
 
         /**
          Getting and setting values on Places auto complete fragment
@@ -460,13 +475,15 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         // Start marker
         MarkerOptions options = new MarkerOptions ();
         options.position (origin);
-        options.icon (BitmapDescriptorFactory.fromResource (R.drawable.walkingicononmap32));
+       // options.icon (BitmapDescriptorFactory.fromResource (R.drawable.startingpoint));
+        options.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("startingpoint",150,150)));
         originMarker = map.addMarker (options);
 
         // End marker
         options = new MarkerOptions ();
         options.position (destination);
-        options.icon (BitmapDescriptorFactory.fromResource (R.drawable.destinationicon2));
+        //options.icon (BitmapDescriptorFactory.fromResource (R.drawable.destinationicon2));
+        options.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("destinationpoint",150,150)));
         destinationMarker = map.addMarker (options);
 
 
@@ -537,7 +554,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         /**
          Setting Bottom sheet values
          */
-        routeDistance.setText (route.get (0).getDistanceText ());
+        routeDistance.setText ("(" +route.get (0).getDistanceText () +")");
         routeDuration.setText (route.get (0).getDurationText ());
 
         System.out.println ("polylineRouteDetailsArray  "+polylineRouteDetailsArray);
@@ -573,7 +590,8 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             MarkerOptions options1 = new MarkerOptions ();
             LatLng policeStationLatLng = new LatLng (policeStation.getLatitude (),policeStation.getLongitude ());
             options1.position (policeStationLatLng);
-            options1.icon (BitmapDescriptorFactory.fromResource (R.drawable.mappolicestation2));
+            //options1.icon (BitmapDescriptorFactory.fromResource (R.drawable.mappolicestation2));
+            options1.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("mappolicestation",150,150)));
             options1.title (policeStation.getPolice_station ());
             options1.zIndex (2);
             options1.snippet ("Address: "+policeStation.getAddress () + " Telephone: " +policeStation.getTel ());
@@ -591,7 +609,8 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             MarkerOptions options1 = new MarkerOptions ();
             LatLng policeStationLatLng = new LatLng (cctvLocation.getLatitude (),cctvLocation.getLongitude ());
             options1.position (policeStationLatLng);
-            options1.icon (BitmapDescriptorFactory.fromResource (R.drawable.mapcctv2));
+            //options1.icon (BitmapDescriptorFactory.fromResource (R.drawable.mapcctv));
+            options1.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("mapcctv",150,150)));
             options1.title ("Safe City Camera");
             options1.snippet ("Detail: "+cctvLocation.getDetail ());
 
@@ -601,14 +620,15 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         }
         /**
          Displaying sensor  markers
-
+         */
         for (PedestrianSensor pedestrianSensor : selectedPedestrianSensor.values ()) {
 
             pedestrianSensorMarker = null;
             MarkerOptions options2 = new MarkerOptions ();
             LatLng sensorLatLng = new LatLng (pedestrianSensor.getLatitude (),pedestrianSensor.getLongitude ());
             options2.position (sensorLatLng);
-            options2.icon (BitmapDescriptorFactory.fromResource (R.drawable.peoplesensor));
+            //options2.icon (BitmapDescriptorFactory.fromResource (R.drawable.peoplesensor));
+            options2.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("peoplesensor1",150,150)));
             options2.title ("Sensor");
             options2.snippet ("Detail: "+pedestrianSensor.getSensor_description ());
 
@@ -616,7 +636,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
             selectedPedestrianSensorMarkers.add (pedestrianSensorMarker);
         }
-         */
+
         System.out.println ("@@ Selected Stations Marker Size @@  " +selectedStationMarkers.size ());
         System.out.println ("@@ Selected CCTV Marker Size @@  " +selectedCCTVMarkers.size ());
 
@@ -661,6 +681,11 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
     }
 
+    public Bitmap resizeMapIcons(String iconName, int width, int height){
+        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(iconName, "drawable", getPackageName()));
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(imageBitmap, width, height, false);
+        return resizedBitmap;
+    }
     @Override
     public void onRoutingCancelled() {
         Log.i(LOG_TAG, "Routing was cancelled.");
