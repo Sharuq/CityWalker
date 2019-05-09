@@ -452,6 +452,16 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             selectedPedestrianSensorMarkers.clear ();
         }
 
+        if(selectedOpenShopMarkers.size ()>0) {
+            for (Marker m : selectedOpenShopMarkers) {
+                if(m!=null)
+                {
+                    m.remove();
+                }
+            }
+            selectedOpenShopMarkers.clear ();
+        }
+
         polylines = new ArrayList<> ();
         /**
         Finding the minimum distance route
@@ -563,22 +573,24 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         selectedPoliceStation = new HashMap<> ();
         selectedCCTVLocation = new HashMap<> ();
         selectedPedestrianSensor = new HashMap<> ();
+        selectedOpenShop = new HashMap<> ();
 
         /**
         Getting values from {@link DataPointsCountDetail}
          */
 
-        polylineCountDetailsArray= DataPointsCountDetail.getpolylineCountDetailsArray(polylines,policeStationArray, cctvLocationArray,pedestrianSensorArray,selectedPoliceStation,selectedCCTVLocation,selectedPedestrianSensor,polylineCountDetailsArray) ;
-        selectedPoliceStation=DataPointsCountDetail.getselectedPoliceStation (polylines,policeStationArray,selectedPoliceStation);
-        selectedCCTVLocation=DataPointsCountDetail.getselectedCCTVLocation (polylines,cctvLocationArray,selectedCCTVLocation);
-        selectedPedestrianSensor =DataPointsCountDetail.getselectedPedestrianSensor (polylines,pedestrianSensorArray,selectedPedestrianSensor);
-
+        polylineCountDetailsArray= DataPointsCountDetail.getpolylineCountDetailsArray(polylines,policeStationArray, cctvLocationArray,pedestrianSensorArray,openShopArray,selectedPoliceStation,selectedCCTVLocation,selectedPedestrianSensor,selectedOpenShop,polylineCountDetailsArray) ;
+        selectedPoliceStation=DataPointsCountDetail.getSelectedPoliceStation (polylines,policeStationArray,selectedPoliceStation);
+        selectedCCTVLocation=DataPointsCountDetail.getSelectedCCTVLocation (polylines,cctvLocationArray,selectedCCTVLocation);
+        selectedPedestrianSensor =DataPointsCountDetail.getSelectedPedestrianSensor (polylines,pedestrianSensorArray,selectedPedestrianSensor);
+        selectedOpenShop = DataPointsCountDetail.getSelectedOpenShop(polylines,openShopArray,selectedOpenShop);
 
         System.out.println ("polylineCountDetailsArray  "+polylineCountDetailsArray);
 
         selectedStationMarkers = new ArrayList ();
         selectedCCTVMarkers =new ArrayList<> ();
         selectedPedestrianSensorMarkers =new ArrayList<> ();
+        selectedOpenShopMarkers = new ArrayList<> ();
 
         /**
          Displaying police station markers
@@ -636,9 +648,27 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
             selectedPedestrianSensorMarkers.add (pedestrianSensorMarker);
         }
+        /**
+        Displaying open shop markers
+        */
+        for (OpenShop openShop : selectedOpenShop.values ()) {
 
-        System.out.println ("@@ Selected Stations Marker Size @@  " +selectedStationMarkers.size ());
-        System.out.println ("@@ Selected CCTV Marker Size @@  " +selectedCCTVMarkers.size ());
+            openShopMarker = null;
+            MarkerOptions options3 = new MarkerOptions ();
+            LatLng sensorLatLng = new LatLng (openShop.getLatitude (),openShop.getLongitude ());
+            options3.position (sensorLatLng);
+            //options2.icon (BitmapDescriptorFactory.fromResource (R.drawable.peoplesensor));
+            options3.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("mapshop",150,150)));
+            options3.title (openShop.getName ());
+            options3.snippet ("Address: "+openShop.getAddress ());
+
+            openShopMarker=map.addMarker (options3);
+
+            selectedOpenShopMarkers.add (openShopMarker);
+        }
+
+       // System.out.println ("@@ Selected Stations Marker Size @@  " +selectedStationMarkers.size ());
+       // System.out.println ("@@ Selected CCTV Marker Size @@  " +selectedCCTVMarkers.size ());
 
         /**
         Setting value in bottom sheet
@@ -656,6 +686,12 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         }
         try {
             sensorCount.setText (polylineCountDetailsArray.getJSONObject (0).getString ("pedestrianSensorCount"));
+        } catch (JSONException e) {
+            e.printStackTrace ();
+        }
+
+        try {
+            openShopCount.setText (polylineCountDetailsArray.getJSONObject (0).getString ("openShopCount"));
         } catch (JSONException e) {
             e.printStackTrace ();
         }
@@ -743,10 +779,12 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                         String satCount = jsonObject.getString ("selectedStationCount");
                         String ccCount = jsonObject.getString ("selectedCCTVCount");
                         String psCount = jsonObject.getString ("pedestrianSensorCount");
+                        String osCount = jsonObject.getString ("openShopCount");
                         if (polylineId.equals (polyline.getId ())) {
                             stationCount.setText (satCount);
                             cctvCount.setText (ccCount);
                             sensorCount.setText (psCount);
+                            openShopCount.setText (osCount);
                     }
                     }
 

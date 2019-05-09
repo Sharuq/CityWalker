@@ -4,6 +4,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.maps.android.PolyUtil;
 import com.theguardians.citywalker.Model.CCTVLocation;
+import com.theguardians.citywalker.Model.OpenShop;
 import com.theguardians.citywalker.Model.PedestrianSensor;
 import com.theguardians.citywalker.Model.PoliceStation;
 
@@ -20,14 +21,17 @@ public class DataPointsCountDetail {
     private static PoliceStation pInfo = new PoliceStation ();
     private static CCTVLocation cInfo = new CCTVLocation ();
     private static PedestrianSensor sInfo = new PedestrianSensor ();
+    private static OpenShop oInfo = new OpenShop ();
 
-    public  static JSONArray getpolylineCountDetailsArray(List<Polyline> polylines,JSONArray policeStationArray,JSONArray cctvLocationArray,JSONArray pedestrianSensorArray, HashMap<String,PoliceStation> selectedPoliceStation,HashMap<String,CCTVLocation> selectedCCTVLocation,HashMap<String,PedestrianSensor> selectedPedestrianSensor, JSONArray polylineCountDetailsArray) {
+    public  static JSONArray getpolylineCountDetailsArray(List<Polyline> polylines, JSONArray policeStationArray, JSONArray cctvLocationArray, JSONArray pedestrianSensorArray, JSONArray openShopArray, HashMap<String,PoliceStation> selectedPoliceStation, HashMap<String,CCTVLocation> selectedCCTVLocation, HashMap<String,PedestrianSensor> selectedPedestrianSensor, HashMap<String, OpenShop> selectedOpenShop, JSONArray polylineCountDetailsArray) {
 
         for (Polyline polyline : polylines) {
 
             int cctvCount = 0;
             int stationCount = 0;
             int pedestrianSensorCount = 0;
+            int openShopCount =0;
+
             try {
 
                 for (int j = 0; j < policeStationArray.length (); j++) {
@@ -139,11 +143,46 @@ public class DataPointsCountDetail {
 
             try {
 
+                for (int j = 0; j < openShopArray.length (); j++) {
+                    JSONObject jsonobject = openShopArray.getJSONObject (j);
+
+                    String lat = jsonobject.getString ("latitude");
+                    String lon = jsonobject.getString ("longitude");
+                    String name = jsonobject.getString ("name");
+                    String address = jsonobject.getString ("address");
+
+
+                    oInfo = new OpenShop ();
+                    //System.out.println("This is ds " +ds);
+
+                    oInfo.setLatitude (Double.parseDouble (lat));
+                    oInfo.setLongitude (Double.parseDouble (lon));
+                    oInfo.setName (name);
+                    oInfo.setAddress (address);
+
+
+                    LatLng pt = new LatLng (oInfo.getLatitude (), oInfo.getLongitude ());
+
+                    if (PolyUtil.isLocationOnPath (pt, polyline.getPoints (), true, 50)) {
+                        // System.out.println ("Yes is Location on path CCTV name" + cInfo.getDetail ());
+                        openShopCount = openShopCount + 1;
+                        selectedOpenShop.put (oInfo.getName (), oInfo);
+
+                    } else {
+                        //System.out.println ("No is  not Location on path CCTV name " + cInfo.getDetail ());
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace ();
+            }
+            try {
+
                 JSONObject jsonObject = new JSONObject ();
                 jsonObject.put ("polylineId", polyline.getId ());
                 jsonObject.put ("selectedStationCount", stationCount);
                 jsonObject.put ("selectedCCTVCount", cctvCount);
                 jsonObject.put ("pedestrianSensorCount", pedestrianSensorCount);
+                jsonObject.put ("openShopCount", openShopCount);
 
                 polylineCountDetailsArray.put (jsonObject);
 
@@ -157,7 +196,7 @@ public class DataPointsCountDetail {
     }
 
 
-    public  static HashMap<String,PoliceStation> getselectedPoliceStation(List<Polyline> polylines,JSONArray policeStationArray,HashMap<String,PoliceStation> selectedPoliceStation) {
+    public  static HashMap<String,PoliceStation> getSelectedPoliceStation(List<Polyline> polylines,JSONArray policeStationArray,HashMap<String,PoliceStation> selectedPoliceStation) {
 
         for (Polyline polyline : polylines) {
 
@@ -207,7 +246,7 @@ public class DataPointsCountDetail {
     }
 
 
-    public  static HashMap<String,CCTVLocation> getselectedCCTVLocation(List<Polyline> polylines,JSONArray cctvLocationArray,HashMap<String,CCTVLocation> selectedCCTVLocation) {
+    public  static HashMap<String,CCTVLocation> getSelectedCCTVLocation(List<Polyline> polylines,JSONArray cctvLocationArray,HashMap<String,CCTVLocation> selectedCCTVLocation) {
 
         for (Polyline polyline : polylines) {
 
@@ -253,7 +292,7 @@ public class DataPointsCountDetail {
     }
 
 
-    public  static HashMap<String,PedestrianSensor> getselectedPedestrianSensor(List<Polyline> polylines,JSONArray pedestrianSensorArray,HashMap<String,PedestrianSensor> selectedPedestrianSensor) {
+    public  static HashMap<String,PedestrianSensor> getSelectedPedestrianSensor(List<Polyline> polylines,JSONArray pedestrianSensorArray,HashMap<String,PedestrianSensor> selectedPedestrianSensor) {
 
         for (Polyline polyline : polylines) {
 
@@ -296,5 +335,50 @@ public class DataPointsCountDetail {
 
         }
         return selectedPedestrianSensor;
+    }
+
+    public  static HashMap<String,OpenShop> getSelectedOpenShop(List<Polyline> polylines,JSONArray openShopArray,HashMap<String,OpenShop> selectedOpenShop) {
+
+        for (Polyline polyline : polylines) {
+
+            int openShopCount = 0;
+
+            try {
+
+                for (int j = 0; j < openShopArray.length (); j++) {
+                    JSONObject jsonobject = openShopArray.getJSONObject (j);
+
+                    String lat = jsonobject.getString ("latitude");
+                    String lon = jsonobject.getString ("longitude");
+                    String name = jsonobject.getString ("name");
+                    String address = jsonobject.getString ("address");
+
+
+                    oInfo = new OpenShop ();
+                    //System.out.println("This is ds " +ds);
+
+                    oInfo.setLatitude (Double.parseDouble (lat));
+                    oInfo.setLongitude (Double.parseDouble (lon));
+                    oInfo.setName (name);
+                    oInfo.setAddress (address);
+
+
+                    LatLng pt = new LatLng (oInfo.getLatitude (), oInfo.getLongitude ());
+
+                    if (PolyUtil.isLocationOnPath (pt, polyline.getPoints (), true, 50)) {
+                        // System.out.println ("Yes is Location on path CCTV name" + cInfo.getDetail ());
+                        openShopCount = openShopCount + 1;
+                        selectedOpenShop.put (oInfo.getName (), oInfo);
+
+                    } else {
+                        //System.out.println ("No is  not Location on path CCTV name " + cInfo.getDetail ());
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace ();
+            }
+
+        }
+        return selectedOpenShop;
     }
 }
