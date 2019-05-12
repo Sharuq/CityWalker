@@ -13,7 +13,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -26,15 +25,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.theguardians.citywalker.Model.ContactHandler;
 import com.theguardians.citywalker.Model.UserContact;
 import com.theguardians.citywalker.R;
-import com.theguardians.citywalker.RouteActivity;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import butterknife.BindView;
-import butterknife.OnClick;
 
 public class ContactEmergencyActivity extends AppCompatActivity {
 

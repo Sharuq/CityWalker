@@ -23,7 +23,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
-import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,7 +38,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.theguardians.citywalker.Model.ContactHandler;
 import com.theguardians.citywalker.Model.UserContact;
 import com.theguardians.citywalker.R;
-import com.theguardians.citywalker.RouteActivity;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;

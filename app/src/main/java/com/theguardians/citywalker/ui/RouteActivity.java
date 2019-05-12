@@ -1,14 +1,15 @@
-package com.theguardians.citywalker;
+package com.theguardians.citywalker.ui;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.Snackbar;
@@ -60,25 +61,33 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.theguardians.citywalker.Model.CCTVLocation;
 import com.theguardians.citywalker.Model.OpenShop;
+import com.theguardians.citywalker.Model.PedestrianCount;
 import com.theguardians.citywalker.Model.PedestrianSensor;
 import com.theguardians.citywalker.Model.PoliceStation;
+import com.theguardians.citywalker.Network.PedestrianSensorAPI;
+import com.theguardians.citywalker.R;
 import com.theguardians.citywalker.Service.DataFromFirebase;
 import com.theguardians.citywalker.Service.DataPointsCountDetail;
+import com.theguardians.citywalker.util.CustomInfoWindowAdapter;
+import com.theguardians.citywalker.util.Util;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
-import butterknife.OnClick;
 
 public class RouteActivity extends AppCompatActivity implements RoutingListener,GoogleMap.OnPolylineClickListener, GoogleApiClient.OnConnectionFailedListener, OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks {
 
@@ -90,24 +99,15 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private boolean mLocationPermissionGranted = false;
     private boolean mSMSPermissionGranted =false;
     private LatLng userLocation;
-    private static final int ERROR_DIALOG_REQUEST = 9001;
     private static final int  PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9003;
 
-    @BindView (R.id.nestedScrollView)
-    View nestedScrollView;
-    @BindView (R.id.timeValue)
-    TextView routeDuration;
-    @BindView (R.id.distanceValue)
-    TextView routeDistance;
-    @BindView (R.id.stationCount)
-    TextView stationCount;
-    @BindView (R.id.cctvCount)
-    TextView cctvCount;
-    @BindView (R.id.sensorCount)
-    TextView sensorCount;
-    @BindView (R.id.openShopCount)
-    TextView openShopCount;
-
+    private View nestedScrollView;
+    private TextView routeDuration;
+    private TextView routeDistance;
+    private TextView stationCount;
+    private TextView cctvCount;
+    private TextView sensorCount;
+    private TextView openShopCount;
 
     private static final String LOG_TAG = "RouteActivity";
     private ProgressDialog progressDialog;
@@ -124,6 +124,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
     private JSONArray polylineRouteDetailsArray = new JSONArray ();
     private JSONArray polylineCountDetailsArray =new JSONArray ();
+    private JSONArray pedestrianCountFinalArray =new JSONArray ();
 
     //add Firebase Database stuff
 
@@ -166,6 +167,10 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private Button info2;
     private Button currentLocation;
 
+    private Context context;
+    //private List<PedestrianCount> pedestrianCount;
+    private List<PedestrianCount> pedestrianCountDetails = new ArrayList<> ();
+    private ArrayList<String> markerPlaces = new ArrayList<>();
     /**
      * This activity loads a map and then displays the route and pushpins on it.
      */
@@ -173,13 +178,19 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate (savedInstanceState);
         setContentView (R.layout.route_activity);
-        ButterKnife.bind (this);
 
+        nestedScrollView = findViewById (R.id.nestedScrollView);
+        routeDuration =findViewById (R.id.timeValue);
         info2 =findViewById (R.id.info2);
         info2.setVisibility (View.INVISIBLE);
         currentLocation =findViewById (R.id.currentlocation);
         nestedScrollView.setVisibility (View.INVISIBLE);
         cardView = findViewById (R.id.cardview);
+        routeDistance =findViewById(R.id.distanceValue);
+        stationCount =findViewById (R.id.stationCount);
+        cctvCount =findViewById (R.id.cctvCount);
+        sensorCount =findViewById (R.id.sensorCount);
+        openShopCount =findViewById (R.id.openShopCount);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         if (mLocationPermissionGranted) {
@@ -194,6 +205,9 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         selectedCCTVMarkers =new ArrayList<> ();
         selectedPedestrianSensorMarkers =new ArrayList<> ();
         selectedOpenShopMarkers =new ArrayList<> ();
+        pedestrianCountDetails =new ArrayList<> ();
+
+        context =this;
 
         /**
         Collecting data from Firebase and storing to JSONArray
@@ -209,6 +223,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         cctvLocationArray = dataFromFirebase.getCctvLocationArray (cctvRef);
         pedestrianSensorArray =dataFromFirebase.getPedestrianSensorArray (pedestrianSensorRef);
         openShopArray =dataFromFirebase.getOpenShopArray (openShopRef);
+
 
         /**
          Getting and setting values on Places auto complete fragment
@@ -328,6 +343,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         map.animateCamera (CameraUpdateFactory.newLatLngZoom (new LatLng (-37.814593, 144.966520),14 ));
 
 
+
     }
     /**
      Function to call route plotting with details
@@ -351,7 +367,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                 }
             }
             else {
-                route ();
+                    route ();
             }
         }
         else
@@ -403,11 +419,12 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     @Override
     public void onRoutingSuccess(ArrayList<Route> route, int shortestRouteIndex)
     {
-        progressDialog.dismiss();
+       // progressDialog.dismiss();
         CameraUpdate center = CameraUpdateFactory.newLatLng(start);
-        CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
+        CameraUpdate zoom = CameraUpdateFactory.zoomTo(16);
         map.moveCamera(center);
         map.animateCamera (zoom);
+
         /**
         Removing  Polylines and Markers initially
         */
@@ -499,6 +516,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         polylineRouteDetailsArray =new JSONArray ();
         polylineCountDetailsArray =new JSONArray ();
+        pedestrianCountFinalArray = new JSONArray ();
 
         nestedScrollView.setVisibility (View.VISIBLE);
         mBottomSheetBehaviour = BottomSheetBehavior.from (nestedScrollView);
@@ -567,7 +585,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         routeDistance.setText ("(" +route.get (0).getDistanceText () +")");
         routeDuration.setText (route.get (0).getDurationText ());
 
-        System.out.println ("polylineRouteDetailsArray  "+polylineRouteDetailsArray);
+        //System.out.println ("polylineRouteDetailsArray  "+polylineRouteDetailsArray);
 
 
         selectedPoliceStation = new HashMap<> ();
@@ -585,16 +603,31 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         selectedPedestrianSensor =DataPointsCountDetail.getSelectedPedestrianSensor (polylines,pedestrianSensorArray,selectedPedestrianSensor);
         selectedOpenShop = DataPointsCountDetail.getSelectedOpenShop(polylines,openShopArray,selectedOpenShop);
 
-        System.out.println ("polylineCountDetailsArray  "+polylineCountDetailsArray);
+        //System.out.println ("polylineCountDetailsArray  "+polylineCountDetailsArray);
+
+
+        try {
+            new PopulateDataFromServer().execute (selectedPedestrianSensor).get ();
+        } catch (ExecutionException e) {
+            e.printStackTrace ();
+        } catch (InterruptedException e) {
+            e.printStackTrace ();
+        }
 
         selectedStationMarkers = new ArrayList ();
         selectedCCTVMarkers =new ArrayList<> ();
         selectedPedestrianSensorMarkers =new ArrayList<> ();
         selectedOpenShopMarkers = new ArrayList<> ();
 
+
+
+
+        System.out.println("Final Sensor Array:" +pedestrianCountFinalArray);
+
+
         /**
-         Displaying police station markers
-         */
+             Displaying police station markers
+        */
 
         for (PoliceStation policeStation : selectedPoliceStation.values ()) {
 
@@ -603,10 +636,10 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             LatLng policeStationLatLng = new LatLng (policeStation.getLatitude (),policeStation.getLongitude ());
             options1.position (policeStationLatLng);
             //options1.icon (BitmapDescriptorFactory.fromResource (R.drawable.mappolicestation2));
-            options1.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("mappolicestation",150,150)));
+            options1.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("policenew2",140,150)));
             options1.title (policeStation.getPolice_station ());
             options1.zIndex (2);
-            options1.snippet ("Address: "+policeStation.getAddress () + " Telephone: " +policeStation.getTel ());
+            options1.snippet ("Address: "+policeStation.getAddress () + "Telephone: " +policeStation.getTel ());
 
             policeStationMarker=map.addMarker (options1);
 
@@ -622,7 +655,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             LatLng policeStationLatLng = new LatLng (cctvLocation.getLatitude (),cctvLocation.getLongitude ());
             options1.position (policeStationLatLng);
             //options1.icon (BitmapDescriptorFactory.fromResource (R.drawable.mapcctv));
-            options1.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("mapcctv",150,150)));
+            options1.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("cctvnew3",140,150)));
             options1.title ("Safe City Camera");
             options1.snippet ("Detail: "+cctvLocation.getDetail ());
 
@@ -633,24 +666,60 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         /**
          Displaying sensor  markers
          */
-        for (PedestrianSensor pedestrianSensor : selectedPedestrianSensor.values ()) {
+        for(int i =0; i< pedestrianCountFinalArray.length ();i++){
 
-            pedestrianSensorMarker = null;
-            MarkerOptions options2 = new MarkerOptions ();
-            LatLng sensorLatLng = new LatLng (pedestrianSensor.getLatitude (),pedestrianSensor.getLongitude ());
-            options2.position (sensorLatLng);
-            //options2.icon (BitmapDescriptorFactory.fromResource (R.drawable.peoplesensor));
-            options2.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("peoplesensor1",150,150)));
-            options2.title ("Sensor");
-            options2.snippet ("Detail: "+pedestrianSensor.getSensor_description ());
+            HashMap<String, String> markerdetails = new HashMap<String, String>();
 
-            pedestrianSensorMarker=map.addMarker (options2);
+            JSONObject jsonobject = null;
+            try {
+                jsonobject = pedestrianCountFinalArray.getJSONObject (i);
+                String lat = jsonobject.getString ("latitude");
+                String lon = jsonobject.getString ("longitude");
+                String sensor_id = jsonobject.getString ("sensor_id");
+                String sensor_description = jsonobject.getString ("sensor_description");
+                String time = jsonobject.getString ("time");
+                String total_of_directions = jsonobject.getString ("total_of_directions");
 
-            selectedPedestrianSensorMarkers.add (pedestrianSensorMarker);
+
+
+                pedestrianSensorMarker = null;
+                MarkerOptions options2 = new MarkerOptions ();
+                LatLng sensorLatLng = new LatLng (Double.parseDouble (lat),Double.parseDouble (lon));
+                options2.position (sensorLatLng);
+                //options2.icon (BitmapDescriptorFactory.fromResource (R.drawable.peoplesensor));
+                options2.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("sensornew3",140,150)));
+                options2.title ("Sensor " +sensor_id);
+                //options2.snippet ("Address "+sensor_description);
+
+
+                CustomInfoWindowAdapter customInfoWindow = new CustomInfoWindowAdapter(this);
+                map.setInfoWindowAdapter(customInfoWindow);
+                //String time_count = time + total_of_directions;
+                pedestrianSensorMarker=map.addMarker (options2);
+                pedestrianSensorMarker.showInfoWindow();
+                markerdetails.put ("address",sensor_description);
+                markerdetails.put ("time",time);
+                markerdetails.put ("total_of_directions",total_of_directions);
+                markerdetails.put ("Id",pedestrianSensorMarker.getId ());
+
+                pedestrianSensorMarker.setTag (markerdetails);
+
+
+                selectedPedestrianSensorMarkers.add (pedestrianSensorMarker);
+
+            } catch (JSONException e) {
+                e.printStackTrace ();
+            }
+
+
         }
-        /**
-        Displaying open shop markers
-        */
+
+
+        System.out.println("Final Sensor Array:" +pedestrianCountFinalArray);
+
+            /**
+            Displaying open shop markers
+            */
         for (OpenShop openShop : selectedOpenShop.values ()) {
 
             openShopMarker = null;
@@ -658,12 +727,11 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             LatLng sensorLatLng = new LatLng (openShop.getLatitude (),openShop.getLongitude ());
             options3.position (sensorLatLng);
             //options2.icon (BitmapDescriptorFactory.fromResource (R.drawable.peoplesensor));
-            options3.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("mapshop",150,150)));
+            options3.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("shopnew2",140,150)));
             options3.title (openShop.getName ());
             options3.snippet ("Address: "+openShop.getAddress ());
 
             openShopMarker=map.addMarker (options3);
-
             selectedOpenShopMarkers.add (openShopMarker);
         }
 
@@ -800,6 +868,86 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
 
     }
+
+
+
+
+    private class PopulateDataFromServer extends AsyncTask<HashMap<String, PedestrianSensor> ,Void,Void>
+
+    {
+
+        @Override
+        protected Void doInBackground(HashMap... voids) {
+
+            HashMap<String, PedestrianSensor> selectedPedestrianSensors = voids[0];
+            pedestrianCountDetails =new ArrayList<> ();
+
+            //Creating a retrofit object
+            Retrofit retrofit = new Retrofit.Builder ()
+                    .baseUrl (PedestrianSensorAPI.BASE_URL)
+                    .addConverterFactory (GsonConverterFactory.create ()) //Here we are using the GsonConverterFactory to directly convert json data to object
+                    .build ();
+            //creating the api interface
+            PedestrianSensorAPI api = retrofit.create (PedestrianSensorAPI.class);
+            Call<List<PedestrianCount>> call = api.getPedestrianCount ();
+            try {
+                pedestrianCountDetails = call.execute ().body ();
+
+                for (PedestrianSensor pedestrianSensor : selectedPedestrianSensors.values ()) {
+
+                    for (PedestrianCount pedestrianCount : pedestrianCountDetails) {
+
+
+                        if (pedestrianCount.getSensor_id ().equals (pedestrianSensor.getSensor_id ())) {
+
+
+                                try {
+
+                                    JSONObject jsonObject = new JSONObject ();
+                                    jsonObject.put ("sensor_id", pedestrianCount.getSensor_id ());
+                                    jsonObject.put ("time", pedestrianCount.getTime ());
+                                    jsonObject.put ("total_of_directions", pedestrianCount.getTotal_of_directions ());
+                                    jsonObject.put ("sensor_description", pedestrianSensor.getSensor_description ());
+                                    jsonObject.put ("latitude", pedestrianSensor.getLatitude ());
+                                    jsonObject.put ("longitude", pedestrianSensor.getLongitude ());
+
+                                    pedestrianCountFinalArray.put (jsonObject);
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace ();
+                                }
+
+
+                        }
+                    }
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace ();
+            }
+
+        return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void v) {
+           progressDialog.dismiss();
+        //if (dialog.isShowing()) {
+         //   dialog.dismiss();
+        //}
+    }
+
+    @Override
+    protected void onPreExecute() {
+            //progressDialog = ProgressDialog.show(context, "Please wait.",
+                   // "Processing route safety situation information.", true);
+
+        //dialog.setMessage("Please wait, Processing route safety situation information.");
+        //dialog.show();
+
+    }
+  }
+
     /**
      * Return minimum value
      */

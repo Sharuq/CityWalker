@@ -1,4 +1,4 @@
-package com.theguardians.citywalker;
+package com.theguardians.citywalker.util;
 
 
 import android.content.Context;
