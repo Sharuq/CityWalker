@@ -47,6 +47,7 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
                 TextView total = (TextView) view.findViewById (R.id.total);
                 TextView predict_time = (TextView) view.findViewById (R.id.predict_time);
                 TextView predict_total = (TextView) view.findViewById (R.id.predict_total);
+                TextView busyness = (TextView) view.findViewById (R.id.busyness);
 
                 name.setText (marker.getTitle ());
                 address.setText (hashMap.get ("address"));
@@ -56,12 +57,13 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
                 if(pt!=null) {
                     predict_time.setText (hashMap.get ("predict_time"));
                     predict_total.setText (hashMap.get ("predict_total") + " people");
-
+                    busyness.setText (hashMap.get ("busyness"));
                 }
                 else {
 
                     predict_time.setText ("Not Available");
                     predict_total.setText ("Not Available");
+                    busyness.setText ("Not Available");
                 }
                 return view;
             }

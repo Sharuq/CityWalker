@@ -26,13 +26,14 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="center"
+        android:layout_gravity="center|left"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_marginLeft="20dp">
     <Button
         android:id="@+id/searchRouteBtn"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
         android:paddingTop="20dp"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
@@ -47,21 +48,63 @@
         android:typeface="sans" />
 
     <Button
-        android:id="@+id/emergencySupportBtn"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:id="@+id/safetyTips"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
         android:layout_below="@id/searchRouteBtn"
         android:layout_marginTop="50dp"
-        android:paddingTop="20dp"
+        android:paddingTop="30dp"
         android:background="@drawable/button_bg_rounded_corners"
         android:gravity="center"
-        android:drawableTop="@drawable/emergency"
-        android:text="Emergency Support"
+        android:drawableTop="@drawable/safetytip"
+        android:text="Safety Tips "
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/cardview_light_background"
         android:textStyle="bold"
         android:typeface="sans" />
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center|right"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_marginRight="20dp">
+        <Button
+            android:id="@+id/emergencySupportBtn"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:paddingTop="20dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center"
+            android:background="@drawable/button_bg_rounded_corners"
+            android:gravity="center"
+            android:drawableTop="@drawable/emergency"
+            android:text="Emergency Support"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/cardview_light_background"
+            android:textStyle="bold"
+            android:typeface="sans" />
+
+        <Button
+            android:id="@+id/aboutUs"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:layout_below="@id/searchRouteBtn"
+            android:layout_marginTop="50dp"
+            android:paddingTop="30dp"
+            android:background="@drawable/button_bg_rounded_corners"
+            android:gravity="center"
+            android:drawableTop="@drawable/aboutus"
+            android:text="About Us"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/cardview_light_background"
+            android:textStyle="bold"
+            android:typeface="sans" />
+    </LinearLayout>
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"

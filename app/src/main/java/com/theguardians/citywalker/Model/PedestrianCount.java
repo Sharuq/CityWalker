@@ -9,14 +9,24 @@ public class PedestrianCount {
     private String total_of_directions;
     private String prediction_time;
     private String prediction_counts;
+    private String busyness;
 
 
-    public PedestrianCount(String sensor_id, String time, String total_of_directions, String prediction_time, String prediction_counts) {
+    public PedestrianCount(String sensor_id, String time, String total_of_directions, String prediction_time, String prediction_counts, String busyness) {
         this.sensor_id = sensor_id;
         this.time = time;
         this.total_of_directions = total_of_directions;
         this.prediction_time = prediction_time;
         this.prediction_counts = prediction_counts;
+        this.busyness = busyness;
+    }
+
+    public String getBusyness() {
+        return busyness;
+    }
+
+    public void setBusyness(String busyness) {
+        this.busyness = busyness;
     }
 
     public String getPrediction_time() {

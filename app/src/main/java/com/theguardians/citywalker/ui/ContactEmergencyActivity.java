@@ -80,7 +80,7 @@ public class ContactEmergencyActivity extends AppCompatActivity {
 
     private JSONArray policeStationArray = new JSONArray ();
     private JSONArray openShopArray = new JSONArray ();
-
+    private JSONArray result =new JSONArray ();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // ...
@@ -179,7 +179,12 @@ public class ContactEmergencyActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                  getUserLocation ();
-                 calculateDistances(userLocation);
+                 if(userLocation!=null){
+                 calculateDistances(userLocation);}
+                 else {
+                     getUserLocation ();
+                     calculateDistances(userLocation);
+                 }
             }
         });
 
@@ -187,53 +192,91 @@ public class ContactEmergencyActivity extends AppCompatActivity {
     }
 
     private void calculateDistances(LatLng userLocation) {
-       JSONArray result =new JSONArray ();
-        try {
-            for(int i=0;i<policeStationArray.length ();i++){
-                float distance=0;
-                JSONObject jsonobject = policeStationArray.getJSONObject (i);
-
-                String lat =  jsonobject.getString ("latitude");
-                String lon = jsonobject.getString ("longitude");
-                String polSat = jsonobject.getString ("police_station");
-                String address = jsonobject.getString ("address");
-                String tel = jsonobject.getString ("tel");
-                pInfo = new PoliceStation ();
-                pInfo.setLatitude (Double.parseDouble (lat));
-                pInfo.setLongitude (Double.parseDouble (lon));
-                pInfo.setPolice_station (polSat);
-                pInfo.setAddress (address);
-                pInfo.setTel (tel);
-
-                Location crntLocation = new Location(LocationManager.GPS_PROVIDER);
-                crntLocation.setLatitude(userLocation.latitude);
-                crntLocation.setLongitude(userLocation.longitude);
-
-                Location newLocation=new Location(LocationManager.GPS_PROVIDER);
-                newLocation.setLatitude(pInfo.getLatitude ());
-                newLocation.setLongitude(pInfo.getLongitude ());
 
 
-                //float distance = crntLocation.distanceTo(newLocation);  in meters
-                distance =crntLocation.distanceTo(newLocation); // in km
+        if(userLocation==null){
+            System.out.println ("Yes");
+        }
+        else{
+            System.out.println ("No" +userLocation);
+        }
+        List<Float> pathDistances = new ArrayList<> ();
+        PoliceStation nearestStation = new PoliceStation ();
+
+            for (int i = 0; i < policeStationArray.length (); i++) {
                 try {
+                    float distance = 0;
+                    JSONObject jsonobject = policeStationArray.getJSONObject (i);
 
-                    JSONObject jsonObject1 = new JSONObject ();
-                    jsonObject1.put ("distance", distance);
-                    jsonObject1.put ("policeStation",pInfo);
+                    String lat = jsonobject.getString ("latitude");
+                    String lon = jsonobject.getString ("longitude");
+                    String polSat = jsonobject.getString ("police_station");
+                    String address = jsonobject.getString ("address");
+                    String tel = jsonobject.getString ("tel");
+                    pInfo = new PoliceStation ();
+                    pInfo.setLatitude (Double.parseDouble (lat));
+                    pInfo.setLongitude (Double.parseDouble (lon));
+                    pInfo.setPolice_station (polSat);
+                    pInfo.setAddress (address);
+                    pInfo.setTel (tel);
 
-                    result.put (jsonObject1);
+                    Location crntLocation = new Location (LocationManager.GPS_PROVIDER);
+                    crntLocation.setLatitude (userLocation.latitude);
+                    crntLocation.setLongitude (userLocation.longitude);
 
-                }
+                    Location newLocation = new Location (LocationManager.GPS_PROVIDER);
+                    newLocation.setLatitude (pInfo.getLatitude ());
+                    newLocation.setLongitude (pInfo.getLongitude ());
 
-                catch (JSONException e) {
+
+                     distance = crntLocation.distanceTo(newLocation);
+
+                    System.out.println ("Distance: " + distance);
+                    System.out.println ("Station: " + pInfo.getPolice_station ());
+                    pathDistances.add (distance);
+                    try {
+
+                        JSONObject jsonObject1 = new JSONObject ();
+                        jsonObject1.put ("distance", distance);
+                        jsonObject1.put ("policeStation", pInfo);
+
+                        result.put (jsonObject1);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace ();
+                    }
+                } catch (JSONException e) {
                     e.printStackTrace ();
                 }
+            }
+
+
+        System.out.println ("Path Distance: " +pathDistances);
+
+
+        //float minDistance = getMinValue (pathDistances);
+        //System.out.println ("MinDistance: " +minDistance);
+        /*
+        PoliceStation policeStation =new PoliceStation ();
+        try{
+            for(int j=0; j<result.length ();j++){
+
+                JSONObject jsonObject = result.getJSONObject (j);
+                float dis = Float.parseFloat (jsonObject.getString ("distance"));
+                policeStation = (PoliceStation) jsonObject.get ("policeStation");
+                if(Float.compare(minDistance, dis) == 0){
+                    nearestStation = policeStation;
+                }
+            }
         }
-        } catch (JSONException e) {
+        catch (JSONException e) {
             e.printStackTrace ();
         }
 
+        System.out.println ("Station: "+nearestStation.getPolice_station ());
+        System.out.println ("Address" +nearestStation.getAddress ());
+
+       */
     }
 
     private String getUserLocationDetails(Double latitude,Double longitude) throws IOException {
@@ -297,7 +340,7 @@ public class ContactEmergencyActivity extends AppCompatActivity {
                             // Logic to handle location object
                             userLocation= new LatLng(location.getLatitude (),location.getLongitude ());
 
-                            System.out.println ("NEw user location" +userLocation);
+                            //System.out.println ("NEw user location" +userLocation);
                         }
                     }
                 });
@@ -358,6 +401,21 @@ public class ContactEmergencyActivity extends AppCompatActivity {
             }
 
         }
+    }
+
+    /**
+     * Return minimum value
+     */
+
+
+    public static float getMinValue(List<Float> numbers){
+        float minValue = numbers.get (0);
+        for(int i=1;i<numbers.size ();i++){
+            if(numbers.get (i) < minValue){
+                minValue = numbers.get (i);
+            }
+        }
+        return minValue;
     }
 
 

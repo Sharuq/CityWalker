@@ -210,7 +210,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         context =this;
 
         /**
-        Collecting data from Firebase and storing to JSONArray
+         Collecting data from Firebase and storing to JSONArray
          */
         FirebaseApp.initializeApp(this);
         mFirebaseDatabase = FirebaseDatabase.getInstance();
@@ -367,7 +367,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                 }
             }
             else {
-                    route ();
+                route ();
             }
         }
         else
@@ -382,18 +382,18 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     {
 
 
-            progressDialog = ProgressDialog.show(this, "Please wait.",
-                    "Fetching route information.", true);
+        progressDialog = ProgressDialog.show(this, "Please wait.",
+                "Fetching route information.", true);
 
-            //startingMarker.remove ();
-            Routing routing = new Routing.Builder()
-                    .travelMode(AbstractRouting.TravelMode.WALKING)
-                    .withListener(this)
-                    .alternativeRoutes(true)
-                    .waypoints(start, end)
-                    .key (getString (R.string.google_maps_API_key))
-                    .build();
-            routing.execute();
+        //startingMarker.remove ();
+        Routing routing = new Routing.Builder()
+                .travelMode(AbstractRouting.TravelMode.WALKING)
+                .withListener(this)
+                .alternativeRoutes(true)
+                .waypoints(start, end)
+                .key (getString (R.string.google_maps_API_key))
+                .build();
+        routing.execute();
 
     }
 
@@ -419,15 +419,15 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     @Override
     public void onRoutingSuccess(ArrayList<Route> route, int shortestRouteIndex)
     {
-       // progressDialog.dismiss();
+        // progressDialog.dismiss();
         CameraUpdate center = CameraUpdateFactory.newLatLng(start);
         CameraUpdate zoom = CameraUpdateFactory.zoomTo(16);
         map.moveCamera(center);
         map.animateCamera (zoom);
 
         /**
-        Removing  Polylines and Markers initially
-        */
+         Removing  Polylines and Markers initially
+         */
         if(firstTimeRun==true) {
             originMarker.remove ();
             destinationMarker.remove ();
@@ -437,7 +437,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         }
         if (polylines.size () > 0) {
             for (Polyline poly : polylines) {
-                    poly.remove ();
+                poly.remove ();
             }
         }
         if(selectedStationMarkers.size ()>0) {
@@ -481,7 +481,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         polylines = new ArrayList<> ();
         /**
-        Finding the minimum distance route
+         Finding the minimum distance route
          */
         List<Integer> pathDistances = new ArrayList<> ();
         for(Route path: route)
@@ -502,7 +502,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         // Start marker
         MarkerOptions options = new MarkerOptions ();
         options.position (origin);
-       // options.icon (BitmapDescriptorFactory.fromResource (R.drawable.startingpoint));
+        // options.icon (BitmapDescriptorFactory.fromResource (R.drawable.startingpoint));
         options.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("startingpoint",150,150)));
         originMarker = map.addMarker (options);
 
@@ -530,55 +530,55 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         for (int i = 0; i < route.size (); i++) {
 
 
-                if(route.get (i).getDistanceValue () == minDistance) {
+            if(route.get (i).getDistanceValue () == minDistance) {
 
-                    PolylineOptions polyOptions = new PolylineOptions ();
-                    //polyOptions.color (getResources ().getColor (COLORS[colorIndex]));
-                    polyOptions.pattern (pattern);
-                    //polyOptions.color (colorIndex);
-                    //polyOptions.color (R.color.colorBlue);
-                    polyOptions.width (28);
-                    polyOptions.zIndex (1000);
-                    polyOptions.color (Color.parseColor ("#03a8f3"));
-                    polyOptions.addAll (route.get (i).getPoints ());
-                    polyOptions.clickable (true);
-                    Polyline polyline = map.addPolyline (polyOptions);
-                    polylines.add (polyline);
-                }
-                else {
+                PolylineOptions polyOptions = new PolylineOptions ();
+                //polyOptions.color (getResources ().getColor (COLORS[colorIndex]));
+                polyOptions.pattern (pattern);
+                //polyOptions.color (colorIndex);
+                //polyOptions.color (R.color.colorBlue);
+                polyOptions.width (28);
+                polyOptions.zIndex (1000);
+                polyOptions.color (Color.parseColor ("#03a8f3"));
+                polyOptions.addAll (route.get (i).getPoints ());
+                polyOptions.clickable (true);
+                Polyline polyline = map.addPolyline (polyOptions);
+                polylines.add (polyline);
+            }
+            else {
 
-                    PolylineOptions polyOptions = new PolylineOptions ();
-                    //polyOptions.color (getResources ().getColor (COLORS[colorIndex]));
-                    polyOptions.pattern (pattern);
-                    //polyOptions.color (colorIndex);
-                    polyOptions.color (Color.parseColor ("#757575"));
-                    polyOptions.width (28);
-                    polyOptions.zIndex (1);
-                    polyOptions.addAll (route.get (i).getPoints ());
-                    polyOptions.clickable (true);
+                PolylineOptions polyOptions = new PolylineOptions ();
+                //polyOptions.color (getResources ().getColor (COLORS[colorIndex]));
+                polyOptions.pattern (pattern);
+                //polyOptions.color (colorIndex);
+                polyOptions.color (Color.parseColor ("#757575"));
+                polyOptions.width (28);
+                polyOptions.zIndex (1);
+                polyOptions.addAll (route.get (i).getPoints ());
+                polyOptions.clickable (true);
 
-                    Polyline polyline = map.addPolyline (polyOptions);
+                Polyline polyline = map.addPolyline (polyOptions);
 
-                    polylines.add (polyline);
-                }
+                polylines.add (polyline);
+            }
 
-                 try {
+            try {
 
                 JSONObject jsonObject = new JSONObject ();
                 jsonObject.put ("polylineId", polylines.get (i).getId ());
                 jsonObject.put ("routeDistance", route.get (i).getDistanceText ());
                 jsonObject.put ("routeDuration", route.get (i).getDurationText ());
 
-                     polylineRouteDetailsArray.put (jsonObject);
+                polylineRouteDetailsArray.put (jsonObject);
 
-                } catch (JSONException e) {
+            } catch (JSONException e) {
                 e.printStackTrace ();
-                }
-
-
-
-                Toast.makeText (getApplicationContext (), "Route " + (i + 1) + ": distance - " + route.get (i).getDistanceText () + ": duration - " + route.get (i).getDurationText (), Toast.LENGTH_SHORT).show ();
             }
+
+
+
+            Toast.makeText (getApplicationContext (), "Route " + (i + 1) + ": distance - " + route.get (i).getDistanceText () + ": duration - " + route.get (i).getDurationText (), Toast.LENGTH_SHORT).show ();
+        }
         /**
          Setting Bottom sheet values
          */
@@ -594,7 +594,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         selectedOpenShop = new HashMap<> ();
 
         /**
-        Getting values from {@link DataPointsCountDetail}
+         Getting values from {@link DataPointsCountDetail}
          */
 
         polylineCountDetailsArray= DataPointsCountDetail.getpolylineCountDetailsArray(polylines,policeStationArray, cctvLocationArray,pedestrianSensorArray,openShopArray,selectedPoliceStation,selectedCCTVLocation,selectedPedestrianSensor,selectedOpenShop,polylineCountDetailsArray) ;
@@ -608,7 +608,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         if(selectedPedestrianSensor.size ()>0) {
 
             try {
-               new PopulateDataFromServer ().execute (selectedPedestrianSensor).get ();
+                new PopulateDataFromServer ().execute (selectedPedestrianSensor).get ();
 
             } catch (ExecutionException e) {
                 e.printStackTrace ();
@@ -635,8 +635,8 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
 
         /**
-             Displaying police station markers
-        */
+         Displaying police station markers
+         */
 
         for (PoliceStation policeStation : selectedPoliceStation.values ()) {
 
@@ -690,7 +690,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                 String total_of_directions = jsonobject.getString ("total_of_directions");
                 String predict_time = jsonobject.getString ("prediction_time");
                 String predict_total = jsonobject.getString ("prediction_counts");
-
+                String busyness = jsonobject.getString ("busyness");
 
 
                 pedestrianSensorMarker = null;
@@ -713,6 +713,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                 markerdetails.put ("total_of_directions",total_of_directions);
                 markerdetails.put ("predict_time",predict_time);
                 markerdetails.put ("predict_total",predict_total);
+                markerdetails.put ("busyness",busyness);
                 markerdetails.put ("Id",pedestrianSensorMarker.getId ());
 
                 pedestrianSensorMarker.setTag (markerdetails);
@@ -730,9 +731,9 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         System.out.println("Final Sensor Array:" +pedestrianCountFinalArray);
 
-            /**
-            Displaying open shop markers
-            */
+        /**
+         Displaying open shop markers
+         */
         for (OpenShop openShop : selectedOpenShop.values ()) {
 
             openShopMarker = null;
@@ -748,11 +749,11 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             selectedOpenShopMarkers.add (openShopMarker);
         }
 
-       // System.out.println ("@@ Selected Stations Marker Size @@  " +selectedStationMarkers.size ());
-       // System.out.println ("@@ Selected CCTV Marker Size @@  " +selectedCCTVMarkers.size ());
+        // System.out.println ("@@ Selected Stations Marker Size @@  " +selectedStationMarkers.size ());
+        // System.out.println ("@@ Selected CCTV Marker Size @@  " +selectedCCTVMarkers.size ());
 
         /**
-        Setting value in bottom sheet
+         Setting value in bottom sheet
          */
 
         try {
@@ -866,7 +867,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                             cctvCount.setText (ccCount);
                             sensorCount.setText (psCount);
                             openShopCount.setText (osCount);
-                    }
+                        }
                     }
 
                 } catch (JSONException e) {
@@ -914,23 +915,24 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                         if (pedestrianCount.getSensor_id ().equals (pedestrianSensor.getSensor_id ())) {
 
 
-                                try {
+                            try {
 
-                                    JSONObject jsonObject = new JSONObject ();
-                                    jsonObject.put ("sensor_id", pedestrianCount.getSensor_id ());
-                                    jsonObject.put ("time", pedestrianCount.getTime ());
-                                    jsonObject.put ("total_of_directions", pedestrianCount.getTotal_of_directions ());
-                                    jsonObject.put ("prediction_counts", pedestrianCount.getPrediction_counts ());
-                                    jsonObject.put ("prediction_time", pedestrianCount.getPrediction_time ());
-                                    jsonObject.put ("sensor_description", pedestrianSensor.getSensor_description ());
-                                    jsonObject.put ("latitude", pedestrianSensor.getLatitude ());
-                                    jsonObject.put ("longitude", pedestrianSensor.getLongitude ());
+                                JSONObject jsonObject = new JSONObject ();
+                                jsonObject.put ("sensor_id", pedestrianCount.getSensor_id ());
+                                jsonObject.put ("time", pedestrianCount.getTime ());
+                                jsonObject.put ("total_of_directions", pedestrianCount.getTotal_of_directions ());
+                                jsonObject.put ("prediction_counts", pedestrianCount.getPrediction_counts ());
+                                jsonObject.put ("prediction_time", pedestrianCount.getPrediction_time ());
+                                jsonObject.put ("busyness", pedestrianCount.getBusyness ());
+                                jsonObject.put ("sensor_description", pedestrianSensor.getSensor_description ());
+                                jsonObject.put ("latitude", pedestrianSensor.getLatitude ());
+                                jsonObject.put ("longitude", pedestrianSensor.getLongitude ());
 
-                                    pedestrianCountFinalArray.put (jsonObject);
+                                pedestrianCountFinalArray.put (jsonObject);
 
-                                } catch (JSONException e) {
-                                    e.printStackTrace ();
-                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace ();
+                            }
 
 
                         }
@@ -941,27 +943,27 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                 e.printStackTrace ();
             }
 
-        return null;
-    }
+            return null;
+        }
 
-    @Override
-    protected void onPostExecute(Void v) {
-           progressDialog.dismiss();
-        //if (dialog.isShowing()) {
-         //   dialog.dismiss();
-        //}
-    }
+        @Override
+        protected void onPostExecute(Void v) {
+            progressDialog.dismiss();
+            //if (dialog.isShowing()) {
+            //   dialog.dismiss();
+            //}
+        }
 
-    @Override
-    protected void onPreExecute() {
+        @Override
+        protected void onPreExecute() {
             //progressDialog = ProgressDialog.show(context, "Please wait.",
-                   // "Processing route safety situation information.", true);
+            // "Processing route safety situation information.", true);
 
-        //dialog.setMessage("Please wait, Processing route safety situation information.");
-        //dialog.show();
+            //dialog.setMessage("Please wait, Processing route safety situation information.");
+            //dialog.show();
 
+        }
     }
-  }
 
     /**
      * Return minimum value
@@ -978,7 +980,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         return minValue;
     }
     /**
-    Get user Location
+     Get user Location
      */
 
     public void getUserLocation(){
