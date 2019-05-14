@@ -7,11 +7,32 @@ public class PedestrianCount {
     private String sensor_id;
     private String time;
     private String total_of_directions;
+    private String prediction_time;
+    private String prediction_counts;
 
-    public PedestrianCount() {
+
+    public PedestrianCount(String sensor_id, String time, String total_of_directions, String prediction_time, String prediction_counts) {
         this.sensor_id = sensor_id;
         this.time = time;
         this.total_of_directions = total_of_directions;
+        this.prediction_time = prediction_time;
+        this.prediction_counts = prediction_counts;
+    }
+
+    public String getPrediction_time() {
+        return prediction_time;
+    }
+
+    public void setPrediction_time(String prediction_time) {
+        this.prediction_time = prediction_time;
+    }
+
+    public String getPrediction_counts() {
+        return prediction_counts;
+    }
+
+    public void setPrediction_counts(String prediction_counts) {
+        this.prediction_counts = prediction_counts;
     }
 
     public String getSensor_id() {

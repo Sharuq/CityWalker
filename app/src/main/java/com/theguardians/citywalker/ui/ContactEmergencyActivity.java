@@ -7,7 +7,9 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -22,9 +24,18 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.theguardians.citywalker.Model.ContactHandler;
+import com.theguardians.citywalker.Model.PoliceStation;
 import com.theguardians.citywalker.Model.UserContact;
 import com.theguardians.citywalker.R;
+import com.theguardians.citywalker.Service.DataFromFirebase;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,15 +59,28 @@ public class ContactEmergencyActivity extends AppCompatActivity {
     private String phoneNo;
     private String message;
     private String userLocationAddress;
-    private Button sendLocation;
-    private  Button infoShare;
+    private FloatingActionButton sendLocation;
     private  Button editContact;
+    private Button navigateToPolice;
     private String userName;
     private String userPhoneNumber;
     private TextView name;
     private TextView userPhNo;
     private int Id;
     Bundle extras = new Bundle ();
+    //add Firebase Database stuff
+
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference policeStationRef;
+    private DatabaseReference openShopRef;
+    private DataFromFirebase dataFromFirebase = new DataFromFirebase ();
+
+
+    private static PoliceStation pInfo = new PoliceStation ();
+
+    private JSONArray policeStationArray = new JSONArray ();
+    private JSONArray openShopArray = new JSONArray ();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // ...
@@ -74,14 +98,25 @@ public class ContactEmergencyActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        /**
+         Collecting data from Firebase and storing to JSONArray
+         */
+        FirebaseApp.initializeApp(this);
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        policeStationRef = mFirebaseDatabase.getReference("police_location");
+        openShopRef = mFirebaseDatabase.getReference ("24hr_stores");
+
+        policeStationArray = dataFromFirebase.getPoliceStationArray (policeStationRef);
+        openShopArray =dataFromFirebase.getOpenShopArray (openShopRef);
+
         extras = getIntent().getExtras();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient (this);
         sendLocation = findViewById(R.id.sendLocation);
         editContact =findViewById (R.id.editContact);
-        infoShare = findViewById (R.id.infoShareLocation);
         userPhNo = findViewById (R.id.phoneNumberValue);
         name = findViewById (R.id.nameValue);
-
+        navigateToPolice =findViewById (R.id.navigatetopolice);
         ContactHandler handler =new ContactHandler (this);
         // Reading all contacts
         List<UserContact> contacts = handler.readAllContacts();
@@ -108,13 +143,6 @@ public class ContactEmergencyActivity extends AppCompatActivity {
         {
             getSMSPermission ();
         }
-        infoShare.setOnClickListener (new View.OnClickListener () {
-            @Override
-            public void onClick(View v) {
-
-                Toast.makeText(ContactEmergencyActivity.this, "Share your current location with your emergency contact guardian", Toast.LENGTH_SHORT).show();
-            }
-        });
 
 
         editContact.setOnClickListener (new View.OnClickListener () {
@@ -147,6 +175,64 @@ public class ContactEmergencyActivity extends AppCompatActivity {
             }
         });
 
+        navigateToPolice.setOnClickListener (new View.OnClickListener () {
+            @Override
+            public void onClick(View v) {
+                 getUserLocation ();
+                 calculateDistances(userLocation);
+            }
+        });
+
+
+    }
+
+    private void calculateDistances(LatLng userLocation) {
+       JSONArray result =new JSONArray ();
+        try {
+            for(int i=0;i<policeStationArray.length ();i++){
+                float distance=0;
+                JSONObject jsonobject = policeStationArray.getJSONObject (i);
+
+                String lat =  jsonobject.getString ("latitude");
+                String lon = jsonobject.getString ("longitude");
+                String polSat = jsonobject.getString ("police_station");
+                String address = jsonobject.getString ("address");
+                String tel = jsonobject.getString ("tel");
+                pInfo = new PoliceStation ();
+                pInfo.setLatitude (Double.parseDouble (lat));
+                pInfo.setLongitude (Double.parseDouble (lon));
+                pInfo.setPolice_station (polSat);
+                pInfo.setAddress (address);
+                pInfo.setTel (tel);
+
+                Location crntLocation = new Location(LocationManager.GPS_PROVIDER);
+                crntLocation.setLatitude(userLocation.latitude);
+                crntLocation.setLongitude(userLocation.longitude);
+
+                Location newLocation=new Location(LocationManager.GPS_PROVIDER);
+                newLocation.setLatitude(pInfo.getLatitude ());
+                newLocation.setLongitude(pInfo.getLongitude ());
+
+
+                //float distance = crntLocation.distanceTo(newLocation);  in meters
+                distance =crntLocation.distanceTo(newLocation); // in km
+                try {
+
+                    JSONObject jsonObject1 = new JSONObject ();
+                    jsonObject1.put ("distance", distance);
+                    jsonObject1.put ("policeStation",pInfo);
+
+                    result.put (jsonObject1);
+
+                }
+
+                catch (JSONException e) {
+                    e.printStackTrace ();
+                }
+        }
+        } catch (JSONException e) {
+            e.printStackTrace ();
+        }
 
     }
 

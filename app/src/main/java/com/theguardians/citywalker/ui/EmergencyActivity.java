@@ -46,9 +46,9 @@ public class EmergencyActivity extends AppCompatActivity {
     private String message;
     private String userLocationAddress;
     private Button sendLocation;
-    private  Button infoShare;
     private Button infoAddContact;
     private  Button addContact;
+    private Button navigateToPolice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,8 +74,8 @@ public class EmergencyActivity extends AppCompatActivity {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient (this);
         sendLocation = findViewById(R.id.sendLocation);
         addContact =findViewById (R.id.addContact);
-        infoShare = findViewById (R.id.infoShareLocation);
         infoAddContact = findViewById (R.id.infoAddContact);
+       // navigateToPolice = findViewById (R.id.navigatetopolice);
 
         if (mLocationPermissionGranted) {
             getUserLocation();
@@ -92,13 +92,6 @@ public class EmergencyActivity extends AppCompatActivity {
         {
             getSMSPermission ();
         }
-        infoShare.setOnClickListener (new View.OnClickListener () {
-            @Override
-            public void onClick(View v) {
-
-                Toast.makeText(EmergencyActivity.this, "Share your current location with your emergency contact guardian", Toast.LENGTH_SHORT).show();
-            }
-        });
         infoAddContact.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {

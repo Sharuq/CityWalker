@@ -605,14 +605,23 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         //System.out.println ("polylineCountDetailsArray  "+polylineCountDetailsArray);
 
+        if(selectedPedestrianSensor.size ()>0) {
 
-        try {
-            new PopulateDataFromServer().execute (selectedPedestrianSensor).get ();
-        } catch (ExecutionException e) {
-            e.printStackTrace ();
-        } catch (InterruptedException e) {
-            e.printStackTrace ();
+            try {
+               new PopulateDataFromServer ().execute (selectedPedestrianSensor).get ();
+
+            } catch (ExecutionException e) {
+                e.printStackTrace ();
+            } catch (InterruptedException e) {
+                e.printStackTrace ();
+            }
         }
+        else
+        {
+            progressDialog.dismiss();
+        }
+
+
 
         selectedStationMarkers = new ArrayList ();
         selectedCCTVMarkers =new ArrayList<> ();
@@ -679,6 +688,8 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                 String sensor_description = jsonobject.getString ("sensor_description");
                 String time = jsonobject.getString ("time");
                 String total_of_directions = jsonobject.getString ("total_of_directions");
+                String predict_time = jsonobject.getString ("prediction_time");
+                String predict_total = jsonobject.getString ("prediction_counts");
 
 
 
@@ -700,6 +711,8 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                 markerdetails.put ("address",sensor_description);
                 markerdetails.put ("time",time);
                 markerdetails.put ("total_of_directions",total_of_directions);
+                markerdetails.put ("predict_time",predict_time);
+                markerdetails.put ("predict_total",predict_total);
                 markerdetails.put ("Id",pedestrianSensorMarker.getId ());
 
                 pedestrianSensorMarker.setTag (markerdetails);
@@ -907,6 +920,8 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                                     jsonObject.put ("sensor_id", pedestrianCount.getSensor_id ());
                                     jsonObject.put ("time", pedestrianCount.getTime ());
                                     jsonObject.put ("total_of_directions", pedestrianCount.getTotal_of_directions ());
+                                    jsonObject.put ("prediction_counts", pedestrianCount.getPrediction_counts ());
+                                    jsonObject.put ("prediction_time", pedestrianCount.getPrediction_time ());
                                     jsonObject.put ("sensor_description", pedestrianSensor.getSensor_description ());
                                     jsonObject.put ("latitude", pedestrianSensor.getLatitude ());
                                     jsonObject.put ("longitude", pedestrianSensor.getLongitude ());

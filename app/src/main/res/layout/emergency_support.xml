@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_weight="2">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -24,35 +25,51 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="25dp"
-        >
+        android:layout_marginTop="10dp"
+        android:orientation="vertical"
+        android:layout_marginBottom="15dp">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            android:text="1. Emergency contact"
+            android:textColor="@color/colorButton"
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
-        <android.support.v7.widget.CardView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="10dp"
-            card_view:cardCornerRadius="15dp"
-            card_view:contentPadding="11dp"
-            card_view:cardBackgroundColor="@color/colorWhite"
-            android:gravity="center"
-            >
+            android:layout_marginTop="15dp"
+            android:gravity="center">
 
             <LinearLayout
+
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
                 android:layout_weight="3"
                 android:id="@+id/addContactLayout">
 
+                <Button
+                    android:id="@+id/addContact"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:layout_gravity="right"
+                    android:layout_marginLeft="7dp"
+                    android:background="@drawable/add"
+                    android:backgroundTint="@color/colorButton" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:paddingTop="5dp"
                     android:text="Add Emergency Contact"
+                    android:layout_marginLeft="5dp"
                     android:textSize="24sp"
-                    android:textStyle="bold"
+                    android:textStyle="normal"
                     android:textColor="@color/colorButton"
                     />
 
@@ -61,93 +78,150 @@
                     android:id="@+id/infoAddContact"
                     android:layout_width="25dp"
                     android:layout_height="20dp"
+                    android:layout_marginLeft="10dp"
                     android:layout_gravity="fill_vertical"
                     android:background="@drawable/tooltips"
                     android:backgroundTint="@color/colorButton" />
 
-                <Button
-                    android:id="@+id/addContact"
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
-                    android:layout_gravity="right"
-                    android:layout_marginLeft="7dp"
 
-                    android:background="@drawable/add"
-                    android:backgroundTint="@color/colorButton" />
 
 
             </LinearLayout>
 
-
-        </android.support.v7.widget.CardView>
-
+        </LinearLayout>
 
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:background="@color/colorBlack"/>
 
-
-    <RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginTop="25dp"
-    >
-
-
-
-    <android.support.v7.widget.CardView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:layout_marginTop="10dp"
-        card_view:cardCornerRadius="10dp"
-        card_view:contentPadding="10dp"
-        card_view:cardBackgroundColor="@color/colorWhite"
-        android:gravity="center"
-        >
+        android:orientation="vertical"
+
+        android:layout_marginBottom="15dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="2. Emergency call"
+            android:paddingTop="5dp"
+            android:textColor="@color/colorButton"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/emergencycall"
+            android:layout_gravity="center"
+            app:fabCustomSize="80dp"
+            app:fabSize="auto"
+            app:maxImageSize="80dp"  />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:background="@color/colorBlack"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical"
+
+        android:layout_marginBottom="15dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="3. Location sharing"
+            android:paddingTop="5dp"
+            android:textColor="@color/colorButton"
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:orientation="horizontal"
-            android:layout_weight="3">
+            android:layout_gravity="center">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:paddingTop="5dp"
-                android:text="Location Sharing"
-                android:textSize="25sp"
-                android:textStyle="bold"
-                android:textColor="@color/colorButton"
-                />
-
-
-            <Button
-                android:id="@+id/infoShareLocation"
-                android:layout_width="25dp"
-                android:layout_height="20dp"
-                android:layout_gravity="fill_vertical"
-                android:background="@drawable/tooltips"
-                android:backgroundTint="@color/colorButton" />
-
-            <Button
+            <android.support.design.widget.FloatingActionButton
                 android:id="@+id/sendLocation"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:layout_gravity="right"
-                android:layout_marginLeft="80dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="50dp"
+                android:src="@drawable/emergencymessage"
+                app:fabCustomSize="80dp"
+                app:fabSize="auto"
+                app:maxImageSize="80dp" />
 
-                android:background="@drawable/share"
-                android:backgroundTint="@color/colorButton" />
-
-
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/sharelocation2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="150dp"
+                android:src="@drawable/sharelocation"
+                android:layout_gravity="center|right"
+                app:fabCustomSize="80dp"
+                app:fabSize="auto"
+                app:maxImageSize="80dp"  />
         </LinearLayout>
+    </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:background="@color/colorBlack"/>
 
-    </android.support.v7.widget.CardView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="10dp"
 
+        android:layout_marginBottom="15dp">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            android:text="4. Navigation to a safe place"
+            android:textColor="@color/colorButton"
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
-</RelativeLayout>
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="24 Hours Open Shop"
+            android:layout_marginTop="10dp"
+            tools:layout_editor_absoluteX="77dp"
+            android:layout_gravity="center"
+            android:textColor="@color/cardview_light_background"
+            android:background="@drawable/round_cornered2" />
+
+        <Button
+            android:id="@+id/button3"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="Police Sation"
+            android:layout_marginTop="17dp"
+            android:layout_gravity="center"
+            android:textColor="@color/cardview_light_background"
+            android:background="@drawable/round_cornered2"/>
+
+    </LinearLayout>
 
 </LinearLayout>

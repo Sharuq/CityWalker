@@ -17,6 +17,6 @@ public interface PedestrianSensorAPI {
     @GET("pedestriancountdetails/{id}")
     Call <PedestrianCount> getPedestrianCount(@Path("id") String sensor_id);
 
-    @GET("pedestriancountdetailslatest/")
+    @GET("pedestriancountdetailscombined/")
     Call <List<PedestrianCount>> getPedestrianCount();
 }
