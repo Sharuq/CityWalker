@@ -5,19 +5,19 @@ public class PedestrianCount {
 
 
     private String sensor_id;
-    private String time;
+    private String real_time;
     private String total_of_directions;
-    private String prediction_time;
-    private String prediction_counts;
+    private String predict_time;
+    private String hourly_counts;
     private String busyness;
 
 
-    public PedestrianCount(String sensor_id, String time, String total_of_directions, String prediction_time, String prediction_counts, String busyness) {
+    public PedestrianCount() {
         this.sensor_id = sensor_id;
-        this.time = time;
+        this.real_time = real_time;
         this.total_of_directions = total_of_directions;
-        this.prediction_time = prediction_time;
-        this.prediction_counts = prediction_counts;
+        this.predict_time = predict_time;
+        this.hourly_counts = hourly_counts;
         this.busyness = busyness;
     }
 
@@ -30,19 +30,19 @@ public class PedestrianCount {
     }
 
     public String getPrediction_time() {
-        return prediction_time;
+        return predict_time;
     }
 
     public void setPrediction_time(String prediction_time) {
-        this.prediction_time = prediction_time;
+        this.predict_time = prediction_time;
     }
 
     public String getPrediction_counts() {
-        return prediction_counts;
+        return hourly_counts;
     }
 
     public void setPrediction_counts(String prediction_counts) {
-        this.prediction_counts = prediction_counts;
+        this.hourly_counts = prediction_counts;
     }
 
     public String getSensor_id() {
@@ -54,11 +54,11 @@ public class PedestrianCount {
     }
 
     public String getTime() {
-        return time;
+        return real_time;
     }
 
     public void setTime(String time) {
-        this.time = time;
+        this.real_time = time;
     }
 
     public String getTotal_of_directions() {

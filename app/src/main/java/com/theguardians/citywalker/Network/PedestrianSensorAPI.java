@@ -14,7 +14,7 @@ public interface PedestrianSensorAPI {
 
     String BASE_URL = "http://pedestriancountwebapi.herokuapp.com/";
 
-    @GET("pedestriancountdetails/{id}")
+    @GET("combinedpedestriancount/{id}")
     Call <PedestrianCount> getPedestrianCount(@Path("id") String sensor_id);
 
     @GET("pedestriancountdetailscombined/")

@@ -29,7 +29,8 @@
         android:layout_gravity="center|left"
         android:gravity="center"
         android:orientation="vertical"
-        android:layout_marginLeft="20dp">
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="30dp">
     <Button
         android:id="@+id/searchRouteBtn"
         android:layout_width="140dp"
@@ -62,26 +63,43 @@
         android:textColor="@color/cardview_light_background"
         android:textStyle="bold"
         android:typeface="sans" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:layout_marginStart="30dp"
+            android:layout_gravity="center|bottom|left"
+            android:src="@drawable/emergencymessage"
+            app:borderWidth="0dp"
+            app:maxImageSize = "72dp"
+            app:fabSize="auto"
+            app:fabCustomSize="70dp"
+            />
+
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center|right"
+        android:layout_marginRight="30dp"
         android:gravity="center"
         android:orientation="vertical"
-        android:layout_marginRight="20dp">
+        android:layout_marginTop="30dp">
+
         <Button
             android:id="@+id/emergencySupportBtn"
             android:layout_width="140dp"
             android:layout_height="140dp"
-            android:paddingTop="20dp"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:layout_gravity="center"
             android:background="@drawable/button_bg_rounded_corners"
-            android:gravity="center"
             android:drawableTop="@drawable/emergency"
+            android:gravity="center"
+            android:paddingTop="20dp"
             android:text="Emergency Support"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/cardview_light_background"
@@ -94,41 +112,30 @@
             android:layout_height="140dp"
             android:layout_below="@id/searchRouteBtn"
             android:layout_marginTop="50dp"
-            android:paddingTop="30dp"
             android:background="@drawable/button_bg_rounded_corners"
-            android:gravity="center"
             android:drawableTop="@drawable/aboutus"
+            android:gravity="center"
+            android:paddingTop="30dp"
             android:text="About Us"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/cardview_light_background"
             android:textStyle="bold"
             android:typeface="sans" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|bottom|right"
+            android:layout_marginTop="50dp"
+            android:layout_marginEnd="30dp"
+            android:src="@drawable/emergencycall"
+            app:borderWidth="0dp"
+            app:fabCustomSize="70dp"
+            app:fabSize="auto"
+            app:maxImageSize="72dp" />
     </LinearLayout>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center|bottom|right"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/emergencycall"
-        app:borderWidth="0dp"
-        app:maxImageSize = "72dp"
-        app:fabSize="auto"
-        app:fabCustomSize="70dp"
-        />
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center|bottom|left"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/emergencymessage"
-        app:borderWidth="0dp"
-        app:maxImageSize = "72dp"
-        app:fabSize="auto"
-        app:fabCustomSize="70dp"
-        />
 
 
 </android.support.design.widget.CoordinatorLayout>

@@ -904,53 +904,44 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         protected Void doInBackground(HashMap... voids) {
 
             HashMap<String, PedestrianSensor> selectedPedestrianSensors = voids[0];
-            pedestrianCountDetails =new ArrayList<> ();
 
-            //Creating a retrofit object
-            Retrofit retrofit = new Retrofit.Builder ()
-                    .baseUrl (PedestrianSensorAPI.BASE_URL)
-                    .addConverterFactory (GsonConverterFactory.create ()) //Here we are using the GsonConverterFactory to directly convert json data to object
-                    .build ();
-            //creating the api interface
-            PedestrianSensorAPI api = retrofit.create (PedestrianSensorAPI.class);
-            Call<List<PedestrianCount>> call = api.getPedestrianCount ();
-            try {
-                pedestrianCountDetails = call.execute ().body ();
+            for (PedestrianSensor pedestrianSensor : selectedPedestrianSensors.values ()) {
+                //= new PedestrianCount ();
 
-                for (PedestrianSensor pedestrianSensor : selectedPedestrianSensors.values ()) {
+                //Creating a retrofit object
+                Retrofit retrofit = new Retrofit.Builder ()
+                        .baseUrl (PedestrianSensorAPI.BASE_URL)
+                        .addConverterFactory (GsonConverterFactory.create ()) //Here we are using the GsonConverterFactory to directly convert json data to object
+                        .build ();
+                //creating the api interface
+                PedestrianSensorAPI api = retrofit.create (PedestrianSensorAPI.class);
+                Call<PedestrianCount> call = api.getPedestrianCount (pedestrianSensor.getSensor_id ());
+                try {
+                    PedestrianCount  pedestrianCount = call.execute ().body ();
+                    try {
 
-                    for (PedestrianCount pedestrianCount : pedestrianCountDetails) {
+                        if(pedestrianCount.getSensor_id ()!=null) {
 
+                            JSONObject jsonObject = new JSONObject ();
+                            jsonObject.put ("sensor_id", pedestrianSensor.getSensor_id ());
+                            jsonObject.put ("time", pedestrianCount.getTime ());
+                            jsonObject.put ("total_of_directions", pedestrianCount.getTotal_of_directions ());
+                            jsonObject.put ("prediction_counts", pedestrianCount.getPrediction_counts ());
+                            jsonObject.put ("prediction_time", pedestrianCount.getPrediction_time ());
+                            jsonObject.put ("busyness", pedestrianCount.getBusyness ());
+                            jsonObject.put ("sensor_description", pedestrianSensor.getSensor_description ());
+                            jsonObject.put ("latitude", pedestrianSensor.getLatitude ());
+                            jsonObject.put ("longitude", pedestrianSensor.getLongitude ());
 
-                        if (pedestrianCount.getSensor_id ().equals (pedestrianSensor.getSensor_id ())) {
-
-
-                            try {
-
-                                JSONObject jsonObject = new JSONObject ();
-                                jsonObject.put ("sensor_id", pedestrianCount.getSensor_id ());
-                                jsonObject.put ("time", pedestrianCount.getTime ());
-                                jsonObject.put ("total_of_directions", pedestrianCount.getTotal_of_directions ());
-                                jsonObject.put ("prediction_counts", pedestrianCount.getPrediction_counts ());
-                                jsonObject.put ("prediction_time", pedestrianCount.getPrediction_time ());
-                                jsonObject.put ("busyness", pedestrianCount.getBusyness ());
-                                jsonObject.put ("sensor_description", pedestrianSensor.getSensor_description ());
-                                jsonObject.put ("latitude", pedestrianSensor.getLatitude ());
-                                jsonObject.put ("longitude", pedestrianSensor.getLongitude ());
-
-                                pedestrianCountFinalArray.put (jsonObject);
-
-                            } catch (JSONException e) {
-                                e.printStackTrace ();
-                            }
-
-
+                            pedestrianCountFinalArray.put (jsonObject);
                         }
+                    } catch (JSONException e) {
+                        e.printStackTrace ();
                     }
                 }
-
-            } catch (IOException e) {
-                e.printStackTrace ();
+                catch (IOException e) {
+                    e.printStackTrace ();
+                }
             }
 
             return null;
@@ -989,6 +980,20 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         }
         return minValue;
     }
+/*
+    public void calculateSafetyScore(){
+
+        int X = 11;
+        int Y = 5;
+        int Z = 1;
+        int D = 500;
+        double cs = ((0.88 * X + 4.4 * Y + 8.8 * Z) / D) * 1000;
+
+        double ss = Math.round( ( (60 + (0.0004 * (cs/2 - 50)^3 ) )**0.5 ) * 9.8 )
+        Math.pow((0.0004 * (cs/2 - 50), 3)
+    }
+
+*/
     /**
      Get user Location
      */
