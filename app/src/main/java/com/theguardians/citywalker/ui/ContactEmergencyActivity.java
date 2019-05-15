@@ -1,6 +1,7 @@
 package com.theguardians.citywalker.ui;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -25,8 +26,11 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.theguardians.citywalker.Model.ContactHandler;
 import com.theguardians.citywalker.Model.PoliceStation;
 import com.theguardians.citywalker.Model.UserContact;
@@ -75,6 +79,7 @@ public class ContactEmergencyActivity extends AppCompatActivity {
     private DatabaseReference openShopRef;
     private DataFromFirebase dataFromFirebase = new DataFromFirebase ();
 
+    private PoliceStation nearestStation = new PoliceStation ();
 
     private static PoliceStation pInfo = new PoliceStation ();
 
@@ -90,6 +95,11 @@ public class ContactEmergencyActivity extends AppCompatActivity {
         toolbar.setTitle ("Emergency Support");
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp);
         setSupportActionBar (toolbar);
+        sendLocation = findViewById(R.id.sendLocation);
+        editContact =findViewById (R.id.editContact);
+        userPhNo = findViewById (R.id.phoneNumberValue);
+        name = findViewById (R.id.nameValue);
+        navigateToPolice =findViewById (R.id.navigatetopolice);
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,16 +117,13 @@ public class ContactEmergencyActivity extends AppCompatActivity {
         policeStationRef = mFirebaseDatabase.getReference("police_location");
         openShopRef = mFirebaseDatabase.getReference ("24hr_stores");
 
-        policeStationArray = dataFromFirebase.getPoliceStationArray (policeStationRef);
+        policeStationArray = getPoliceStationArray (policeStationRef);
         openShopArray =dataFromFirebase.getOpenShopArray (openShopRef);
 
+        navigateToPolice.setEnabled (false);
         extras = getIntent().getExtras();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient (this);
-        sendLocation = findViewById(R.id.sendLocation);
-        editContact =findViewById (R.id.editContact);
-        userPhNo = findViewById (R.id.phoneNumberValue);
-        name = findViewById (R.id.nameValue);
-        navigateToPolice =findViewById (R.id.navigatetopolice);
+
         ContactHandler handler =new ContactHandler (this);
         // Reading all contacts
         List<UserContact> contacts = handler.readAllContacts();
@@ -129,7 +136,7 @@ public class ContactEmergencyActivity extends AppCompatActivity {
 
 
         if (mLocationPermissionGranted) {
-            getUserLocation();
+            userLocation=getUserLocation();
         }
         else {
             getLocationPermission();
@@ -161,7 +168,7 @@ public class ContactEmergencyActivity extends AppCompatActivity {
                 //userLocationValue.setText (userLocation.toString ());
 
                 try {
-                    getUserLocation ();
+                    userLocation=getUserLocation ();
                     userLocationAddress = getUserLocationDetails (userLocation.latitude, userLocation.longitude);
                     phoneNo = userPhoneNumber;
                     message = "HELP ME !!!! I am at Location: " + userLocationAddress + " Coordinates: " + userLocation + " **Emergency Distress Message sent from CityWalker App**";
@@ -178,12 +185,29 @@ public class ContactEmergencyActivity extends AppCompatActivity {
         navigateToPolice.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
-                 getUserLocation ();
+                 userLocation=getUserLocation ();
                  if(userLocation!=null){
-                 calculateDistances(userLocation);}
+
+                     if(policeStationArray.length ()!=0) {
+                         nearestStation = findNearestPoliceStation (policeStationArray);
+                         System.out.println ("nearest police station " + nearestStation.getPolice_station ());
+                         Intent intent = new Intent(ContactEmergencyActivity.this, MapActivity.class);
+                         Bundle bundle = new Bundle ();
+                         bundle.putParcelable ("originPoint", new com.mapbox.mapboxsdk.geometry.LatLng (userLocation.latitude,userLocation.longitude));
+                         bundle.putParcelable ("destinationPoint", new com.mapbox.mapboxsdk.geometry.LatLng (nearestStation.getLatitude (),nearestStation.getLongitude ()));
+                         bundle.putSerializable ("policestation",nearestStation);
+                         intent.putExtras (bundle);
+                         startActivity(intent);
+                     }
+                     else{
+                        //navigateToPolice.performClick();
+                     }
+
+                 }
                  else {
-                     getUserLocation ();
-                     calculateDistances(userLocation);
+
+                     System.out.println ("no user location ");
+                     navigateToPolice.callOnClick();
                  }
             }
         });
@@ -191,19 +215,13 @@ public class ContactEmergencyActivity extends AppCompatActivity {
 
     }
 
-    private void calculateDistances(LatLng userLocation) {
+    private PoliceStation findNearestPoliceStation(JSONArray policeStationArray ) {
 
-
-        if(userLocation==null){
-            System.out.println ("Yes");
-        }
-        else{
-            System.out.println ("No" +userLocation);
-        }
+        userLocation = getUserLocation ();
         List<Float> pathDistances = new ArrayList<> ();
-        PoliceStation nearestStation = new PoliceStation ();
-
-            for (int i = 0; i < policeStationArray.length (); i++) {
+        PoliceStation nearStation = new PoliceStation ();
+        float minDistance=0;
+        for (int i = 0; i < policeStationArray.length (); i++) {
                 try {
                     float distance = 0;
                     JSONObject jsonobject = policeStationArray.getJSONObject (i);
@@ -224,15 +242,14 @@ public class ContactEmergencyActivity extends AppCompatActivity {
                     crntLocation.setLatitude (userLocation.latitude);
                     crntLocation.setLongitude (userLocation.longitude);
 
+
                     Location newLocation = new Location (LocationManager.GPS_PROVIDER);
                     newLocation.setLatitude (pInfo.getLatitude ());
                     newLocation.setLongitude (pInfo.getLongitude ());
 
 
-                     distance = crntLocation.distanceTo(newLocation);
+                    distance = crntLocation.distanceTo(newLocation);
 
-                    System.out.println ("Distance: " + distance);
-                    System.out.println ("Station: " + pInfo.getPolice_station ());
                     pathDistances.add (distance);
                     try {
 
@@ -251,21 +268,22 @@ public class ContactEmergencyActivity extends AppCompatActivity {
             }
 
 
-        System.out.println ("Path Distance: " +pathDistances);
+        if(pathDistances.size ()<=0){
+            System.out.println ("Zero Path Distance: " +pathDistances);
+        }
+        else {
+            minDistance = getMinValue (pathDistances);
+        }
 
 
-        //float minDistance = getMinValue (pathDistances);
-        //System.out.println ("MinDistance: " +minDistance);
-        /*
-        PoliceStation policeStation =new PoliceStation ();
         try{
             for(int j=0; j<result.length ();j++){
 
                 JSONObject jsonObject = result.getJSONObject (j);
                 float dis = Float.parseFloat (jsonObject.getString ("distance"));
-                policeStation = (PoliceStation) jsonObject.get ("policeStation");
+                PoliceStation policeStation = (PoliceStation) jsonObject.get ("policeStation");
                 if(Float.compare(minDistance, dis) == 0){
-                    nearestStation = policeStation;
+                    nearStation = policeStation;
                 }
             }
         }
@@ -273,11 +291,62 @@ public class ContactEmergencyActivity extends AppCompatActivity {
             e.printStackTrace ();
         }
 
-        System.out.println ("Station: "+nearestStation.getPolice_station ());
-        System.out.println ("Address" +nearestStation.getAddress ());
+        return  nearStation;
 
-       */
     }
+
+    public JSONArray getPoliceStationArray(DatabaseReference stationReference) {
+
+        stationReference.addValueEventListener (new ValueEventListener () {
+
+            @Override
+
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot ds : dataSnapshot.getChildren ()) {
+
+                    //System.out.println("This is ds " +ds);
+                    pInfo = new PoliceStation ();
+                    pInfo.setLatitude (Double.parseDouble (ds.child ("latitude").getValue ().toString ()));
+                    pInfo.setLongitude (Double.parseDouble (ds.child ("longitude").getValue ().toString ()));
+                    pInfo.setPolice_station (ds.child ("police_station").getValue ().toString ());
+                    pInfo.setAddress (ds.child ("address").getValue ().toString ());
+                    pInfo.setTel (ds.child ("tel").getValue ().toString ());
+
+
+                    try {
+
+                        JSONObject jsonObject = new JSONObject ();
+                        jsonObject.put ("police_station", pInfo.getPolice_station ());
+                        jsonObject.put ("latitude", pInfo.getLatitude ());
+                        jsonObject.put ("longitude", pInfo.getLongitude ());
+                        jsonObject.put ("address", pInfo.getAddress ());
+                        jsonObject.put ("tel", pInfo.getTel ());
+
+                        policeStationArray.put (jsonObject);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace ();
+                    }
+
+                }
+
+                navigateToPolice.setEnabled (true);
+
+                //Log.d (TAG, "$$$$ Array: " + policeStationArray);
+            }
+
+            @Override
+
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
+        return policeStationArray;
+    }
+
+
 
     private String getUserLocationDetails(Double latitude,Double longitude) throws IOException {
         Geocoder geocoder;
@@ -314,22 +383,9 @@ public class ContactEmergencyActivity extends AppCompatActivity {
     }
 
 
-    public void getUserLocation(){
+    @SuppressLint("MissingPermission")
+    public LatLng getUserLocation(){
 
-
-        if (ActivityCompat.checkSelfPermission (this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission (this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-            return;
-        }
 
         fusedLocationClient.getLastLocation ()
                 .addOnSuccessListener (this, new OnSuccessListener<Location> () {
@@ -345,7 +401,7 @@ public class ContactEmergencyActivity extends AppCompatActivity {
                     }
                 });
 
-
+         return userLocation;
     }
 
     public void sendSMSMessage(){

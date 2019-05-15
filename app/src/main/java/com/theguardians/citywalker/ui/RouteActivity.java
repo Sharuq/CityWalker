@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -57,8 +58,12 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.theguardians.citywalker.Model.CCTVLocation;
 import com.theguardians.citywalker.Model.OpenShop;
 import com.theguardians.citywalker.Model.PedestrianCount;
@@ -133,6 +138,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private DatabaseReference cctvRef;
     private DatabaseReference pedestrianSensorRef;
     private DatabaseReference openShopRef;
+    private DatabaseReference pedestrianPredictionRef;
 
 
     private HashMap<String,PoliceStation> selectedPoliceStation = new HashMap<> ();
@@ -218,11 +224,14 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         cctvRef = mFirebaseDatabase.getReference ("cctv_location");
         pedestrianSensorRef = mFirebaseDatabase.getReference ("ped_sensor_location");
         openShopRef = mFirebaseDatabase.getReference ("24hr_stores");
+        pedestrianPredictionRef = mFirebaseDatabase.getReference ();
 
         policeStationArray = dataFromFirebase.getPoliceStationArray (policeStationRef);
         cctvLocationArray = dataFromFirebase.getCctvLocationArray (cctvRef);
         pedestrianSensorArray =dataFromFirebase.getPedestrianSensorArray (pedestrianSensorRef);
         openShopArray =dataFromFirebase.getOpenShopArray (openShopRef);
+
+
 
 
         /**
@@ -321,6 +330,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         }
         mapFragment.getMapAsync (this);
     }
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {

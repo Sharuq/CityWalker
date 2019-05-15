@@ -1,6 +1,8 @@
 package com.theguardians.citywalker.Model;
 
-public class PoliceStation {
+import java.io.Serializable;
+
+public class PoliceStation implements Serializable {
 
     private String police_station;
     private  double latitude;
