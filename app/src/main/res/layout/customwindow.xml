@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="330dp"
+    android:layout_height="300dp"
     android:orientation="vertical"
-    android:layout_gravity="top|center"
     android:gravity="center">
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_gravity="center"
-        android:gravity="center">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,14 +15,14 @@
         android:gravity="center"
         android:id="@+id/lay1">
 
-    <TextView
-        android:id="@+id/name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sensor"
-        android:typeface="sans"
-        android:textStyle="bold"
-        android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sensor"
+            android:typeface="sans"
+            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
 
     </LinearLayout>
     <LinearLayout
@@ -37,7 +34,7 @@
         android:weightSum="3">
              <ImageView
                  android:layout_width="20dp"
-                 android:layout_height="20dp"
+                 android:layout_height="30dp"
                  android:background="@drawable/map"
                  android:layout_marginTop="8dp"
                  android:layout_weight="0.3"/>
@@ -52,10 +49,12 @@
                 android:textSize="14sp"
                 android:typeface="sans"/>
         </LinearLayout>
-        <LinearLayout
+    <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_below="@+id/lay2"
+            android:id="@+id/lay3">
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -65,12 +64,13 @@
                 android:textSize="14sp"
                 android:typeface="sans"
                 android:textStyle="bold"/>
-        </LinearLayout>
+    </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:id="@+id/lay6"
+        android:id="@+id/lay4"
+        android:layout_below="@+id/lay3"
         android:weightSum="4">
         <LinearLayout
             android:layout_width="match_parent"
@@ -116,7 +116,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_below="@+id/lay1"
+        android:layout_below="@+id/lay4"
         android:id="@+id/lay5"
         android:weightSum="4">
             <LinearLayout
@@ -152,8 +152,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_below="@+id/lay4"
-        android:id="@+id/lay3"
+        android:layout_marginBottom="15dp"
+        android:id="@+id/lay6"
+        android:layout_below="@+id/lay5"
         android:weightSum="4">
         <LinearLayout
             android:layout_width="match_parent"
@@ -179,8 +180,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/lay4"
-            android:layout_weight="2">
+            android:layout_weight="2"
+            >
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
@@ -198,5 +199,5 @@
         </LinearLayout>
     </LinearLayout>
 
-    </LinearLayout>
+    </RelativeLayout>
 </LinearLayout>

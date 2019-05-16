@@ -1,6 +1,7 @@
 package com.theguardians.citywalker.ui;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -439,7 +440,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     @Override
     public void onRoutingSuccess(ArrayList<Route> route, int shortestRouteIndex)
     {
-        // progressDialog.dismiss();
+        progressDialog.dismiss();
         CameraUpdate center = CameraUpdateFactory.newLatLng(start);
         CameraUpdate zoom = CameraUpdateFactory.zoomTo(16);
         map.moveCamera(center);
@@ -550,7 +551,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             public void onClick(View v) {
                 AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
                 builder1.setTitle ("Safety Score Analysis");
-                builder1.setMessage("Safety score based on data analysis of safety factors");
+                builder1.setMessage("The safety scores is calculated based on the distance of the route and the quantities of safety factors (CCTV cameras, 24-hour open stores and police stations) along the routes");
                 builder1.setCancelable(true);
                 builder1.setNegativeButton(
                         "Cancel",
@@ -559,6 +560,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                                 dialog.cancel();
                             }
                         });
+
     /*
                     builder1.setPositiveButton(
                             "Yes",
@@ -708,21 +710,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         System.out.println ("total Values  "+totalValues);
 
-        if(selectedPedestrianSensor.size ()>0) {
-
-            try {
-                new PopulateDataFromServer ().execute (selectedPedestrianSensor).get ();
-
-            } catch (ExecutionException e) {
-                e.printStackTrace ();
-            } catch (InterruptedException e) {
-                e.printStackTrace ();
-            }
-        }
-        else
-        {
-            progressDialog.dismiss();
-        }
 
 
 
@@ -778,58 +765,68 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         /**
          Displaying sensor  markers
          */
-        for(int i =0; i< pedestrianCountFinalArray.length ();i++){
-
+        /**
+         Displaying sensor  markers
+         */
+        for (PedestrianSensor pedestrianSensor : selectedPedestrianSensor.values ()) {
             HashMap<String, String> markerdetails = new HashMap<String, String>();
 
-            JSONObject jsonobject = null;
-            try {
-                jsonobject = pedestrianCountFinalArray.getJSONObject (i);
-                String lat = jsonobject.getString ("latitude");
-                String lon = jsonobject.getString ("longitude");
-                String sensor_id = jsonobject.getString ("sensor_id");
-                String sensor_description = jsonobject.getString ("sensor_description");
-                String time = jsonobject.getString ("time");
-                String total_of_directions = jsonobject.getString ("total_of_directions");
-                String predict_time = jsonobject.getString ("prediction_time");
-                String predict_total = jsonobject.getString ("prediction_counts");
-                String busyness = jsonobject.getString ("busyness");
+            pedestrianSensorMarker = null;
+            MarkerOptions options2 = new MarkerOptions ();
+            LatLng sensorLatLng = new LatLng (pedestrianSensor.getLatitude (),pedestrianSensor.getLongitude ());
+            options2.position (sensorLatLng);
+            options2.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("sensornew3",150,150)));
+            options2.title ("Sensor");
+           // options2.snippet ("Detail: "+pedestrianSensor.getSensor_description ());
 
 
-                pedestrianSensorMarker = null;
-                MarkerOptions options2 = new MarkerOptions ();
-                LatLng sensorLatLng = new LatLng (Double.parseDouble (lat),Double.parseDouble (lon));
-                options2.position (sensorLatLng);
-                //options2.icon (BitmapDescriptorFactory.fromResource (R.drawable.peoplesensor));
-                options2.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("sensornew3",140,150)));
-                options2.title ("Sensor " +sensor_id);
-                //options2.snippet ("Address "+sensor_description);
+            //Creating a retrofit object
+            Retrofit retrofit = new Retrofit.Builder ()
+                    .baseUrl (PedestrianSensorAPI.BASE_URL)
+                    .addConverterFactory (GsonConverterFactory.create ()) //Here we are using the GsonConverterFactory to directly convert json data to object
+                    .build ();
+            //creating the api interface
+            PedestrianSensorAPI api = retrofit.create (PedestrianSensorAPI.class);
+            Call<PedestrianCount> call = api.getPedestrianCount (pedestrianSensor.getSensor_id ());
+            CustomInfoWindowAdapter customInfoWindow = new CustomInfoWindowAdapter(this);
+            map.setInfoWindowAdapter(customInfoWindow);
+
+            call.enqueue(new Callback<PedestrianCount>() {
+                @Override
+                public void onResponse(Call<PedestrianCount> call, Response<PedestrianCount> response) {
+                    PedestrianCount pedestrianCount = response.body();
+
+                    if(pedestrianCount!=null) {
+                        //String time_count = time + total_of_directions;
+                        //pedestrianSensorMarker=map.addMarker (options2);
+                        pedestrianSensorMarker=map.addMarker (options2);
+
+                        pedestrianSensorMarker.showInfoWindow ();
+                        markerdetails.put ("address", pedestrianSensor.getSensor_description ());
+                        markerdetails.put ("time", pedestrianCount.getTime ());
+                        markerdetails.put ("total_of_directions", pedestrianCount.getTotal_of_directions ());
+                        markerdetails.put ("predict_time", pedestrianCount.getPrediction_time ());
+                        markerdetails.put ("predict_total", pedestrianCount.getPrediction_counts ());
+                        markerdetails.put ("busyness", pedestrianCount.getBusyness ());
+                        markerdetails.put ("Id", pedestrianSensorMarker.getId ());
+
+                        pedestrianSensorMarker.setTag (markerdetails);
 
 
-                CustomInfoWindowAdapter customInfoWindow = new CustomInfoWindowAdapter(this);
-                map.setInfoWindowAdapter(customInfoWindow);
-                //String time_count = time + total_of_directions;
-                pedestrianSensorMarker=map.addMarker (options2);
-                pedestrianSensorMarker.showInfoWindow();
-                markerdetails.put ("address",sensor_description);
-                markerdetails.put ("time",time);
-                markerdetails.put ("total_of_directions",total_of_directions);
-                markerdetails.put ("predict_time",predict_time);
-                markerdetails.put ("predict_total",predict_total);
-                markerdetails.put ("busyness",busyness);
-                markerdetails.put ("Id",pedestrianSensorMarker.getId ());
+                        selectedPedestrianSensorMarkers.add (pedestrianSensorMarker);
+                    }
+                }
 
-                pedestrianSensorMarker.setTag (markerdetails);
-
-
-                selectedPedestrianSensorMarkers.add (pedestrianSensorMarker);
-
-            } catch (JSONException e) {
-                e.printStackTrace ();
-            }
-
+                //selectedPedestrianSensorMarkers.add (pedestrianSensorMarker);
+                @Override
+                public void onFailure(Call<PedestrianCount> call, Throwable throwable) {
+                    Log.e(LOG_TAG, throwable.toString());
+                }
+            });
 
         }
+
+
 
 
         System.out.println("Final Sensor Array:" +pedestrianCountFinalArray);
@@ -1049,81 +1046,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
 
 
-
-    private class PopulateDataFromServer extends AsyncTask<HashMap<String, PedestrianSensor> ,Void,Void>
-
-    {
-
-        @Override
-        protected Void doInBackground(HashMap... voids) {
-
-            HashMap<String, PedestrianSensor> selectedPedestrianSensors = voids[0];
-
-            for (PedestrianSensor pedestrianSensor : selectedPedestrianSensors.values ()) {
-                //= new PedestrianCount ();
-
-                //Creating a retrofit object
-                Retrofit retrofit = new Retrofit.Builder ()
-                        .baseUrl (PedestrianSensorAPI.BASE_URL)
-                        .addConverterFactory (GsonConverterFactory.create ()) //Here we are using the GsonConverterFactory to directly convert json data to object
-                        .build ();
-                //creating the api interface
-                PedestrianSensorAPI api = retrofit.create (PedestrianSensorAPI.class);
-                Call<PedestrianCount> call = api.getPedestrianCount (pedestrianSensor.getSensor_id ());
-                try {
-                    PedestrianCount  pedestrianCount = call.execute ().body ();
-                    try {
-
-                        if(pedestrianCount!=null) {
-
-                            JSONObject jsonObject = new JSONObject ();
-                            jsonObject.put ("sensor_id", pedestrianCount.getSensor_id ());
-                            jsonObject.put ("time", pedestrianCount.getTime ());
-                            jsonObject.put ("total_of_directions", pedestrianCount.getTotal_of_directions ());
-                            jsonObject.put ("prediction_counts", pedestrianCount.getPrediction_counts ());
-                            jsonObject.put ("prediction_time", pedestrianCount.getPrediction_time ());
-                            jsonObject.put ("busyness", pedestrianCount.getBusyness ());
-                            jsonObject.put ("sensor_description", pedestrianSensor.getSensor_description ());
-                            jsonObject.put ("latitude", pedestrianSensor.getLatitude ());
-                            jsonObject.put ("longitude", pedestrianSensor.getLongitude ());
-
-                            pedestrianCountFinalArray.put (jsonObject);
-                        }
-                        else{
-
-                            System.out.println("It is null");
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace ();
-                    }
-                }
-                catch (IOException e) {
-                    e.printStackTrace ();
-                }
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void v) {
-            progressDialog.dismiss();
-            //if (dialog.isShowing()) {
-            //   dialog.dismiss();
-            //}
-        }
-
-        @Override
-        protected void onPreExecute() {
-            //progressDialog = ProgressDialog.show(context, "Please wait.",
-            // "Processing route safety situation information.", true);
-
-            //dialog.setMessage("Please wait, Processing route safety situation information.");
-            //dialog.show();
-
-        }
-    }
-
     /**
      * Return minimum value
      */
@@ -1152,10 +1074,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
     public int calculateSafetyScore(int cctv,int shop,int station,int dist){
 
-       // int X = cctv;
-        //int Y = shop;
-        //int Z = station;
-        //int D = dist;
         double cs = 0;
         double im = 0;
         int ss = 0;
