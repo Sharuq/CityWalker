@@ -1,15 +1,12 @@
 package com.theguardians.citywalker.ui;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import java.util.List;
 
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.widget.TextView;
@@ -36,7 +33,6 @@ import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.geometry.LatLng;
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
@@ -62,11 +58,12 @@ import android.view.View;
 import android.widget.Button;
 
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
+import com.theguardians.citywalker.Model.OpenShop;
 import com.theguardians.citywalker.Model.PoliceStation;
 import com.theguardians.citywalker.R;
 
 
-public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, PermissionsListener {
+public class ShopMapActivity extends AppCompatActivity implements OnMapReadyCallback, PermissionsListener {
     // variables for adding location layer
     private MapView mapView;
     private MapboxMap mapboxMap;
@@ -75,16 +72,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private LocationComponent locationComponent;
     // variables for calculating and drawing a route
     private DirectionsRoute currentRoute;
-    private static final String TAG = "MapActivity";
+    private static final String TAG = "ShopMapActivity";
     private NavigationMapRoute navigationMapRoute;
     // variables needed to initialize navigation
     private Button button;
     private LatLng origin;
     private LatLng destination;
-    private PoliceStation nearPol =new PoliceStation ();
+    private OpenShop nearOpenShop =new OpenShop ();
     private Point originPlace;
     private Point destinationPlace;
-    private TextView stationname;
+    private TextView shopname;
     private TextView timeValue;
     private TextView distanceValue;
     private CardView maincard;
@@ -94,10 +91,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate (savedInstanceState);
         Mapbox.getInstance (this, getString (R.string.access_token));
-        setContentView (R.layout.activity_map);
+        setContentView (R.layout.activity_shop_map);
         mapView = findViewById (R.id.mapView);
         mapView.onCreate (savedInstanceState);
-        stationname =findViewById (R.id.stationname);
+        shopname =findViewById (R.id.shopname);
         timeValue =findViewById (R.id.timeValue);
         distanceValue =findViewById (R.id.distanceValue);
         maincard =findViewById (R.id.maincard);
@@ -107,11 +104,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Bundle bundle = getIntent().getExtras();
         origin = bundle.getParcelable ("originPoint");
         destination = bundle.getParcelable ("destinationPoint");
-        nearPol = (PoliceStation) bundle.getSerializable ("policestation");
+        nearOpenShop = (OpenShop) bundle.getSerializable ("openshop");
         originPlace = Point.fromLngLat (origin.getLongitude (), origin.getLatitude ());
         destinationPlace = Point.fromLngLat (destination.getLongitude (), destination.getLatitude ());
 
-        stationname.setText (nearPol.getPolice_station ());
+        shopname.setText (nearOpenShop.getName ());
         mapView.getMapAsync (this);
 
     }
@@ -121,19 +118,19 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         this.mapboxMap = mapboxMap;
 
 
-        IconFactory iconFactory = IconFactory.getInstance(MapActivity.this);
+        IconFactory iconFactory = IconFactory.getInstance(ShopMapActivity.this);
         Icon icon = iconFactory.fromResource(R.drawable.mapbox_marker_icon_default);
 
         mapboxMap.addMarker (new MarkerOptions ()
                 .position (new com.mapbox.mapboxsdk.geometry.LatLng (destinationPlace.latitude (), destinationPlace.longitude ()))
-                .title (nearPol.getPolice_station ())
-                .snippet (" Address: "  +nearPol.getAddress ()+ "   Telephone: " +nearPol.getTel ())
+                .title (nearOpenShop.getName ())
+                .snippet (" Address: "  +nearOpenShop.getAddress ())
                 .icon (icon));
 
         mapboxMap.setStyle (Style.LIGHT, new Style.OnStyleLoaded () {
             @Override
             public void onStyleLoaded(@NonNull Style style) {
-               enableLocationComponent (style);
+                enableLocationComponent (style);
 
                 //addDestinationIconSymbolLayer (style);
 
@@ -149,7 +146,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                 getRoute (originPlace, destinationPlace);
 
-                //mapboxMap.addOnMapClickListener(MapActivity.this);
+                //mapboxMap.addOnMapClickListener(PoliceMapActivity.this);
 
                 button.setEnabled(true);
                 button.setOnClickListener(new View.OnClickListener() {
@@ -158,12 +155,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                         boolean simulateRoute = true;
                         NavigationLauncherOptions options = NavigationLauncherOptions.builder()
                                 .directionsRoute(currentRoute)
-                                .shouldSimulateRoute(simulateRoute)
+                                .shouldSimulateRoute(false)
                                 .waynameChipEnabled (true)
                                 .build();
 
                         // Call this method with Context from within an Activity
-                        NavigationLauncher.startNavigation(MapActivity.this, options);
+                        NavigationLauncher.startNavigation(ShopMapActivity.this, options);
                         maincard.setVisibility (View.VISIBLE);
                     }
                 });

@@ -59,6 +59,7 @@ public class AddContactActivity extends AppCompatActivity {
                 contact.setName(name);
                 contact.setPhoneNumber(phone);
                 db.execSQL("DROP TABLE IF EXISTS contacts");
+
                 handler.onCreate (db);
                 if(name.length()==0){
                     et_name.requestFocus();

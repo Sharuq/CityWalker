@@ -97,5 +97,10 @@ public class UpdateContactActivity extends AppCompatActivity {
             }
         });
     }
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(UpdateContactActivity.this, ContactEmergencyActivity.class);
+        startActivity(intent);
+    }
 
 }

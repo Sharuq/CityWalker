@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,6 +7,10 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:layout_weight="2">
+<LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -27,7 +31,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:orientation="vertical"
-        android:layout_marginBottom="15dp">
+        android:layout_marginBottom="15dp"
+        android:layout_marginStart="10dp">
 
         <TextView
             android:layout_width="match_parent"
@@ -35,7 +40,7 @@
             android:paddingTop="5dp"
             android:text="1. Emergency contact"
             android:textColor="@color/colorButton"
-            android:textSize="24sp"
+            android:textSize="22sp"
             android:textStyle="bold" />
 
         <LinearLayout
@@ -68,7 +73,7 @@
                     android:paddingTop="5dp"
                     android:text="Add Emergency Contact"
                     android:layout_marginLeft="5dp"
-                    android:textSize="24sp"
+                    android:textSize="22sp"
                     android:textStyle="normal"
                     android:textColor="@color/colorButton"
                     />
@@ -102,7 +107,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:orientation="vertical"
-
+        android:layout_marginStart="10dp"
         android:layout_marginBottom="15dp">
 
         <TextView
@@ -111,11 +116,11 @@
             android:text="2. Emergency call"
             android:paddingTop="5dp"
             android:textColor="@color/colorButton"
-            android:textSize="24sp"
+            android:textSize="22sp"
             android:textStyle="bold" />
 
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab"
+            android:id="@+id/emergencycall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
@@ -144,39 +149,41 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="3. Location sharing"
+
+            android:layout_marginStart="15dp"
             android:paddingTop="5dp"
             android:textColor="@color/colorButton"
-            android:textSize="24sp"
+            android:textSize="22sp"
             android:textStyle="bold" />
 
-        <LinearLayout
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:orientation="horizontal"
-            android:layout_gravity="center">
+            android:orientation="horizontal">
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/sendLocation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="50dp"
+                android:layout_alignParentStart="true"
                 android:src="@drawable/emergencymessage"
+                android:layout_marginLeft="80dp"
                 app:fabCustomSize="80dp"
                 app:fabSize="auto"
                 app:maxImageSize="80dp" />
 
             <android.support.design.widget.FloatingActionButton
-                android:id="@+id/sharelocation2"
+                android:id="@+id/sharelocation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="150dp"
                 android:src="@drawable/sharelocation"
-                android:layout_gravity="center|right"
+                android:layout_alignParentEnd="true"
+                android:layout_marginRight="80dp"
                 app:fabCustomSize="80dp"
                 app:fabSize="auto"
                 app:maxImageSize="80dp"  />
-        </LinearLayout>
+        </RelativeLayout>
     </LinearLayout>
 
     <View
@@ -198,22 +205,22 @@
             android:paddingTop="5dp"
             android:text="4. Navigation to a safe place"
             android:textColor="@color/colorButton"
-            android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginStart="15dp"/>
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/navigatetoshop"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="24 Hours Open Shop"
             android:layout_marginTop="10dp"
-            tools:layout_editor_absoluteX="77dp"
             android:layout_gravity="center"
             android:textColor="@color/cardview_light_background"
             android:background="@drawable/round_cornered2" />
 
         <Button
-            android:id="@+id/button3"
+            android:id="@+id/navigatetopolice"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="Police Sation"
@@ -224,4 +231,6 @@
 
     </LinearLayout>
 
+
 </LinearLayout>
+</ScrollView>

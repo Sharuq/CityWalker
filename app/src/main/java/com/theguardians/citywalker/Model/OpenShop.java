@@ -1,6 +1,8 @@
 package com.theguardians.citywalker.Model;
 
-public class OpenShop {
+import java.io.Serializable;
+
+public class OpenShop implements Serializable {
 
     private String name;
     private String address;

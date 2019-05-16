@@ -95,8 +95,19 @@ public class MainActivity extends AppCompatActivity {
                         getCallPermission (phNo);
                     }
                 } else {
-                    Snackbar.make (view, "Please Add an Emergency Contact Number", Snackbar.LENGTH_LONG)
-                            .setAction ("Action", null).show ();
+                    AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+                    builder1.setMessage("Please add an emergency guardian contact first. ");
+                    builder1.setCancelable(true);
+                    builder1.setNegativeButton(
+                            "Cancel",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+
+                    AlertDialog alert11 = builder1.create();
+                    alert11.show();
                 }
             }
         });
@@ -135,8 +146,19 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                 } else {
-                    Snackbar.make (view, "Please Add an Emergency Contact Number", Snackbar.LENGTH_LONG)
-                            .setAction ("Action", null).show ();
+                    AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+                    builder1.setMessage("Please add an emergency guardian contact first. ");
+                    builder1.setCancelable(true);
+                    builder1.setNegativeButton(
+                            "Cancel",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+
+                    AlertDialog alert11 = builder1.create();
+                    alert11.show();
                 }
             }
         });

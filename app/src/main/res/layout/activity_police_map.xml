@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         card_view:cardBackgroundColor="@color/colorWhite"
-        card_view:cardCornerRadius="7dp"
+        card_view:cardCornerRadius="5dp"
         card_view:contentPadding="4dp"
         android:gravity="center"
         android:layout_alignParentBottom="true"

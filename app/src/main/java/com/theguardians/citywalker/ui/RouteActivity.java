@@ -776,7 +776,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             LatLng sensorLatLng = new LatLng (pedestrianSensor.getLatitude (),pedestrianSensor.getLongitude ());
             options2.position (sensorLatLng);
             options2.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("sensornew3",150,150)));
-            options2.title ("Sensor");
+            options2.title ("Sensor" + pedestrianSensor.getSensor_id ());
            // options2.snippet ("Detail: "+pedestrianSensor.getSensor_description ());
 
 
@@ -1044,8 +1044,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
     }
 
-
-
     /**
      * Return minimum value
      */
@@ -1084,15 +1082,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         ss = (int) Math.round( ( Math.sqrt (60 + im ) ) * 9.8 );
 
-        System.out.println ("cctv "+cctv);
-        System.out.println ("shop "+shop);
-        System.out.println ("station "+station);
-        System.out.println ("dist "+dist);
-
-        System.out.println ("CS "+cs);
-
-
-        System.out.println ("sS "+ss);
 
         return ss;
     }

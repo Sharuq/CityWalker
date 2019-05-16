@@ -9,6 +9,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -32,10 +33,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.theguardians.citywalker.Model.ContactHandler;
+import com.theguardians.citywalker.Model.OpenShop;
 import com.theguardians.citywalker.Model.PoliceStation;
 import com.theguardians.citywalker.Model.UserContact;
 import com.theguardians.citywalker.R;
-import com.theguardians.citywalker.Service.DataFromFirebase;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,10 +54,14 @@ public class ContactEmergencyActivity extends AppCompatActivity {
     private boolean mLocationPermissionGranted = false;
     private boolean mSMSPermissionGranted =false;
     private LatLng userLocation;
+
+    private boolean mCallPermissionGranted = false;
     private static final int ERROR_DIALOG_REQUEST = 9001;
 
     private static final int  PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9003;
     private static final int PERMISSIONS_REQUEST_ENABLE_GPS = 9002;
+
+    private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
 
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS =0 ;
 
@@ -64,8 +69,11 @@ public class ContactEmergencyActivity extends AppCompatActivity {
     private String message;
     private String userLocationAddress;
     private FloatingActionButton sendLocation;
+    private FloatingActionButton shareLocation;
+    private FloatingActionButton emergencycall;
     private  Button editContact;
     private Button navigateToPolice;
+    private Button navigateToShop;
     private String userName;
     private String userPhoneNumber;
     private TextView name;
@@ -77,18 +85,18 @@ public class ContactEmergencyActivity extends AppCompatActivity {
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference policeStationRef;
     private DatabaseReference openShopRef;
-    private DataFromFirebase dataFromFirebase = new DataFromFirebase ();
-
     private PoliceStation nearestStation = new PoliceStation ();
+    private  OpenShop nearestShop = new OpenShop ();
 
     private static PoliceStation pInfo = new PoliceStation ();
+    private static OpenShop oInfo = new OpenShop ();
 
     private JSONArray policeStationArray = new JSONArray ();
     private JSONArray openShopArray = new JSONArray ();
     private JSONArray result =new JSONArray ();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // ...
+
         super.onCreate (savedInstanceState);
         setContentView (R.layout.contact_emergency_support);
         Toolbar toolbar = findViewById (R.id.toolbar);
@@ -100,6 +108,9 @@ public class ContactEmergencyActivity extends AppCompatActivity {
         userPhNo = findViewById (R.id.phoneNumberValue);
         name = findViewById (R.id.nameValue);
         navigateToPolice =findViewById (R.id.navigatetopolice);
+        navigateToShop =findViewById (R.id.navigatetoshop);
+        shareLocation =findViewById (R.id.sharelocation);
+        emergencycall =findViewById (R.id.emergencycall);
 
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,9 +129,10 @@ public class ContactEmergencyActivity extends AppCompatActivity {
         openShopRef = mFirebaseDatabase.getReference ("24hr_stores");
 
         policeStationArray = getPoliceStationArray (policeStationRef);
-        openShopArray =dataFromFirebase.getOpenShopArray (openShopRef);
+        openShopArray = getOpenShopArray (openShopRef);
 
         navigateToPolice.setEnabled (false);
+        navigateToShop.setEnabled (false);
         extras = getIntent().getExtras();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient (this);
 
@@ -152,6 +164,7 @@ public class ContactEmergencyActivity extends AppCompatActivity {
         }
 
 
+
         editContact.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
@@ -170,7 +183,7 @@ public class ContactEmergencyActivity extends AppCompatActivity {
                 try {
                     userLocation=getUserLocation ();
                     userLocationAddress = getUserLocationDetails (userLocation.latitude, userLocation.longitude);
-                    phoneNo = userPhoneNumber;
+                    phoneNo = contacts.get (0).getPhoneNumber ();;
                     message = "HELP ME !!!! I am at Location: " + userLocationAddress + " Coordinates: " + userLocation + " **Emergency Distress Message sent from CityWalker App**";
 
                     sendSMSMessage ();
@@ -182,6 +195,42 @@ public class ContactEmergencyActivity extends AppCompatActivity {
             }
         });
 
+
+        emergencycall.setOnClickListener (new View.OnClickListener () {
+            @Override
+            public void onClick(View v) {
+
+                if(mCallPermissionGranted){
+                        phoneNo = contacts.get (0).getPhoneNumber ();
+                        callNumber (phoneNo);
+                 }
+                 else{
+
+                    phoneNo = contacts.get (0).getPhoneNumber ();
+                     getCallPermission (phoneNo);
+                }
+           }
+        });
+
+        shareLocation.setOnClickListener (new View.OnClickListener () {
+            @Override
+            public void onClick(View v) {
+                //userLocationValue.setText (userLocation.toString ());
+
+                try {
+                    userLocation=getUserLocation ();
+                    userLocationAddress = getUserLocationDetails (userLocation.latitude, userLocation.longitude);
+                    phoneNo = userPhoneNumber;
+                    message = "I am at Location: " + userLocationAddress + " Coordinates: " + userLocation + " **Message sent from CityWalker App**";
+
+                    sendSMSMessage ();
+                } catch (IOException e) {
+                    e.printStackTrace ();
+                }
+
+
+            }
+        });
         navigateToPolice.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
@@ -191,7 +240,7 @@ public class ContactEmergencyActivity extends AppCompatActivity {
                      if(policeStationArray.length ()!=0) {
                          nearestStation = findNearestPoliceStation (policeStationArray);
                          System.out.println ("nearest police station " + nearestStation.getPolice_station ());
-                         Intent intent = new Intent(ContactEmergencyActivity.this, MapActivity.class);
+                         Intent intent = new Intent(ContactEmergencyActivity.this, PoliceMapActivity.class);
                          Bundle bundle = new Bundle ();
                          bundle.putParcelable ("originPoint", new com.mapbox.mapboxsdk.geometry.LatLng (userLocation.latitude,userLocation.longitude));
                          bundle.putParcelable ("destinationPoint", new com.mapbox.mapboxsdk.geometry.LatLng (nearestStation.getLatitude (),nearestStation.getLongitude ()));
@@ -199,20 +248,85 @@ public class ContactEmergencyActivity extends AppCompatActivity {
                          intent.putExtras (bundle);
                          startActivity(intent);
                      }
-                     else{
-                        //navigateToPolice.performClick();
-                     }
-
-                 }
-                 else {
-
-                     System.out.println ("no user location ");
-                     navigateToPolice.callOnClick();
                  }
             }
         });
 
+        navigateToShop.setOnClickListener (new View.OnClickListener () {
+            @Override
+            public void onClick(View v) {
+                userLocation=getUserLocation ();
+                if(userLocation!=null){
 
+                    if(openShopArray.length ()!=0) {
+                        nearestShop = findNearestOpenShop (openShopArray);
+                        System.out.println ("nearest open shop " + nearestShop.getName ());
+                        Intent intent = new Intent(ContactEmergencyActivity.this, ShopMapActivity.class);
+                        Bundle bundle = new Bundle ();
+                        bundle.putParcelable ("originPoint", new com.mapbox.mapboxsdk.geometry.LatLng (userLocation.latitude,userLocation.longitude));
+                        bundle.putParcelable ("destinationPoint", new com.mapbox.mapboxsdk.geometry.LatLng (nearestShop.getLatitude (),nearestShop.getLongitude ()));
+                        bundle.putSerializable ("openshop",nearestShop);
+                        intent.putExtras (bundle);
+                        startActivity(intent);
+                    }
+                }
+            }
+        });
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(ContactEmergencyActivity.this, MainActivity.class);
+        startActivity(intent);
+    }
+
+    private void getCallPermission(String phNo) {
+        if (ContextCompat.checkSelfPermission (this,
+                Manifest.permission.CALL_PHONE)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale (this,
+                    Manifest.permission.CALL_PHONE)) {
+            } else {
+                ActivityCompat.requestPermissions (this,
+                        new String[]{Manifest.permission.CALL_PHONE},
+                        MY_PERMISSIONS_REQUEST_CALL_PHONE);
+
+            }
+
+        } else {
+
+            Intent intent = new Intent (Intent.ACTION_CALL);
+            intent.setData (Uri.parse ("tel:" + phNo));
+            startActivity (intent);
+        }
+
+    }
+    public void callNumber(String phoneNumber) {
+        Intent intent = new Intent (Intent.ACTION_CALL);
+        intent.setData (Uri.parse ("tel:" + phoneNumber));
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission (this,
+                Manifest.permission.CALL_PHONE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions (this,
+                    new String[]{Manifest.permission.CALL_PHONE},
+                    MY_PERMISSIONS_REQUEST_CALL_PHONE);
+
+            // MY_PERMISSIONS_REQUEST_CALL_PHONE is an
+            // app-defined int constant. The callback method gets the
+            // result of the request.
+        }
+        else {
+            //You already have permission
+            try {
+                startActivity (intent);
+            } catch (SecurityException e) {
+                e.printStackTrace ();
+            }
+
+        }
     }
 
     private PoliceStation findNearestPoliceStation(JSONArray policeStationArray ) {
@@ -295,6 +409,85 @@ public class ContactEmergencyActivity extends AppCompatActivity {
 
     }
 
+
+    private OpenShop findNearestOpenShop(JSONArray openShopArray ) {
+
+        userLocation = getUserLocation ();
+        List<Float> pathDistances = new ArrayList<> ();
+        OpenShop nearShop = new OpenShop ();
+        float minDistance=0;
+        for (int i = 0; i < openShopArray.length (); i++) {
+            try {
+                float distance = 0;
+                JSONObject jsonobject = openShopArray.getJSONObject (i);
+
+                String lat = jsonobject.getString ("latitude");
+                String lon = jsonobject.getString ("longitude");
+                String name = jsonobject.getString ("name");
+                String address = jsonobject.getString ("address");
+                oInfo = new OpenShop ();
+                oInfo.setLatitude (Double.parseDouble (lat));
+                oInfo.setLongitude (Double.parseDouble (lon));
+                oInfo.setName (name);
+                oInfo.setAddress (address);
+
+                Location crntLocation = new Location (LocationManager.GPS_PROVIDER);
+                crntLocation.setLatitude (userLocation.latitude);
+                crntLocation.setLongitude (userLocation.longitude);
+
+
+                Location newLocation = new Location (LocationManager.GPS_PROVIDER);
+                newLocation.setLatitude (oInfo.getLatitude ());
+                newLocation.setLongitude (oInfo.getLongitude ());
+
+
+                distance = crntLocation.distanceTo(newLocation);
+
+                pathDistances.add (distance);
+                try {
+
+                    JSONObject jsonObject1 = new JSONObject ();
+                    jsonObject1.put ("distance", distance);
+                    jsonObject1.put ("openShop", oInfo);
+
+                    result.put (jsonObject1);
+
+                } catch (JSONException e) {
+                    e.printStackTrace ();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace ();
+            }
+        }
+
+
+        if(pathDistances.size ()<=0){
+            System.out.println ("Zero Path Distance: " +pathDistances);
+        }
+        else {
+            minDistance = getMinValue (pathDistances);
+        }
+
+
+        try{
+            for(int j=0; j<result.length ();j++){
+
+                JSONObject jsonObject = result.getJSONObject (j);
+                float dis = Float.parseFloat (jsonObject.getString ("distance"));
+                OpenShop openShop = (OpenShop) jsonObject.get ("openShop");
+                if(Float.compare(minDistance, dis) == 0){
+                    nearShop = openShop;
+                }
+            }
+        }
+        catch (JSONException e) {
+            e.printStackTrace ();
+        }
+
+        return  nearShop;
+
+    }
+
     public JSONArray getPoliceStationArray(DatabaseReference stationReference) {
 
         stationReference.addValueEventListener (new ValueEventListener () {
@@ -332,8 +525,6 @@ public class ContactEmergencyActivity extends AppCompatActivity {
                 }
 
                 navigateToPolice.setEnabled (true);
-
-                //Log.d (TAG, "$$$$ Array: " + policeStationArray);
             }
 
             @Override
@@ -347,6 +538,58 @@ public class ContactEmergencyActivity extends AppCompatActivity {
     }
 
 
+
+    public JSONArray getOpenShopArray(DatabaseReference openShopReference) {
+        openShopReference.addValueEventListener (new ValueEventListener () {
+
+            @Override
+
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+
+                for (DataSnapshot ds : dataSnapshot.getChildren ()) {
+
+
+                    //System.out.println("This is cctv ds " +ds);
+                    oInfo.setLatitude (Double.parseDouble (ds.child ("latitude").getValue ().toString ()));
+                    oInfo.setLongitude (Double.parseDouble (ds.child ("longitude").getValue ().toString ()));
+                    oInfo.setName (ds.child ("name").getValue ().toString ());
+                    oInfo.setAddress (ds.child ("address").getValue ().toString ());
+                    //display all the information
+
+
+                    try {
+
+                        JSONObject jsonObject = new JSONObject ();
+                        jsonObject.put ("name", oInfo.getName ());
+                        jsonObject.put ("address", oInfo.getAddress ());
+                        jsonObject.put ("latitude", oInfo.getLatitude ());
+                        jsonObject.put ("longitude", oInfo.getLongitude ());
+
+                        openShopArray.put (jsonObject);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace ();
+                    }
+
+                }
+
+                navigateToShop.setEnabled (true);
+
+
+                //Log.d (TAG, "$$$$ Array: " + cctvLocationArray);
+            }
+
+
+            @Override
+
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
+        return openShopArray;
+    }
 
     private String getUserLocationDetails(Double latitude,Double longitude) throws IOException {
         Geocoder geocoder;
@@ -455,7 +698,15 @@ public class ContactEmergencyActivity extends AppCompatActivity {
                     mSMSPermissionGranted = true;
                 }
             }
+            case MY_PERMISSIONS_REQUEST_CALL_PHONE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
+                    mCallPermissionGranted = true;
+
+                }
+            }
         }
     }
 
