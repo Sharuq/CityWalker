@@ -177,6 +177,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private boolean clickedMap =false;
 
     private CardView cardView ;
+    private LinearLayout layout;
     private Button info2;
     private Button currentLocation;
 
@@ -208,6 +209,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         openShopCount =findViewById (R.id.openShopCount);
         safetyScoreText =findViewById (R.id.safetyScore);
         safestRoute = findViewById (R.id.safestRoute);
+        layout =findViewById (R.id.saflay);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         if (mLocationPermissionGranted) {
@@ -546,7 +548,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         java.util.List<PatternItem> pattern = Arrays.<PatternItem>asList(new Dot());
 
 
-        safestRoute.setOnClickListener (new View.OnClickListener () {
+        layout.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
@@ -1024,10 +1026,10 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                             openShopCount.setText (osCount);
                             safetyScoreText.setText (safetyScore);
                             if(Integer.parseInt (safetyScore)==maxSafetyScore){
-                                safestRoute.setVisibility (View.VISIBLE);
+                                layout.setVisibility (View.VISIBLE);
                             }
                             else{
-                                safestRoute.setVisibility (View.INVISIBLE);
+                                layout.setVisibility (View.INVISIBLE);
                             }
                         }
                     }

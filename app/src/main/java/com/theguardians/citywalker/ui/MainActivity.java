@@ -301,6 +301,7 @@ public class MainActivity extends AppCompatActivity {
         Button btnMap = (Button) findViewById (R.id.searchRouteBtn);
         Button btnMap2 = (Button) findViewById (R.id.emergencySupportBtn);
         Button btnMap3 = (Button) findViewById (R.id.aboutUs);
+        Button btnMap4 = (Button) findViewById (R.id.safetyTips);
         btnMap.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
@@ -327,6 +328,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent (MainActivity.this, AboutUsActivity.class);
+                startActivity (intent);
+            }
+        });
+
+        btnMap4.setOnClickListener (new View.OnClickListener () {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent (MainActivity.this, TipsActivity.class);
                 startActivity (intent);
             }
         });
