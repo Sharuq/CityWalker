@@ -20,6 +20,12 @@
     <string name="pp"> We collect information to provide better services to all our users. The information we collect will never be published, sharing, abused or any other forms of privacy violation.The locations of our users are collected and used only in the following situations:</string>
     <string name="pp1"> *** When users use their current location as the starting point or destination in Route Check</string>
     <string name="pp2"> *** When users send emergency messages or location sharing messages which contain the current location coordinates of users in Emergency Support; And</string>
+    <string name="pp3"> *** When users click the buttons of navigation to a safe place in Emergency Support and the current location is set as the starting point.</string>
+    <string name="ppp"> The names and phone numbers of emergency contact of our users are collected, stored in the local databases in users’ phones and used only in the following situations:</string>
+    <string name="pp4"> *** When users use their current location as the starting point or destination in Route Check</string>
+    <string name="pp5"> *** When users send emergency messages or location sharing messages to their emergency contact in Emergency Support</string>
+    <string name="pp6"> *** When users call their emergency contact in Emergency Support.</string>
+    <string name="ts"> By using our application, you agree that our application only provides suggestions based on analysing data and information from the government or organizations. In case of any discrepancy or inconsistency between the actual conditions and the information from our application, the actual conditions shall prevail.</string>
 
     <string name="dataset">Open Data Source: \u2022 MapBox API (https://www.mapbox.com/maps/) \u2022 Google Map API (https://developers.google.com/maps/documentation/) \u2022 Safe City cameras of the City of Melbourne (https://www.melbourne.vic.gov.au/community/safety-emergency/Pages/safe-citycameras.aspx) \u2022 Local police station location (https://www.police.vic.gov.au/location)</string>
 
