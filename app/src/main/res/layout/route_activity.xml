@@ -50,10 +50,11 @@
             card_view:cardCornerRadius="5dp"
             android:layout_weight="2"
             android:layout_marginBottom="5dp"
-            android:tooltipText="Currently available only in city ">
+           >
 
                 <fragment
                     android:id="@+id/autocomplete_fragment1"
+                    android:tooltipText="Currently available only in city "
                     android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -118,32 +119,37 @@
                     android:elevation="100dp"
                     />
             </LinearLayout>
-</RelativeLayout>
-    </android.support.v7.widget.CardView>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
-        android:layout_marginTop="10dp">
-        <Button
-            android:id="@+id/info"
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:background="@drawable/tooltips"
-            android:backgroundTint="@color/colorButton"
-            android:layout_gravity="center"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|right"
+                android:layout_marginTop="7dp"
+                android:layout_below="@+id/layout1"
+                android:layout_marginLeft="10dp">
+                <Button
+                    android:id="@+id/info"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:background="@drawable/tooltips"
+                    android:backgroundTint="@color/colorButton"
+                    android:layout_marginVertical="4dp"
+                    android:gravity="center"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="2dp"
-            android:text="Currently only available for Melbourne city area."
-            android:textSize="12sp"
-            android:layout_marginBottom="5dp"
-            android:textColor="@color/colorButton"
-            android:typeface="sans"
-            android:textStyle="bold"/>
-    </LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:text="Currently only available for Melbourne city area."
+                    android:textSize="12sp"
+                    android:layout_marginBottom="5dp"
+                    android:textColor="@color/colorButton"
+                    android:gravity="center"
+                    android:typeface="sans"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
 
 
     <android.support.v4.widget.NestedScrollView
@@ -453,13 +459,16 @@
             android:layout_height="12dp"
             android:background="@drawable/tooltips"
             android:backgroundTint="@color/colorButton"
-            android:layout_gravity="center"/>
+            android:layout_marginVertical="4dp"
+            android:gravity="center"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="2dp"
-            android:text="Click pedestrian sensor icon on map for more info."
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="5dp"
+            android:gravity="center"
+            android:text="Click pedestrian sensor icons on the map for more details."
             android:textSize="12sp"
             android:layout_marginBottom="5dp"
             android:textColor="@color/colorButton"

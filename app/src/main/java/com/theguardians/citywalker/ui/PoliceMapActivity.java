@@ -154,7 +154,7 @@ public class PoliceMapActivity extends AppCompatActivity implements OnMapReadyCa
                         boolean simulateRoute = true;
                         NavigationLauncherOptions options = NavigationLauncherOptions.builder()
                                 .directionsRoute(currentRoute)
-                                .shouldSimulateRoute(simulateRoute)
+                                .shouldSimulateRoute(false)
                                 .waynameChipEnabled (true)
                                 .build();
 

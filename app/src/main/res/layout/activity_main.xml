@@ -42,6 +42,7 @@
         android:background="@drawable/button_bg_rounded_corners"
         android:gravity="center"
         android:drawableTop="@drawable/route"
+        android:tooltipText="You can search routes. Then,it provides a safest route based on our model."
         android:text="Route Check"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/cardview_light_background"
@@ -61,6 +62,8 @@
         android:text="Safety Tips "
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/cardview_light_background"
+
+        android:tooltipText="Click it, then you can learn some safety tips."
         android:textStyle="bold"
         android:typeface="sans" />
 
@@ -102,6 +105,7 @@
             android:gravity="center"
             android:paddingTop="20dp"
             android:text="Emergency Support"
+            android:tooltipText="Add the emergency contact, then send a message and make a call. It also can navigate to a safety place."
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/cardview_light_background"
             android:textStyle="bold"
@@ -120,6 +124,8 @@
             android:text="About Us"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/cardview_light_background"
+
+            android:tooltipText="If you are interested in us, click it and know more about us. "
             android:textStyle="bold"
             android:typeface="sans" />
 

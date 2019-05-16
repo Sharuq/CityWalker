@@ -128,11 +128,114 @@ public class ContactEmergencyActivity extends AppCompatActivity {
         policeStationRef = mFirebaseDatabase.getReference("police_location");
         openShopRef = mFirebaseDatabase.getReference ("24hr_stores");
 
-        policeStationArray = getPoliceStationArray (policeStationRef);
-        openShopArray = getOpenShopArray (openShopRef);
+        //policeStationArray = getPoliceStationArray (policeStationRef);
+       // openShopArray = getOpenShopArray (openShopRef);
 
-        navigateToPolice.setEnabled (false);
-        navigateToShop.setEnabled (false);
+        policeStationRef.addValueEventListener (new ValueEventListener () {
+
+            @Override
+
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot ds : dataSnapshot.getChildren ()) {
+
+                    //System.out.println("This is ds " +ds);
+                    pInfo = new PoliceStation ();
+                    pInfo.setLatitude (Double.parseDouble (ds.child ("latitude").getValue ().toString ()));
+                    pInfo.setLongitude (Double.parseDouble (ds.child ("longitude").getValue ().toString ()));
+                    pInfo.setPolice_station (ds.child ("police_station").getValue ().toString ());
+                    pInfo.setAddress (ds.child ("address").getValue ().toString ());
+                    pInfo.setTel (ds.child ("tel").getValue ().toString ());
+
+
+                    try {
+
+                        JSONObject jsonObject = new JSONObject ();
+                        jsonObject.put ("police_station", pInfo.getPolice_station ());
+                        jsonObject.put ("latitude", pInfo.getLatitude ());
+                        jsonObject.put ("longitude", pInfo.getLongitude ());
+                        jsonObject.put ("address", pInfo.getAddress ());
+                        jsonObject.put ("tel", pInfo.getTel ());
+
+                        policeStationArray.put (jsonObject);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace ();
+                    }
+
+                }
+
+                navigateToPolice.setEnabled (true);
+            }
+
+            @Override
+
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
+
+
+        openShopRef.addValueEventListener (new ValueEventListener () {
+
+            @Override
+
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+
+                for (DataSnapshot ds : dataSnapshot.getChildren ()) {
+
+
+                    //System.out.println("This is cctv ds " +ds);
+                    oInfo.setLatitude (Double.parseDouble (ds.child ("latitude").getValue ().toString ()));
+                    oInfo.setLongitude (Double.parseDouble (ds.child ("longitude").getValue ().toString ()));
+                    oInfo.setName (ds.child ("name").getValue ().toString ());
+                    oInfo.setAddress (ds.child ("address").getValue ().toString ());
+                    //display all the information
+
+
+                    try {
+
+                        JSONObject jsonObject = new JSONObject ();
+                        jsonObject.put ("name", oInfo.getName ());
+                        jsonObject.put ("address", oInfo.getAddress ());
+                        jsonObject.put ("latitude", oInfo.getLatitude ());
+                        jsonObject.put ("longitude", oInfo.getLongitude ());
+
+                        openShopArray.put (jsonObject);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace ();
+                    }
+
+                }
+
+                navigateToShop.setEnabled (true);
+
+
+                //Log.d (TAG, "$$$$ Array: " + cctvLocationArray);
+            }
+
+
+            @Override
+
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
+
+
+        if(policeStationArray.length ()!=0 && openShopArray.length ()!=0) {
+            navigateToPolice.setEnabled (false);
+            navigateToShop.setEnabled (false);
+        }
+        else{
+            navigateToPolice.setEnabled (true);
+            navigateToShop.setEnabled (true);
+        }
+
         extras = getIntent().getExtras();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient (this);
 
@@ -183,7 +286,7 @@ public class ContactEmergencyActivity extends AppCompatActivity {
                 try {
                     userLocation=getUserLocation ();
                     userLocationAddress = getUserLocationDetails (userLocation.latitude, userLocation.longitude);
-                    phoneNo = contacts.get (0).getPhoneNumber ();;
+                    phoneNo = contacts.get (0).getPhoneNumber ();
                     message = "HELP ME !!!! I am at Location: " + userLocationAddress + " Coordinates: " + userLocation + " **Emergency Distress Message sent from CityWalker App**";
 
                     sendSMSMessage ();
