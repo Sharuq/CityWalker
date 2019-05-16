@@ -44,6 +44,7 @@
         android:text="Route Check"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/cardview_light_background"
+        android:tooltipText="You can search routes. Then,it provides a safest route based on our model."
         android:textStyle="bold"
         android:typeface="sans" />
 
@@ -60,6 +61,7 @@
         android:text="Safety Tips "
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@color/cardview_light_background"
+        android:tooltipText="Click it, then you can learn some safety tips."
         android:textStyle="bold"
         android:typeface="sans" />
     </LinearLayout>
@@ -85,6 +87,7 @@
             android:text="Emergency Support"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/cardview_light_background"
+            android:tooltipText="Add the emergency contact, then send a message and make a call. It also can navigate to a safety place."
             android:textStyle="bold"
             android:typeface="sans" />
 
@@ -101,6 +104,7 @@
             android:text="About Us"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/cardview_light_background"
+            android:tooltipText="If you are interested in us, click it and know more about us. "
             android:textStyle="bold"
             android:typeface="sans" />
     </LinearLayout>

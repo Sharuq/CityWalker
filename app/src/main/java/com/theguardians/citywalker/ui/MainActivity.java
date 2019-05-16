@@ -73,8 +73,6 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById (R.id.toolbar);
         setSupportActionBar (toolbar);
 
-
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient (this);
         ContactHandler handler = new ContactHandler (this);
         // Reading all contacts
@@ -150,13 +148,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume ();
         new CheckInternetConnection ().execute ();
-
     }
 
     /**
      * Check if internet connection is available or not through async task
      */
-
     public class CheckInternetConnection extends AsyncTask<Void, Void, Boolean> {
 
 
@@ -222,10 +218,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 getLocationPermission ();
             }
-
         }
-
-
     }
 
 
@@ -279,6 +272,7 @@ public class MainActivity extends AppCompatActivity {
         Button btnMap = (Button) findViewById (R.id.searchRouteBtn);
         Button btnMap2 = (Button) findViewById (R.id.emergencySupportBtn);
         Button btnMap3 = (Button) findViewById (R.id.aboutUs);
+        Button btnMap4 = (Button) findViewById(R.id.safetyTips);
         btnMap.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
@@ -286,7 +280,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity (intent);
             }
         });
-
 
         btnMap2.setOnClickListener (new View.OnClickListener () {
             @Override
@@ -305,6 +298,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent (MainActivity.this, AboutUsActivity.class);
+                startActivity (intent);
+            }
+        });
+
+        btnMap4.setOnClickListener (new View.OnClickListener () {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent (MainActivity.this, TipsActivity.class);
                 startActivity (intent);
             }
         });
