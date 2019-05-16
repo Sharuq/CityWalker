@@ -1,8 +1,10 @@
 package com.theguardians.citywalker.ui;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -113,6 +115,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private TextView cctvCount;
     private TextView sensorCount;
     private TextView openShopCount;
+    private TextView safetyScoreText;
 
     private static final String LOG_TAG = "RouteActivity";
     private ProgressDialog progressDialog;
@@ -130,6 +133,8 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private JSONArray polylineRouteDetailsArray = new JSONArray ();
     private JSONArray polylineCountDetailsArray =new JSONArray ();
     private JSONArray pedestrianCountFinalArray =new JSONArray ();
+    private JSONArray totalValues = new JSONArray ();
+    private JSONArray finalTotalValues = new JSONArray ();
 
     //add Firebase Database stuff
 
@@ -139,6 +144,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private DatabaseReference pedestrianSensorRef;
     private DatabaseReference openShopRef;
     private DatabaseReference pedestrianPredictionRef;
+
 
 
     private HashMap<String,PoliceStation> selectedPoliceStation = new HashMap<> ();
@@ -173,7 +179,9 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private Button info2;
     private Button currentLocation;
 
+    private  ImageView safestRoute;
     private Context context;
+    private int maxSafetyScore = 0;
     //private List<PedestrianCount> pedestrianCount;
     private List<PedestrianCount> pedestrianCountDetails = new ArrayList<> ();
     private ArrayList<String> markerPlaces = new ArrayList<>();
@@ -197,6 +205,8 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         cctvCount =findViewById (R.id.cctvCount);
         sensorCount =findViewById (R.id.sensorCount);
         openShopCount =findViewById (R.id.openShopCount);
+        safetyScoreText =findViewById (R.id.safetyScore);
+        safestRoute = findViewById (R.id.safestRoute);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         if (mLocationPermissionGranted) {
@@ -534,6 +544,38 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         java.util.List<PatternItem> pattern = Arrays.<PatternItem>asList(new Dot());
 
+
+        safestRoute.setOnClickListener (new View.OnClickListener () {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+                builder1.setTitle ("Safety Score Analysis");
+                builder1.setMessage("Safety score based on data analysis of safety factors");
+                builder1.setCancelable(true);
+                builder1.setNegativeButton(
+                        "Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+    /*
+                    builder1.setPositiveButton(
+                            "Yes",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            });
+
+
+    */
+                AlertDialog alert11 = builder1.create();
+                alert11.show();
+            }
+        });
+
+
         /**
          Getting polylines from routes and plotting
          */
@@ -578,6 +620,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                 jsonObject.put ("polylineId", polylines.get (i).getId ());
                 jsonObject.put ("routeDistance", route.get (i).getDistanceText ());
                 jsonObject.put ("routeDuration", route.get (i).getDurationText ());
+                jsonObject.put ("routeDistanceValue",route.get (i).getDistanceValue ());
 
                 polylineRouteDetailsArray.put (jsonObject);
 
@@ -597,6 +640,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         //System.out.println ("polylineRouteDetailsArray  "+polylineRouteDetailsArray);
 
+        totalValues = new JSONArray ();
 
         selectedPoliceStation = new HashMap<> ();
         selectedCCTVLocation = new HashMap<> ();
@@ -613,7 +657,56 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         selectedPedestrianSensor =DataPointsCountDetail.getSelectedPedestrianSensor (polylines,pedestrianSensorArray,selectedPedestrianSensor);
         selectedOpenShop = DataPointsCountDetail.getSelectedOpenShop(polylines,openShopArray,selectedOpenShop);
 
-        //System.out.println ("polylineCountDetailsArray  "+polylineCountDetailsArray);
+
+        for(int i =0; i<polylineRouteDetailsArray.length ();i++){
+                try {
+                    JSONObject jsonobject = polylineRouteDetailsArray.getJSONObject (i);
+                    String polID = jsonobject.getString ("polylineId");
+                    String routeDistance = jsonobject.getString ("routeDistance");
+                    String routeDuration = jsonobject.getString ("routeDuration");
+                    String routeDistanceValue = jsonobject.getString ("routeDistanceValue");
+
+                    for(int k=0;k<polylineCountDetailsArray.length ();k++){
+
+                        JSONObject jsonObject1 = polylineCountDetailsArray.getJSONObject (k);
+                        String polylineId = jsonObject1.getString ("polylineId");
+                        String satCount = jsonObject1.getString ("selectedStationCount");
+                        String ccCount = jsonObject1.getString ("selectedCCTVCount");
+                        String psCount = jsonObject1.getString ("pedestrianSensorCount");
+                        String osCount = jsonObject1.getString ("openShopCount");
+
+                        if(polID.equals (polylineId)){
+
+                            try {
+
+                                JSONObject newjsonObject = new JSONObject ();
+                                newjsonObject.put ("polylineId", polID);
+                                newjsonObject.put ("routeDistance", routeDistance);
+                                newjsonObject.put ("routeDuration", routeDuration);
+                                newjsonObject.put ("routeDistanceValue",routeDistanceValue);
+                                newjsonObject.put ("selectedStationCount", satCount);
+                                newjsonObject.put ("selectedCCTVCount", ccCount);
+                                newjsonObject.put ("pedestrianSensorCount", psCount);
+                                newjsonObject.put ("openShopCount", osCount);
+
+                                totalValues.put (newjsonObject);
+
+                            } catch (JSONException e) {
+                                e.printStackTrace ();
+                            }
+                        }
+                    }
+
+
+                }
+                catch (JSONException e) {
+                    e.printStackTrace ();
+                }
+            }
+
+
+
+        System.out.println ("total Values  "+totalValues);
 
         if(selectedPedestrianSensor.size ()>0) {
 
@@ -763,30 +856,93 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         // System.out.println ("@@ Selected CCTV Marker Size @@  " +selectedCCTVMarkers.size ());
 
         /**
-         Setting value in bottom sheet
+         Finding safety score
          */
+        int cctv= 0;
+        int shop =0;
+        int station =0;
+        int dist =0;
 
+        int safetyscore =0;
+
+        List<Integer> safetyScores = new ArrayList<> ();
         try {
-            stationCount.setText (polylineCountDetailsArray.getJSONObject (0).getString ("selectedStationCount"));
-        } catch (JSONException e) {
-            e.printStackTrace ();
-        }
-        try {
-            cctvCount.setText (polylineCountDetailsArray.getJSONObject (0).getString ("selectedCCTVCount"));
-        } catch (JSONException e) {
-            e.printStackTrace ();
-        }
-        try {
-            sensorCount.setText (polylineCountDetailsArray.getJSONObject (0).getString ("pedestrianSensorCount"));
+             for(int k =0;k<totalValues.length ();k++){
+
+                    JSONObject jsonObject1 = totalValues.getJSONObject (k);
+
+                    String polylineId = jsonObject1.getString ("polylineId");
+                    String routeDistance = jsonObject1.getString ("routeDistance");
+                    String routeDuration = jsonObject1.getString ("routeDuration");
+                    String routeDistanceValue = jsonObject1.getString ("routeDistanceValue");
+                    String satCount = jsonObject1.getString ("selectedStationCount");
+                    String ccCount = jsonObject1.getString ("selectedCCTVCount");
+                    String psCount = jsonObject1.getString ("pedestrianSensorCount");
+                    String osCount = jsonObject1.getString ("openShopCount");
+
+                    cctv = Integer.parseInt (ccCount);
+                    station =Integer.parseInt (satCount);
+                    shop= Integer.parseInt (osCount);
+                    dist =Integer.parseInt (routeDistanceValue);
+                    safetyscore = calculateSafetyScore (cctv,shop,station,dist);
+                    safetyScores.add (safetyscore);
+
+                     try {
+
+                     JSONObject newjsonObject = new JSONObject ();
+                     newjsonObject.put ("polylineId", polylineId);
+                     newjsonObject.put ("routeDistance", routeDistance);
+                     newjsonObject.put ("routeDuration", routeDuration);
+                     newjsonObject.put ("routeDistanceValue",routeDistanceValue);
+                     newjsonObject.put ("selectedStationCount", satCount);
+                     newjsonObject.put ("selectedCCTVCount", ccCount);
+                     newjsonObject.put ("pedestrianSensorCount", psCount);
+                     newjsonObject.put ("openShopCount", osCount);
+                     newjsonObject.put ("safetyScore",safetyscore);
+
+                     finalTotalValues.put (newjsonObject);
+
+                     } catch (JSONException e) {
+                     e.printStackTrace ();
+                 }
+
+
+
+                }
+
         } catch (JSONException e) {
             e.printStackTrace ();
         }
 
-        try {
-            openShopCount.setText (polylineCountDetailsArray.getJSONObject (0).getString ("openShopCount"));
-        } catch (JSONException e) {
-            e.printStackTrace ();
+
+        maxSafetyScore = getMaxValue (safetyScores);
+
+        for(Polyline polyline : polylines){
+            for(int i =0;i<finalTotalValues.length ();i++) {
+                try {
+                    JSONObject jsonObject1 = finalTotalValues.getJSONObject (i);
+                    String polylineId = jsonObject1.getString ("polylineId");
+                    String maxScore = jsonObject1.getString ("safetyScore");
+
+                    //Polyline p
+                    if (maxSafetyScore == Integer.parseInt (maxScore)) {
+                        if(polyline.getId ().equals (polylineId))
+                         {onPolylineClick (polyline);}
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace ();
+                }
         }
+    }
+
+
+
+
+
+
+        System.out.println ("finalTotalValues  "+finalTotalValues);
+
+
 
         /**
          Hiding and showing search box
@@ -848,39 +1004,37 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             if (polyline.getId ().equals (polyline1.getId ())) {
                 polyline1.setColor (ContextCompat.getColor (this, R.color.colorBlue));
                 polyline1.setZIndex (1000);
-                try {
-                    for (int i = 0; i < polylineRouteDetailsArray.length (); i++) {
-                        JSONObject jsonObject = polylineRouteDetailsArray.getJSONObject (i);
+                try{
+
+                    System.out.println ("finalTotalValues length"+finalTotalValues.length ());
+                    for(int k =0;k<finalTotalValues.length ();k++){
+                        JSONObject jsonObject = finalTotalValues.getJSONObject (k);
                         String polylineId = jsonObject.getString ("polylineId");
                         String routeDis = jsonObject.getString ("routeDistance");
                         String routeDur = jsonObject.getString ("routeDuration");
-
-                        if (polylineId.equals (polyline.getId ())) {
-                            routeDistance.setText (routeDis);
-                            routeDuration.setText (routeDur);
-                        }
-                    }
-
-                } catch (JSONException e) {
-                    e.printStackTrace ();
-                }
-                try {
-                    for (int i = 0; i < polylineCountDetailsArray.length (); i++) {
-                        JSONObject jsonObject = polylineCountDetailsArray.getJSONObject (i);
-                        String polylineId = jsonObject.getString ("polylineId");
                         String satCount = jsonObject.getString ("selectedStationCount");
                         String ccCount = jsonObject.getString ("selectedCCTVCount");
                         String psCount = jsonObject.getString ("pedestrianSensorCount");
                         String osCount = jsonObject.getString ("openShopCount");
+                        String safetyScore = jsonObject.getString ("safetyScore");
+
                         if (polylineId.equals (polyline.getId ())) {
+                            routeDistance.setText (routeDis);
+                            routeDuration.setText (routeDur);
                             stationCount.setText (satCount);
                             cctvCount.setText (ccCount);
                             sensorCount.setText (psCount);
                             openShopCount.setText (osCount);
+                            safetyScoreText.setText (safetyScore);
+                            if(Integer.parseInt (safetyScore)==maxSafetyScore){
+                                safestRoute.setVisibility (View.VISIBLE);
+                            }
+                            else{
+                                safestRoute.setVisibility (View.INVISIBLE);
+                            }
                         }
                     }
-
-                } catch (JSONException e) {
+                }catch (JSONException e) {
                     e.printStackTrace ();
                 }
 
@@ -920,10 +1074,10 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                     PedestrianCount  pedestrianCount = call.execute ().body ();
                     try {
 
-                        if(pedestrianCount.getSensor_id ()!=null) {
+                        if(pedestrianCount!=null) {
 
                             JSONObject jsonObject = new JSONObject ();
-                            jsonObject.put ("sensor_id", pedestrianSensor.getSensor_id ());
+                            jsonObject.put ("sensor_id", pedestrianCount.getSensor_id ());
                             jsonObject.put ("time", pedestrianCount.getTime ());
                             jsonObject.put ("total_of_directions", pedestrianCount.getTotal_of_directions ());
                             jsonObject.put ("prediction_counts", pedestrianCount.getPrediction_counts ());
@@ -934,6 +1088,10 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                             jsonObject.put ("longitude", pedestrianSensor.getLongitude ());
 
                             pedestrianCountFinalArray.put (jsonObject);
+                        }
+                        else{
+
+                            System.out.println("It is null");
                         }
                     } catch (JSONException e) {
                         e.printStackTrace ();
@@ -980,20 +1138,48 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         }
         return minValue;
     }
-/*
-    public void calculateSafetyScore(){
 
-        int X = 11;
-        int Y = 5;
-        int Z = 1;
-        int D = 500;
-        double cs = ((0.88 * X + 4.4 * Y + 8.8 * Z) / D) * 1000;
-
-        double ss = Math.round( ( (60 + (0.0004 * (cs/2 - 50)^3 ) )**0.5 ) * 9.8 )
-        Math.pow((0.0004 * (cs/2 - 50), 3)
+    public static int getMaxValue(List<Integer> numbers){
+        int maxValue = numbers.get (0);
+        for(int i=1;i<numbers.size ();i++){
+            if(numbers.get (i) > maxValue){
+                maxValue = numbers.get (i);
+            }
+        }
+        return maxValue;
     }
 
-*/
+
+    public int calculateSafetyScore(int cctv,int shop,int station,int dist){
+
+       // int X = cctv;
+        //int Y = shop;
+        //int Z = station;
+        //int D = dist;
+        double cs = 0;
+        double im = 0;
+        int ss = 0;
+
+        cs = ((0.88 * cctv + 4.4 * shop + 8.8 * station) / dist) * 1000;
+        im =  (0.0004 * Math.pow((cs/2 - 50), 3));
+
+
+        ss = (int) Math.round( ( Math.sqrt (60 + im ) ) * 9.8 );
+
+        System.out.println ("cctv "+cctv);
+        System.out.println ("shop "+shop);
+        System.out.println ("station "+station);
+        System.out.println ("dist "+dist);
+
+        System.out.println ("CS "+cs);
+
+
+        System.out.println ("sS "+ss);
+
+        return ss;
+    }
+
+
     /**
      Get user Location
      */

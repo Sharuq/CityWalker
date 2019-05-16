@@ -49,7 +49,8 @@
             card_view:cardBackgroundColor="@android:color/white"
             card_view:cardCornerRadius="5dp"
             android:layout_weight="2"
-            android:layout_marginBottom="5dp">
+            android:layout_marginBottom="5dp"
+            android:tooltipText="Currently available only in city ">
 
                 <fragment
                     android:id="@+id/autocomplete_fragment1"
@@ -204,7 +205,7 @@
             android:layout_height="40dp"
             android:layout_marginLeft="10dp"
             android:layout_weight="1"
-            android:src="@drawable/thumbs_up"/>
+            android:src="@drawable/good"/>
     </LinearLayout>
 
     <View
