@@ -48,15 +48,17 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
                 TextView predict_time = (TextView) view.findViewById (R.id.predict_time);
                 TextView predict_total = (TextView) view.findViewById (R.id.predict_total);
                 TextView busyness = (TextView) view.findViewById (R.id.busyness);
-
+                int walkunicode = 0x1F6B6;
+                int addressUnicode =0x1F303;
+                int clockUnicode = 0x1F55C;
                 name.setText (marker.getTitle ());
-                address.setText (hashMap.get ("address"));
-                time.setText (hashMap.get ("time"));
-                total.setText (hashMap.get ("total_of_directions")+" people");
+                address.setText (new String (Character.toChars(addressUnicode))+ " " +hashMap.get ("address"));
+                time.setText (new String (Character.toChars(clockUnicode))+" " +hashMap.get ("time"));
+                total.setText (new String (Character.toChars(walkunicode))+" "  +hashMap.get ("total_of_directions")+" people");
                 String pt = hashMap.get ("predict_time");
                 if(pt!=null) {
-                    predict_time.setText (hashMap.get ("predict_time"));
-                    predict_total.setText (hashMap.get ("predict_total") + " people");
+                    predict_time.setText (new String (Character.toChars(clockUnicode))+" "  +hashMap.get ("predict_time"));
+                    predict_total.setText (new String (Character.toChars(walkunicode))+" "  +hashMap.get ("predict_total") + " people");
                     busyness.setText (hashMap.get ("busyness"));
                 }
                 else {

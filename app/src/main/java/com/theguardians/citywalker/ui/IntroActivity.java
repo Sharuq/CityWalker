@@ -42,7 +42,7 @@ public class IntroActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 
-        // when this activity is about to be launch we need to check if its openened before or not
+        // For one time use
         /**
         if (restorePrefData()) {
 
@@ -71,7 +71,6 @@ public class IntroActivity extends AppCompatActivity {
         mList.add(new ScreenItem("Route check"," The route check section is for users to find the safest route among the suggested routes to go. ",R.drawable.route_colour));
         mList.add(new ScreenItem("Emergency support"," Users can get some help during an emergency under the emergency support section.",R.drawable.emergency_colour));
         mList.add(new ScreenItem("Safety tips"," Users can learn some safety tips under this section.",R.drawable.tips_colour));
-        mList.add(new ScreenItem("About us"," Know more about us.",R.drawable.aboutus_colour));
 
         // setup viewpager
         screenPager =findViewById(R.id.screen_viewpager);

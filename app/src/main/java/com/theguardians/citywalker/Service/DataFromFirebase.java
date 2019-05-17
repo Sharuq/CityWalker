@@ -95,9 +95,9 @@ public class DataFromFirebase {
 
 
                     //System.out.println("This is cctv ds " +ds);
-                    cInfo.setLatitude (Double.parseDouble (ds.child ("latitude").getValue ().toString ()));
-                    cInfo.setLongitude (Double.parseDouble (ds.child ("longitude").getValue ().toString ()));
-                    cInfo.setCctvNo (ds.child ("cctv").getValue ().toString ());
+                    cInfo.setLatitude (Double.parseDouble (ds.child ("lat").getValue ().toString ()));
+                    cInfo.setLongitude (Double.parseDouble (ds.child ("lon").getValue ().toString ()));
+                    cInfo.setCctvNo (ds.child ("title").getValue ().toString ());
                     cInfo.setDetail (ds.child ("detail").getValue ().toString ());
                     //display all the information
 

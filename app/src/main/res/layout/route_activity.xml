@@ -13,6 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+
+
     <android.support.v7.widget.CardView
         android:id="@+id/cardview"
         android:layout_width="match_parent"
@@ -112,7 +114,7 @@
                     android:id="@+id/info2"
                     android:layout_width="25dp"
                     android:layout_height="25dp"
-                    android:background="@drawable/userlocation2"
+                    android:background="@drawable/currentlocation"
                     android:layout_gravity="center"
                     android:layout_marginRight="5dp"
                     android:layout_marginTop="2dp"
@@ -151,6 +153,33 @@
         </RelativeLayout>
     </android.support.v7.widget.CardView>
 
+    <com.fangxu.allangleexpandablebutton.AllAngleExpandableButton
+        android:id="@+id/button_expandable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|bottom|left"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="130dp"
+        app:aebAnimDurationMillis="405"
+        app:aebButtonElevation="4dp"
+        app:aebButtonGapDp="10dp"
+        app:aebEndAngleDegree="90"
+        app:aebStartAngleDegree="90"
+        app:aebIsSelectionMode="true"
+        app:aebMainButtonRotateAnimDurationMillis="550"
+        app:aebMainButtonRotateDegree="-90"
+        app:aebMainButtonSizeDp="50dp"
+        app:aebMainButtonTextColor="#ffff5656"
+        app:aebMainButtonTextSizeSp="20dp"
+        app:aebMaskBackgroundColor="@color/colorTransparent"
+        app:aebRippleColor="@color/colorRed"
+        app:aebRippleEffect="true"
+        app:aebSubButtonSizeDp="50dp"
+        app:aebSubButtonTextColor="#000000"
+        app:aebSubButtonTextSizeSp="18dp"
+        app:aebBlurBackground="false"
+        app:aebBlurRadius="0"/>
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/nestedScrollView"
@@ -161,7 +190,7 @@
         app:behavior_hideable="false"
         app:behavior_peekHeight="130dp"
         app:layout_behavior="@string/bottom_sheet_behavior">
-<LinearLayout
+        <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">

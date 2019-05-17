@@ -22,10 +22,14 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.util.Log;
+import android.util.Pair;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +38,9 @@ import com.directions.route.Route;
 import com.directions.route.RouteException;
 import com.directions.route.Routing;
 import com.directions.route.RoutingListener;
+import com.fangxu.allangleexpandablebutton.AllAngleExpandableButton;
+import com.fangxu.allangleexpandablebutton.ButtonData;
+import com.fangxu.allangleexpandablebutton.ButtonEventListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
@@ -61,12 +68,8 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 import com.theguardians.citywalker.Model.CCTVLocation;
 import com.theguardians.citywalker.Model.OpenShop;
 import com.theguardians.citywalker.Model.PedestrianCount;
@@ -166,6 +169,10 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private List<Marker> selectedCCTVMarkers;
     private List<Marker> selectedPedestrianSensorMarkers;
     private List<Marker> selectedOpenShopMarkers;
+    private List<MarkerOptions> selectedStationMarkerOptions;
+    private List<MarkerOptions> selectedCCTVMarkerOptions;
+    private List<MarkerOptions> selectedOpenShopMarkerOptions;
+    private List<MarkerOptions> selectedPedstrianSensorMarkerOptions;
 
     private DataFromFirebase dataFromFirebase = new DataFromFirebase ();
 
@@ -180,6 +187,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private LinearLayout layout;
     private Button info2;
     private Button currentLocation;
+    private AllAngleExpandableButton button;
 
     private  ImageView safestRoute;
     private Context context;
@@ -210,6 +218,10 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         safetyScoreText =findViewById (R.id.safetyScore);
         safestRoute = findViewById (R.id.safestRoute);
         layout =findViewById (R.id.saflay);
+        button = (AllAngleExpandableButton) findViewById(R.id.button_expandable);
+
+        button.setVisibility (View.INVISIBLE);
+
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         if (mLocationPermissionGranted) {
@@ -225,6 +237,10 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         selectedPedestrianSensorMarkers =new ArrayList<> ();
         selectedOpenShopMarkers =new ArrayList<> ();
         pedestrianCountDetails =new ArrayList<> ();
+        selectedStationMarkerOptions =new ArrayList<> ();
+        selectedCCTVMarkerOptions = new ArrayList<> ();
+        selectedOpenShopMarkerOptions =new ArrayList<> ();
+        selectedPedstrianSensorMarkerOptions =new ArrayList<> ();
 
         context =this;
 
@@ -243,7 +259,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         cctvLocationArray = dataFromFirebase.getCctvLocationArray (cctvRef);
         pedestrianSensorArray =dataFromFirebase.getPedestrianSensorArray (pedestrianSensorRef);
         openShopArray =dataFromFirebase.getOpenShopArray (openShopRef);
-
 
 
 
@@ -443,6 +458,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     public void onRoutingSuccess(ArrayList<Route> route, int shortestRouteIndex)
     {
         progressDialog.dismiss();
+
         CameraUpdate center = CameraUpdateFactory.newLatLng(start);
         CameraUpdate zoom = CameraUpdateFactory.zoomTo(16);
         map.moveCamera(center);
@@ -719,7 +735,10 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         selectedCCTVMarkers =new ArrayList<> ();
         selectedPedestrianSensorMarkers =new ArrayList<> ();
         selectedOpenShopMarkers = new ArrayList<> ();
-
+        selectedStationMarkerOptions =new ArrayList<> ();
+        selectedCCTVMarkerOptions = new ArrayList<> ();
+        selectedOpenShopMarkerOptions =new ArrayList<> ();
+        selectedPedstrianSensorMarkerOptions =new ArrayList<> ();
 
 
 
@@ -733,17 +752,17 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         for (PoliceStation policeStation : selectedPoliceStation.values ()) {
 
             policeStationMarker = null;
-            MarkerOptions options1 = new MarkerOptions ();
+            MarkerOptions poloptions = new MarkerOptions ();
             LatLng policeStationLatLng = new LatLng (policeStation.getLatitude (),policeStation.getLongitude ());
-            options1.position (policeStationLatLng);
+            poloptions.position (policeStationLatLng);
             //options1.icon (BitmapDescriptorFactory.fromResource (R.drawable.mappolicestation2));
-            options1.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("policenew2",140,150)));
-            options1.title (policeStation.getPolice_station ());
-            options1.zIndex (2);
-            options1.snippet ("Address: "+policeStation.getAddress () + "Telephone: " +policeStation.getTel ());
+            poloptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("policenew2",140,150)));
+            poloptions.title (policeStation.getPolice_station ());
+            poloptions.zIndex (2);
+            poloptions.snippet ("Address: "+policeStation.getAddress () + "Telephone: " +policeStation.getTel ());
 
-            policeStationMarker=map.addMarker (options1);
-
+            policeStationMarker=map.addMarker (poloptions);
+            selectedStationMarkerOptions.add (poloptions);
             selectedStationMarkers.add (policeStationMarker);
         }
         /**
@@ -752,86 +771,24 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         for (CCTVLocation cctvLocation : selectedCCTVLocation.values ()) {
 
             cctvMarker = null;
-            MarkerOptions options1 = new MarkerOptions ();
+            MarkerOptions cctvoptions = new MarkerOptions ();
             LatLng policeStationLatLng = new LatLng (cctvLocation.getLatitude (),cctvLocation.getLongitude ());
-            options1.position (policeStationLatLng);
+            cctvoptions.position (policeStationLatLng);
             //options1.icon (BitmapDescriptorFactory.fromResource (R.drawable.mapcctv));
-            options1.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("cctvnew3",140,150)));
-            options1.title ("Safe City Camera");
-            options1.snippet ("Detail: "+cctvLocation.getDetail ());
+            cctvoptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("cctvnew3",140,150)));
+            cctvoptions.title (cctvLocation.getCctvNo ());
+            cctvoptions.snippet ("Detail: "+cctvLocation.getDetail ());
 
-            cctvMarker=map.addMarker (options1);
-
+            cctvMarker=map.addMarker (cctvoptions);
+            selectedCCTVMarkerOptions.add (cctvoptions);
             selectedCCTVMarkers.add (cctvMarker);
         }
-        /**
-         Displaying sensor  markers
-         */
-        /**
-         Displaying sensor  markers
-         */
-        for (PedestrianSensor pedestrianSensor : selectedPedestrianSensor.values ()) {
-            HashMap<String, String> markerdetails = new HashMap<String, String>();
-
-            pedestrianSensorMarker = null;
-            MarkerOptions options2 = new MarkerOptions ();
-            LatLng sensorLatLng = new LatLng (pedestrianSensor.getLatitude (),pedestrianSensor.getLongitude ());
-            options2.position (sensorLatLng);
-            options2.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("sensornew3",150,150)));
-            options2.title ("Sensor" + pedestrianSensor.getSensor_id ());
-           // options2.snippet ("Detail: "+pedestrianSensor.getSensor_description ());
 
 
-            //Creating a retrofit object
-            Retrofit retrofit = new Retrofit.Builder ()
-                    .baseUrl (PedestrianSensorAPI.BASE_URL)
-                    .addConverterFactory (GsonConverterFactory.create ()) //Here we are using the GsonConverterFactory to directly convert json data to object
-                    .build ();
-            //creating the api interface
-            PedestrianSensorAPI api = retrofit.create (PedestrianSensorAPI.class);
-            Call<PedestrianCount> call = api.getPedestrianCount (pedestrianSensor.getSensor_id ());
-            CustomInfoWindowAdapter customInfoWindow = new CustomInfoWindowAdapter(this);
-            map.setInfoWindowAdapter(customInfoWindow);
-
-            call.enqueue(new Callback<PedestrianCount>() {
-                @Override
-                public void onResponse(Call<PedestrianCount> call, Response<PedestrianCount> response) {
-                    PedestrianCount pedestrianCount = response.body();
-
-                    if(pedestrianCount!=null) {
-                        //String time_count = time + total_of_directions;
-                        //pedestrianSensorMarker=map.addMarker (options2);
-                        pedestrianSensorMarker=map.addMarker (options2);
-
-                        pedestrianSensorMarker.showInfoWindow ();
-                        markerdetails.put ("address", pedestrianSensor.getSensor_description ());
-                        markerdetails.put ("time", pedestrianCount.getTime ());
-                        markerdetails.put ("total_of_directions", pedestrianCount.getTotal_of_directions ());
-                        markerdetails.put ("predict_time", pedestrianCount.getPrediction_time ());
-                        markerdetails.put ("predict_total", pedestrianCount.getPrediction_counts ());
-                        markerdetails.put ("busyness", pedestrianCount.getBusyness ());
-                        markerdetails.put ("Id", pedestrianSensorMarker.getId ());
-
-                        pedestrianSensorMarker.setTag (markerdetails);
+        displaySensors();
 
 
-                        selectedPedestrianSensorMarkers.add (pedestrianSensorMarker);
-                    }
-                }
-
-                //selectedPedestrianSensorMarkers.add (pedestrianSensorMarker);
-                @Override
-                public void onFailure(Call<PedestrianCount> call, Throwable throwable) {
-                    Log.e(LOG_TAG, throwable.toString());
-                }
-            });
-
-        }
-
-
-
-
-        System.out.println("Final Sensor Array:" +pedestrianCountFinalArray);
+        //System.out.println("Final Sensor Array:" +pedestrianCountFinalArray);
 
         /**
          Displaying open shop markers
@@ -839,15 +796,16 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         for (OpenShop openShop : selectedOpenShop.values ()) {
 
             openShopMarker = null;
-            MarkerOptions options3 = new MarkerOptions ();
+            MarkerOptions openshopoptions = new MarkerOptions ();
             LatLng sensorLatLng = new LatLng (openShop.getLatitude (),openShop.getLongitude ());
-            options3.position (sensorLatLng);
+            openshopoptions.position (sensorLatLng);
             //options2.icon (BitmapDescriptorFactory.fromResource (R.drawable.peoplesensor));
-            options3.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("shopnew2",140,150)));
-            options3.title (openShop.getName ());
-            options3.snippet ("Address: "+openShop.getAddress ());
+            openshopoptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("shopnew2",140,150)));
+            openshopoptions.title (openShop.getName ());
+            openshopoptions.snippet ("Address: "+openShop.getAddress ());
 
-            openShopMarker=map.addMarker (options3);
+            openShopMarker=map.addMarker (openshopoptions);
+            selectedOpenShopMarkerOptions.add (openshopoptions);
             selectedOpenShopMarkers.add (openShopMarker);
         }
 
@@ -946,8 +904,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         /**
          Hiding and showing search box
          */
-        map.setOnMapClickListener(new GoogleMap.OnMapClickListener ()
-        {
+        map.setOnMapClickListener(new GoogleMap.OnMapClickListener () {
             @Override
             public void onMapClick(LatLng arg0)
             {
@@ -962,7 +919,239 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             }
         });
 
+        /**
+       Filtering safety factors
+         */
+
+        button.setVisibility (View.VISIBLE);
+
+        final List<ButtonData> buttonDatas = new ArrayList<>();
+        int[] drawable = {R.drawable.allselected, R.drawable.shopicon, R.drawable.policeicon, R.drawable.cctvicon,R.drawable.sensoricon};
+        int[] color = {R.color.colorDivider, R.color.colorRed, R.color.colorOrange, R.color.colorButton,R.color.color1};
+        String[] texts ={"Filter","shops","police","cctv","sensor"};
+        for (int i = 0; i < 5; i++) {
+            ButtonData buttonData;
+            if (i == 0) {
+                buttonData = ButtonData.buildIconButton(this, drawable[i], 9);
+                // buttonData.setText (texts[i]);
+            } else {
+                buttonData = ButtonData.buildIconButton(this, drawable[i], 8);
+                // buttonData.setTexts (texts);
+            }
+            buttonData.setBackgroundColorId(this, color[i]);
+
+            buttonDatas.add(buttonData);
+        }
+        button.setButtonDatas(buttonDatas);
+        //setListener(button);
+
+
+        button.setButtonEventListener(new ButtonEventListener() {
+            @Override
+            public void onButtonClicked(int index) {
+                if(index==1) {
+                    showToast ("All Selected:" + index);
+
+                    for (MarkerOptions m : selectedStationMarkerOptions) {
+                        if (m != null)
+                        {map.addMarker (m);}
+                    }
+
+                    for (MarkerOptions m : selectedCCTVMarkerOptions) {
+                        if (m != null)
+                        {map.addMarker (m);}
+                    }
+                     for (MarkerOptions m : selectedOpenShopMarkerOptions) {
+                        if (m != null)
+                        {map.addMarker (m);}
+                    }
+                    displaySensors ();
+
+                }
+                if(index==2)
+                {
+                    showToast("24hrs Open Shop Selected:" + index);
+                    if(selectedStationMarkers.size ()>0) {
+                        for (Marker m : selectedStationMarkers) {
+                            if(m!=null)
+                            { m.remove();}
+                        }selectedStationMarkers.clear ();
+                    }
+                    if(selectedCCTVMarkers.size ()>0) {
+                        for (Marker m : selectedCCTVMarkers) {
+                            if(m!=null)
+                            {m.remove();}
+                        }selectedCCTVMarkers.clear ();
+                    }
+                    if(selectedPedestrianSensorMarkers.size ()>0) {
+                        for (Marker m : selectedPedestrianSensorMarkers) {
+                            if(m!=null)
+                            {m.remove();}
+                        }selectedPedestrianSensorMarkers.clear ();
+                    }
+                    for (MarkerOptions mo : selectedOpenShopMarkerOptions) {
+                        if (mo != null)
+                        {map.addMarker (mo);}
+                    }
+                }
+                if(index==3) {
+                    showToast ("police Selected:" + index);
+                    if(selectedCCTVMarkers.size ()>0) {
+                        for (Marker m : selectedCCTVMarkers) {
+                            if(m!=null)
+                            {m.remove();}
+                        }selectedCCTVMarkers.clear ();
+                    }
+                    if(selectedPedestrianSensorMarkers.size ()>0) {
+                        for (Marker m : selectedPedestrianSensorMarkers) {
+                            if(m!=null)
+                            {m.remove();}
+                        }selectedPedestrianSensorMarkers.clear ();
+                    }
+                    if(selectedOpenShopMarkers.size ()>0) {
+                        for (Marker m : selectedOpenShopMarkers) {
+                            if(m!=null)
+                            {m.remove();}
+                        }selectedOpenShopMarkers.clear ();
+                    }
+                    for (MarkerOptions mo : selectedStationMarkerOptions) {
+                        if (mo != null)
+                        {map.addMarker (mo);}
+                    }
+                }
+                if(index==4){
+                    showToast("cctv Selected:" + index);
+                    if(selectedStationMarkers.size ()>0) {
+                        for (Marker m : selectedStationMarkers) {
+                            if(m!=null)
+                            { m.remove();}
+                        }selectedStationMarkers.clear ();
+                    }
+                    if(selectedPedestrianSensorMarkers.size ()>0) {
+                        for (Marker m : selectedPedestrianSensorMarkers) {
+                            if(m!=null)
+                            {m.remove();}
+                        }selectedPedestrianSensorMarkers.clear ();
+                    }
+                    if(selectedOpenShopMarkers.size ()>0) {
+                        for (Marker m : selectedOpenShopMarkers) {
+                            if(m!=null)
+                            {m.remove();}
+                        }selectedOpenShopMarkers.clear ();
+                    }
+                    for (MarkerOptions mo : selectedCCTVMarkerOptions) {
+                        if (mo != null)
+                        {map.addMarker (mo);}
+                    }
+                }
+                if(index==5){
+                    showToast("sensor Selected:" + index);
+                    if(selectedStationMarkers.size ()>0) {
+                        for (Marker m : selectedStationMarkers) {
+                            if(m!=null)
+                            { m.remove();}
+                        }selectedOpenShopMarkers.clear ();
+                    }
+                    if(selectedCCTVMarkers.size ()>0) {
+                        for (Marker m : selectedCCTVMarkers) {
+                            if(m!=null)
+                            {m.remove();}
+                        }selectedOpenShopMarkers.clear ();
+                    }
+                    if(selectedOpenShopMarkers.size ()>0) {
+                        for (Marker m : selectedOpenShopMarkers) {
+                            if(m!=null)
+                            {m.remove();}
+                        }selectedOpenShopMarkers.clear ();
+                    }
+                    displaySensors ();
+                }
+            }
+
+            @Override
+            public void onExpand() {
+//                showToast("onExpand");
+            }
+
+            @Override
+            public void onCollapse() {
+//                showToast("onCollapse");
+            }
+        });
     }
+
+    private void displaySensors(){
+        /**
+         Displaying sensor  markers
+         */
+        for (PedestrianSensor pedestrianSensor : selectedPedestrianSensor.values ()) {
+            HashMap<String, String> markerdetails = new HashMap<String, String>();
+
+            pedestrianSensorMarker = null;
+            MarkerOptions pedoptions = new MarkerOptions ();
+            LatLng sensorLatLng = new LatLng (pedestrianSensor.getLatitude (),pedestrianSensor.getLongitude ());
+            pedoptions.position (sensorLatLng);
+            pedoptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("sensornew3",150,150)));
+            pedoptions.title ("Sensor " + pedestrianSensor.getSensor_id ());
+            // options2.snippet ("Detail: "+pedestrianSensor.getSensor_description ());
+
+
+            //Creating a retrofit object
+            Retrofit retrofit = new Retrofit.Builder ()
+                    .baseUrl (PedestrianSensorAPI.BASE_URL)
+                    .addConverterFactory (GsonConverterFactory.create ()) //Here we are using the GsonConverterFactory to directly convert json data to object
+                    .build ();
+            //creating the api interface
+            PedestrianSensorAPI api = retrofit.create (PedestrianSensorAPI.class);
+            Call<PedestrianCount> call = api.getPedestrianCount (pedestrianSensor.getSensor_id ());
+            CustomInfoWindowAdapter customInfoWindow = new CustomInfoWindowAdapter(this);
+            map.setInfoWindowAdapter(customInfoWindow);
+
+            call.enqueue(new Callback<PedestrianCount>() {
+                @Override
+                public void onResponse(Call<PedestrianCount> call, Response<PedestrianCount> response) {
+                    PedestrianCount pedestrianCount = response.body();
+
+                    if(pedestrianCount!=null) {
+                        //String time_count = time + total_of_directions;
+                        //pedestrianSensorMarker=map.addMarker (options2);
+                        pedestrianSensorMarker=map.addMarker (pedoptions);
+
+                        pedestrianSensorMarker.showInfoWindow ();
+                        markerdetails.put ("address", pedestrianSensor.getSensor_description ());
+                        markerdetails.put ("time", pedestrianCount.getTime ());
+                        markerdetails.put ("total_of_directions", pedestrianCount.getTotal_of_directions ());
+                        markerdetails.put ("predict_time", pedestrianCount.getPrediction_time ());
+                        markerdetails.put ("predict_total", pedestrianCount.getPrediction_counts ());
+                        markerdetails.put ("busyness", pedestrianCount.getBusyness ());
+                        markerdetails.put ("Id", pedestrianSensorMarker.getId ());
+
+                        pedestrianSensorMarker.setTag (markerdetails);
+
+                        selectedPedstrianSensorMarkerOptions.add (pedoptions);
+                        selectedPedestrianSensorMarkers.add (pedestrianSensorMarker);
+                    }
+                }
+
+                //selectedPedestrianSensorMarkers.add (pedestrianSensorMarker);
+                @Override
+                public void onFailure(Call<PedestrianCount> call, Throwable throwable) {
+                    Log.e(LOG_TAG, throwable.toString());
+                }
+            });
+
+        }
+
+    }
+
+    private void setListener(AllAngleExpandableButton button) {
+
+    }
+
+    private void showToast(String toast) {
+        Toast.makeText(this, toast, Toast.LENGTH_SHORT).show();
+    }
+
 
     public Bitmap resizeMapIcons(String iconName, int width, int height){
         Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(iconName, "drawable", getPackageName()));

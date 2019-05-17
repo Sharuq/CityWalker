@@ -32,12 +32,7 @@
         android:layout_below="@+id/lay1"
         android:id="@+id/lay2"
         android:weightSum="3">
-             <ImageView
-                 android:layout_width="20dp"
-                 android:layout_height="30dp"
-                 android:background="@drawable/map"
-                 android:layout_marginTop="8dp"
-                 android:layout_weight="0.3"/>
+
             <TextView
                 android:id="@+id/address"
                 android:layout_width="wrap_content"
@@ -77,11 +72,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="2">
 
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:background="@drawable/clock"
-                android:layout_marginTop="8dp"/>
             <TextView
                 android:id="@+id/time"
                 android:layout_width="wrap_content"
@@ -96,11 +86,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="2">
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:background="@drawable/pedestrians"
-                android:layout_marginTop="8dp"/>
             <TextView
                 android:id="@+id/total"
                 android:layout_width="wrap_content"
@@ -143,6 +128,8 @@
                     android:layout_height="match_parent"
                     android:layout_marginTop="5dp"
                     android:layout_marginLeft="5dp"
+                    android:textStyle="bold"
+                    android:background="@color/colorLightAddBg"
                     android:text="Usually ---"
                     android:textSize="14sp"
                     android:typeface="sans"/>
@@ -161,11 +148,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="2">
 
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:background="@drawable/clock"
-                android:layout_marginTop="8dp"/>
             <TextView
                 android:id="@+id/predict_time"
                 android:layout_width="wrap_content"
@@ -182,11 +164,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="2"
             >
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:background="@drawable/pedestrians"
-                android:layout_marginTop="8dp"/>
             <TextView
                 android:id="@+id/predict_total"
                 android:layout_width="wrap_content"
