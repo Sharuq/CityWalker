@@ -928,7 +928,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         final List<ButtonData> buttonDatas = new ArrayList<>();
         int[] drawable = {R.drawable.allselected, R.drawable.shopicon, R.drawable.policeicon, R.drawable.cctvicon,R.drawable.sensoricon};
         int[] color = {R.color.colorDivider, R.color.colorRed, R.color.colorOrange, R.color.colorButton,R.color.color1};
-        String[] texts ={"Filter","shops","police","cctv","sensor"};
+        //String[] texts ={"Filter","shops","police","cctv","sensor"};
         for (int i = 0; i < 5; i++) {
             ButtonData buttonData;
             if (i == 0) {
@@ -952,119 +952,100 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                 if(index==1) {
                     showToast ("All Selected:" + index);
 
-                    for (MarkerOptions m : selectedStationMarkerOptions) {
-                        if (m != null)
-                        {map.addMarker (m);}
+                    for (Marker m : selectedStationMarkers) {
+                        if(m!=null)
+                        { m.setVisible (true);}
                     }
-
-                    for (MarkerOptions m : selectedCCTVMarkerOptions) {
-                        if (m != null)
-                        {map.addMarker (m);}
+                    for (Marker m : selectedCCTVMarkers) {
+                        if(m!=null)
+                        { m.setVisible (true);}
                     }
-                     for (MarkerOptions m : selectedOpenShopMarkerOptions) {
-                        if (m != null)
-                        {map.addMarker (m);}
+                    for (Marker m : selectedPedestrianSensorMarkers) {
+                        if(m!=null)
+                        { m.setVisible (true);}
                     }
-                    displaySensors ();
+                    for (Marker m : selectedOpenShopMarkers) {
+                        if(m!=null)
+                        { m.setVisible (true);}
+                    }
 
                 }
                 if(index==2)
                 {
                     showToast("24hrs Open Shop Selected:" + index);
-                    if(selectedStationMarkers.size ()>0) {
-                        for (Marker m : selectedStationMarkers) {
+                    for (Marker m : selectedStationMarkers) {
                             if(m!=null)
-                            { m.remove();}
-                        }selectedStationMarkers.clear ();
-                    }
-                    if(selectedCCTVMarkers.size ()>0) {
-                        for (Marker m : selectedCCTVMarkers) {
+                            { m.setVisible (false);}
+                        }
+                    for (Marker m : selectedCCTVMarkers) {
                             if(m!=null)
-                            {m.remove();}
-                        }selectedCCTVMarkers.clear ();
-                    }
-                    if(selectedPedestrianSensorMarkers.size ()>0) {
-                        for (Marker m : selectedPedestrianSensorMarkers) {
+                            { m.setVisible (false);}
+                        }
+                    for (Marker m : selectedPedestrianSensorMarkers) {
                             if(m!=null)
-                            {m.remove();}
-                        }selectedPedestrianSensorMarkers.clear ();
-                    }
-                    for (MarkerOptions mo : selectedOpenShopMarkerOptions) {
-                        if (mo != null)
-                        {map.addMarker (mo);}
+                            { m.setVisible (false);}
+                        }
+                    for (Marker m : selectedOpenShopMarkers) {
+                        if(m!=null)
+                        { m.setVisible (true);}
                     }
                 }
                 if(index==3) {
                     showToast ("police Selected:" + index);
-                    if(selectedCCTVMarkers.size ()>0) {
-                        for (Marker m : selectedCCTVMarkers) {
-                            if(m!=null)
-                            {m.remove();}
-                        }selectedCCTVMarkers.clear ();
+                    for (Marker m : selectedStationMarkers) {
+                        if(m!=null)
+                        { m.setVisible (true);}
                     }
-                    if(selectedPedestrianSensorMarkers.size ()>0) {
-                        for (Marker m : selectedPedestrianSensorMarkers) {
-                            if(m!=null)
-                            {m.remove();}
-                        }selectedPedestrianSensorMarkers.clear ();
+                    for (Marker m : selectedCCTVMarkers) {
+                        if(m!=null)
+                        { m.setVisible (false);}
                     }
-                    if(selectedOpenShopMarkers.size ()>0) {
-                        for (Marker m : selectedOpenShopMarkers) {
-                            if(m!=null)
-                            {m.remove();}
-                        }selectedOpenShopMarkers.clear ();
+                    for (Marker m : selectedPedestrianSensorMarkers) {
+                        if(m!=null)
+                        { m.setVisible (false);}
                     }
-                    for (MarkerOptions mo : selectedStationMarkerOptions) {
-                        if (mo != null)
-                        {map.addMarker (mo);}
+                    for (Marker m : selectedOpenShopMarkers) {
+                        if(m!=null)
+                        { m.setVisible (false);}
                     }
                 }
                 if(index==4){
                     showToast("cctv Selected:" + index);
-                    if(selectedStationMarkers.size ()>0) {
-                        for (Marker m : selectedStationMarkers) {
-                            if(m!=null)
-                            { m.remove();}
-                        }selectedStationMarkers.clear ();
+                    for (Marker m : selectedStationMarkers) {
+                        if(m!=null)
+                        { m.setVisible (false);}
                     }
-                    if(selectedPedestrianSensorMarkers.size ()>0) {
-                        for (Marker m : selectedPedestrianSensorMarkers) {
-                            if(m!=null)
-                            {m.remove();}
-                        }selectedPedestrianSensorMarkers.clear ();
+                    for (Marker m : selectedCCTVMarkers) {
+                        if(m!=null)
+                        { m.setVisible (true);}
                     }
-                    if(selectedOpenShopMarkers.size ()>0) {
-                        for (Marker m : selectedOpenShopMarkers) {
-                            if(m!=null)
-                            {m.remove();}
-                        }selectedOpenShopMarkers.clear ();
+                    for (Marker m : selectedPedestrianSensorMarkers) {
+                        if(m!=null)
+                        { m.setVisible (false);}
                     }
-                    for (MarkerOptions mo : selectedCCTVMarkerOptions) {
-                        if (mo != null)
-                        {map.addMarker (mo);}
+                    for (Marker m : selectedOpenShopMarkers) {
+                        if(m!=null)
+                        { m.setVisible (false);}
                     }
                 }
                 if(index==5){
                     showToast("sensor Selected:" + index);
-                    if(selectedStationMarkers.size ()>0) {
-                        for (Marker m : selectedStationMarkers) {
-                            if(m!=null)
-                            { m.remove();}
-                        }selectedOpenShopMarkers.clear ();
+                    for (Marker m : selectedStationMarkers) {
+                        if(m!=null)
+                        { m.setVisible (false);}
                     }
-                    if(selectedCCTVMarkers.size ()>0) {
-                        for (Marker m : selectedCCTVMarkers) {
-                            if(m!=null)
-                            {m.remove();}
-                        }selectedOpenShopMarkers.clear ();
+                    for (Marker m : selectedCCTVMarkers) {
+                        if(m!=null)
+                        { m.setVisible (false);}
                     }
-                    if(selectedOpenShopMarkers.size ()>0) {
-                        for (Marker m : selectedOpenShopMarkers) {
-                            if(m!=null)
-                            {m.remove();}
-                        }selectedOpenShopMarkers.clear ();
+                    for (Marker m : selectedPedestrianSensorMarkers) {
+                        if(m!=null)
+                        { m.setVisible (true);}
                     }
-                    displaySensors ();
+                    for (Marker m : selectedOpenShopMarkers) {
+                        if(m!=null)
+                        { m.setVisible (false);}
+                    }
                 }
             }
 
