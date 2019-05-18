@@ -23,8 +23,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.util.Pair;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -188,7 +191,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private Button info2;
     private Button currentLocation;
     private AllAngleExpandableButton button;
-
+    private AllAngleExpandableButton button2;
     private  ImageView safestRoute;
     private Context context;
     private int maxSafetyScore = 0;
@@ -219,10 +222,11 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         safestRoute = findViewById (R.id.safestRoute);
         layout =findViewById (R.id.saflay);
         button = (AllAngleExpandableButton) findViewById(R.id.button_expandable);
-
+        button2 = (AllAngleExpandableButton) findViewById(R.id.button_expandable2);
         button.setVisibility (View.INVISIBLE);
 
 
+        installButton110to250();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         if (mLocationPermissionGranted) {
             getUserLocation();
@@ -359,6 +363,47 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         mapFragment.getMapAsync (this);
     }
 
+    private void installButton110to250() {
+        final List<ButtonData> buttonDatas = new ArrayList<>();
+        int[] drawable = {R.drawable.emergency, R.drawable.emergencycall, R.drawable.emergencymessage,  R.drawable.ic_navigation};
+        int[] color = {R.color.colorOrange, R.color.colorRed, R.color.colorRed, R.color.colorRed};
+        for (int i = 0; i < 4; i++) {
+            ButtonData buttonData;
+            if (i == 0) {
+                buttonData = ButtonData.buildIconButton(this, drawable[i], 15);
+            } else {
+                buttonData = ButtonData.buildIconButton(this, drawable[i], 0);
+            }
+            buttonData.setBackgroundColorId(this, color[i]);
+            buttonDatas.add(buttonData);
+        }
+        button2.setButtonDatas(buttonDatas);
+        setListener(button2);
+    }
+
+    private void setListener(AllAngleExpandableButton button) {
+        button.setButtonEventListener(new ButtonEventListener() {
+            @Override
+            public void onButtonClicked(int index) {
+                if(index==1)
+                showToast("Emergency Call Clicked");
+                if(index==2)
+                    showToast("Emergency Message  Clicked");
+                if(index==3)
+                    showToast("Emergency Navigation Clicked");
+            }
+
+            @Override
+            public void onExpand() {
+//                showToast("onExpand");
+            }
+
+            @Override
+            public void onCollapse() {
+//                showToast("onCollapse");
+            }
+        });
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -378,6 +423,10 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         map=googleMap;
         map.setOnPolylineClickListener(this);
+        startingMarker=u
+        startingMarker = map.addMarker (new MarkerOptions ()
+                .position (new LatLng (-37.815018, 144.946014 )));
+
         map.animateCamera (CameraUpdateFactory.newLatLngZoom (new LatLng (-37.814593, 144.966520),14 ));
 
 
@@ -950,7 +999,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             @Override
             public void onButtonClicked(int index) {
                 if(index==1) {
-                    showToast ("All Selected:" + index);
+                    showToast ("All safety factors option selected");
 
                     for (Marker m : selectedStationMarkers) {
                         if(m!=null)
@@ -972,7 +1021,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                 }
                 if(index==2)
                 {
-                    showToast("24hrs Open Shop Selected:" + index);
+                    showToast("24 hour open shops option selected");
                     for (Marker m : selectedStationMarkers) {
                             if(m!=null)
                             { m.setVisible (false);}
@@ -991,7 +1040,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                     }
                 }
                 if(index==3) {
-                    showToast ("police Selected:" + index);
+                    showToast ("Police stations option selected");
                     for (Marker m : selectedStationMarkers) {
                         if(m!=null)
                         { m.setVisible (true);}
@@ -1010,7 +1059,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                     }
                 }
                 if(index==4){
-                    showToast("cctv Selected:" + index);
+                    showToast("Safe cameras options selected");
                     for (Marker m : selectedStationMarkers) {
                         if(m!=null)
                         { m.setVisible (false);}
@@ -1029,7 +1078,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                     }
                 }
                 if(index==5){
-                    showToast("sensor Selected:" + index);
+                    showToast("Pedestrian sensors option selected");
                     for (Marker m : selectedStationMarkers) {
                         if(m!=null)
                         { m.setVisible (false);}
@@ -1125,12 +1174,27 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
     }
 
-    private void setListener(AllAngleExpandableButton button) {
 
-    }
+    private void showToast(String Msg) {
+        //Toast.makeText(this, toast, Toast.LENGTH_SHORT).show();
+        LayoutInflater inflater = getLayoutInflater();
 
-    private void showToast(String toast) {
-        Toast.makeText(this, toast, Toast.LENGTH_SHORT).show();
+        View layout = inflater.inflate(R.layout.toast,
+                (ViewGroup) findViewById(R.id.custom_toast_layout));
+
+        TextView text = (TextView) layout.findViewById(R.id.textToShow);
+
+        text.setText(Msg);
+
+        Toast toast = new Toast(getApplicationContext());
+
+        toast.setGravity(Gravity.CENTER_VERTICAL | 0, 0, 0);
+
+        toast.setDuration(Toast.LENGTH_SHORT);
+
+        toast.setView(layout);
+
+        toast.show();
     }
 
 
