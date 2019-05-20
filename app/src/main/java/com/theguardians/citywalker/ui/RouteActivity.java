@@ -423,11 +423,11 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         map=googleMap;
         map.setOnPolylineClickListener(this);
-        startingMarker=u
-        startingMarker = map.addMarker (new MarkerOptions ()
-                .position (new LatLng (-37.815018, 144.946014 )));
 
-        map.animateCamera (CameraUpdateFactory.newLatLngZoom (new LatLng (-37.814593, 144.966520),14 ));
+        startingMarker = map.addMarker (new MarkerOptions ()
+                .position (new LatLng (userLocation.latitude, userLocation.longitude )));
+
+        map.animateCamera (CameraUpdateFactory.newLatLngZoom (new LatLng (userLocation.latitude, userLocation.longitude),14 ));
 
 
 

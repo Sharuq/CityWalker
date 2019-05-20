@@ -1,6 +1,7 @@
 package com.theguardians.citywalker.ui;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.PendingIntent;
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         ContactHandler handler = new ContactHandler (this);
         // Reading all contacts
         contacts = handler.readAllContacts ();
-
+        userLocation=getUserLocation ();
         context = this;
         FloatingActionButton fab = findViewById (R.id.fab);
         fab.setOnClickListener (new View.OnClickListener () {
@@ -88,12 +89,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (contacts.size () > 0) {
                     String phNo = contacts.get (0).getPhoneNumber ();
-                    System.out.println (phNo);
-                    if (mCallPermissionGranted) {
-                        checkCallServices (phNo);
-                    } else {
-                        getCallPermission (phNo);
-                    }
+                    callNumber (phNo);
                 } else {
                     AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
                     builder1.setMessage("Please add an emergency guardian contact first. ");
@@ -113,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
         FloatingActionButton fab1 = findViewById (R.id.fab2);
         fab1.setOnClickListener (new View.OnClickListener () {
             @Override
@@ -121,27 +116,23 @@ public class MainActivity extends AppCompatActivity {
 
                 if (contacts.size () > 0) {
                     String phNo = contacts.get (0).getPhoneNumber ();
-                    System.out.println (phNo);
-                    if(mLocationPermissionGranted){
 
-                        getUserLocation ();
-                    }
-                    else {
-
-                        getLocationPermission ();
-                    }
                     try {
-
-                        userLocationAddress = getUserLocationDetails (userLocation.latitude, userLocation.longitude);
-                        System.out.println ("Hello " +userLocationAddress);
-                        message = "HELP ME !!!! I am at Location: " + userLocationAddress + " Coordinates: " + userLocation + " **Emergency Distress Message sent from CityWalker App**";
-
-                        if (mSMSPermissionGranted) {
+                        userLocation = getUserLocation ();
+                        if(userLocation!=null) {
+                            userLocationAddress = getUserLocationDetails (userLocation.latitude, userLocation.longitude);
+                            // System.out.println ("Hello " +userLocationAddress);
+                            message = "HELP ME !!!! I am at Location: " + userLocationAddress + " Coordinates: " + userLocation + " **Emergency Distress Message sent from CityWalker App**";
                             sendSMSMessage (phNo, message);
-                        } else {
-                            getSMSPermission (phNo,message);
                         }
-                    } catch (IOException e) {
+                        else {
+                            userLocation = getUserLocation ();
+                            userLocationAddress = getUserLocationDetails (userLocation.latitude, userLocation.longitude);
+                            // System.out.println ("Hello " +userLocationAddress);
+                            message = "HELP ME !!!! I am at Location: " + userLocationAddress + " Coordinates: " + userLocation + " **Emergency Distress Message sent from CityWalker App**";
+                            sendSMSMessage (phNo, message);
+                        }
+                        } catch (IOException e) {
                         e.printStackTrace ();
                     }
 
@@ -162,141 +153,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-    }
 
-
-    /**
-     * OnResume Override
-     */
-    @Override
-    protected void onResume() {
-        super.onResume ();
-        new CheckInternetConnection ().execute ();
-
-    }
-
-    /**
-     * Check if internet connection is available or not through async task
-     */
-
-    public class CheckInternetConnection extends AsyncTask<Void, Void, Boolean> {
-
-
-        @Override
-        protected Boolean doInBackground(Void... voids) {
-            try {
-                int timeoutMs = 1500;
-                Socket sock = new Socket ();
-                SocketAddress sockaddr = new InetSocketAddress ("8.8.8.8", 53);
-
-                sock.connect (sockaddr, timeoutMs);
-                sock.close ();
-
-                return true;
-            } catch (Exception e) {
-
-                return false;
-
-
-            }
-        }
-
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-
-            if (aBoolean) {
-
-                checkLocationServices ();
-                checkSMSServices ();
-                getUserLocation ();
-            } else {
-
-                //Toast.makeText(this, "No Internet Connection", Toast.LENGTH_SHORT).show();
-                new AlertDialog.Builder (context)
-                        .setIcon (android.R.drawable.ic_dialog_alert)
-                        .setTitle ("Closing the App")
-                        .setMessage ("No Internet Connection,check your settings")
-                        .setPositiveButton ("Close", new DialogInterface.OnClickListener () {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                finish ();
-                            }
-
-                        })
-                        .show ();
-            }
-        }
-    }
-
-
-    /**
-     * This methid check if the lccation permisission is enabled or not and
-     * will ask them to be granted it its not given
-     */
-    private void checkLocationServices() {
-
-        if (checkMapServices ()) {
-
-            if (mLocationPermissionGranted) {
-
-                getNextActivity ();
-            } else {
-                getLocationPermission ();
-            }
-
-        }
-
-
-    }
-
-
-    private void checkCallServices(String phNo) {
-        if (mCallPermissionGranted) {
-
-            callNumber (phNo);
-        } else {
-            getCallPermission (phNo);
-        }
-    }
-
-    private void checkSMSServices() {
-
-        if (mSMSPermissionGranted) {
-
-            getNextActivity ();
-        } else {
-            getNewSMSPermission ();
-        }
-    }
-
-    public void callNumber(String phoneNumber) {
-        Intent intent = new Intent (Intent.ACTION_CALL);
-        intent.setData (Uri.parse ("tel:" + phoneNumber));
-        // Here, thisActivity is the current activity
-        if (ContextCompat.checkSelfPermission (this,
-                Manifest.permission.CALL_PHONE)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions (this,
-                    new String[]{Manifest.permission.CALL_PHONE},
-                    MY_PERMISSIONS_REQUEST_CALL_PHONE);
-
-            // MY_PERMISSIONS_REQUEST_CALL_PHONE is an
-            // app-defined int constant. The callback method gets the
-            // result of the request.
-        } else {
-            //You already have permission
-            try {
-                startActivity (intent);
-            } catch (SecurityException e) {
-                e.printStackTrace ();
-            }
-
-        }
-    }
-
-    public void getNextActivity() {
 
         Button btnMap = (Button) findViewById (R.id.searchRouteBtn);
         Button btnMap2 = (Button) findViewById (R.id.emergencySupportBtn);
@@ -315,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (contacts.size () > 0) {
-                    Intent intent = new Intent (MainActivity.this, ContactEmergencyActivity.class);
+                    Intent intent = new Intent (MainActivity.this, NewEmergency.class);
                     startActivity (intent);
                 } else {
                     Intent intent = new Intent (MainActivity.this, EmergencyActivity.class);
@@ -341,215 +198,21 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     *  Check whether maps service is available
-     */
-
-    private boolean checkMapServices() {
-        if (isServicesOK ()) {
-            if (isMapsEnabled ()) {
-                return true;
-            }
-        }
-        return false;
-    }
 
 
-    /**
-     * No GPS alert message
-     */
-    private void buildAlertMessageNoGps() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder (this);
-        builder.setMessage ("This application requires GPS to work properly, do you want to enable it?")
-                .setCancelable (false)
-                .setPositiveButton ("Yes", new DialogInterface.OnClickListener () {
-                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        Intent enableGpsIntent = new Intent (android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        startActivityForResult (enableGpsIntent, PERMISSIONS_REQUEST_ENABLE_GPS);
-                    }
-                });
-        final AlertDialog alert = builder.create ();
-        alert.show ();
-    }
 
 
-    /**
-     * Check if location is enabled
-     * @return
-     */
-    public boolean isMapsEnabled() {
-        final LocationManager manager = (LocationManager) getSystemService (Context.LOCATION_SERVICE);
-
-        if (!manager.isProviderEnabled (LocationManager.GPS_PROVIDER)) {
-            buildAlertMessageNoGps ();
-            return false;
-        }
-        return true;
-    }
-
-
-    /**
-     * Ask for location permission
-     */
-    private void getLocationPermission() {
-        /*
-         * Request location permission, so that we can get the location of the
-         * device. The result of the permission request is handled by a callback,
-         * onRequestPermissionsResult.
-         */
-        if (ContextCompat.checkSelfPermission (this.getApplicationContext (),
-                android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            mLocationPermissionGranted = true;
-            getNextActivity ();
-        } else {
-            ActivityCompat.requestPermissions (this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-        }
-    }
-
-    private void getCallPermission(String phNo) {
-        if (ContextCompat.checkSelfPermission (this,
-                Manifest.permission.CALL_PHONE)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale (this,
-                    Manifest.permission.CALL_PHONE)) {
-            } else {
-                ActivityCompat.requestPermissions (this,
-                        new String[]{Manifest.permission.CALL_PHONE},
-                        MY_PERMISSIONS_REQUEST_CALL_PHONE);
-
-            }
-
-            Intent intent = new Intent (Intent.ACTION_CALL);
-            intent.setData (Uri.parse ("tel:" + phNo));
-            startActivity (intent);
-        } else {
-
-            Intent intent = new Intent (Intent.ACTION_CALL);
-            intent.setData (Uri.parse ("tel:" + phNo));
-            startActivity (intent);
-        }
+    public void callNumber(String phoneNumber) {
+        Intent intent = new Intent (Intent.ACTION_CALL);
+        intent.setData (Uri.parse ("tel:" + phoneNumber));
+        startActivity (intent);
 
     }
-    protected void getNewSMSPermission() {
-
-        if (ContextCompat.checkSelfPermission (this,
-                Manifest.permission.SEND_SMS)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale (this,
-                    Manifest.permission.SEND_SMS)) {
-            } else {
-                ActivityCompat.requestPermissions (this,
-                        new String[]{Manifest.permission.SEND_SMS},
-                        MY_PERMISSIONS_REQUEST_SEND_SMS);
-
-            }
-        }
-    }
-
-    protected void getSMSPermission(String phNo,String message) {
-
-        if (ContextCompat.checkSelfPermission (this,
-                Manifest.permission.SEND_SMS)
-                != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale (this,
-                    Manifest.permission.SEND_SMS)) {
-            } else {
-                ActivityCompat.requestPermissions (this,
-                        new String[]{Manifest.permission.SEND_SMS},
-                        MY_PERMISSIONS_REQUEST_SEND_SMS);
-                try{
 
 
-                    String SENT = "SMS_SENT";
-                    String DELIVERED = "SMS_DELIVERED";
-                    SmsManager sms = SmsManager.getDefault();
-                    ArrayList<String> parts = sms.divideMessage(message);
+    @SuppressLint("MissingPermission")
+    public LatLng getUserLocation(){
 
-
-                    ArrayList<PendingIntent> sentPIarr = new ArrayList<PendingIntent>();
-                    ArrayList<PendingIntent> deliveredPIarr = new ArrayList<PendingIntent>();
-
-                    for (int i = 0; i < parts.size(); i++) {
-                        sentPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(SENT), 0));
-                        deliveredPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(DELIVERED), 0));
-                    }
-
-                    sms.sendMultipartTextMessage(phNo, null, parts, sentPIarr, deliveredPIarr);
-                    Toast.makeText(MainActivity.this, "Message Sent Successfully to Your Guardian", Toast.LENGTH_SHORT).show();
-                }
-                catch (Exception e){
-                    Toast.makeText(MainActivity.this, "SMS Failed to Send, Please try again", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-        try{
-
-
-            String SENT = "SMS_SENT";
-            String DELIVERED = "SMS_DELIVERED";
-            SmsManager sms = SmsManager.getDefault();
-            ArrayList<String> parts = sms.divideMessage(message);
-
-
-            ArrayList<PendingIntent> sentPIarr = new ArrayList<PendingIntent>();
-            ArrayList<PendingIntent> deliveredPIarr = new ArrayList<PendingIntent>();
-
-            for (int i = 0; i < parts.size(); i++) {
-                sentPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(SENT), 0));
-                deliveredPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(DELIVERED), 0));
-            }
-
-            sms.sendMultipartTextMessage(phNo, null, parts, sentPIarr, deliveredPIarr);
-            Toast.makeText(MainActivity.this, "Message Sent Successfully to Your Guardian", Toast.LENGTH_SHORT).show();
-        }
-        catch (Exception e){
-            Toast.makeText(MainActivity.this, "SMS Failed to Send, Please try again", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /**
-     * Is all services okay and app ready for use
-     * @return
-     */
-    public boolean isServicesOK() {
-
-
-        int available = GoogleApiAvailability.getInstance ().isGooglePlayServicesAvailable (MainActivity.this);
-
-        if (available == ConnectionResult.SUCCESS) {
-            //everything is fine and the user can make map requests
-
-            return true;
-        } else if (GoogleApiAvailability.getInstance ().isUserResolvableError (available)) {
-            //an error occured but we can resolve it
-
-            Dialog dialog = GoogleApiAvailability.getInstance ().getErrorDialog (MainActivity.this, available, ERROR_DIALOG_REQUEST);
-            dialog.show ();
-        } else {
-            Toast.makeText (this, "You can't make map requests", Toast.LENGTH_SHORT).show ();
-        }
-        return false;
-    }
-
-    public void getUserLocation(){
-
-
-        if (ActivityCompat.checkSelfPermission (this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission (this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-            return;
-        }
 
         fusedLocationClient.getLastLocation ()
                 .addOnSuccessListener (this, new OnSuccessListener<Location> () {
@@ -560,60 +223,14 @@ public class MainActivity extends AppCompatActivity {
                             // Logic to handle location object
                             userLocation= new LatLng(location.getLatitude (),location.getLongitude ());
 
-                            System.out.println ("NEw user location" +userLocation);
+                            //System.out.println ("NEw user location" +userLocation);
                         }
                     }
                 });
 
-
+        return userLocation;
     }
 
-    /**
-     * On Request permission callback override
-     * @param requestCode
-     * @param permissions
-     * @param grantResults
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[],
-                                           @NonNull int[] grantResults) {
-        mLocationPermissionGranted = false;
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    mLocationPermissionGranted = true;
-                }
-                else {
-
-                    Toast.makeText(this, "Location permission  granted", Toast.LENGTH_SHORT).show();
-                }
-            }
-            case MY_PERMISSIONS_REQUEST_SEND_SMS: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    mSMSPermissionGranted =true;
-                }else {
-
-                    Toast.makeText(this, "SMS permission not granted", Toast.LENGTH_SHORT).show();
-                }
-            }
-            case MY_PERMISSIONS_REQUEST_CALL_PHONE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    mCallPermissionGranted = true;
-
-                } else {
-
-                    Toast.makeText(this, "Call permission not granted", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-    }
 
     public void sendSMSMessage(String phoneNo,String message){
         try{
@@ -653,26 +270,6 @@ public class MainActivity extends AppCompatActivity {
         return address;
     }
 
-    /**
-     * Calling location granting activity for result
-     * @param requestCode
-     * @param resultCode
-     * @param data
-     */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_ENABLE_GPS: {
-                if(mLocationPermissionGranted){
-                    getNextActivity();
-                }
-                else{
-                    getLocationPermission();
-                }
-            }
-        }
 
-    }
 
 }
