@@ -181,33 +181,6 @@
         app:aebBlurBackground="false"
         app:aebBlurRadius="0"/>
 
-    <com.fangxu.allangleexpandablebutton.AllAngleExpandableButton
-        android:id="@+id/button_expandable2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center|center_horizontal|right"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="130dp"
-        app:aebAnimDurationMillis="405"
-        app:aebButtonElevation="4dp"
-        app:aebButtonGapDp="10dp"
-        app:aebEndAngleDegree="250"
-        app:aebStartAngleDegree="110"
-        app:aebIsSelectionMode="false"
-        app:aebMainButtonRotateAnimDurationMillis="550"
-        app:aebMainButtonRotateDegree="-90"
-        app:aebMainButtonSizeDp="50dp"
-        app:aebMainButtonTextColor="#ffff5656"
-        app:aebMainButtonTextSizeSp="20dp"
-        app:aebMaskBackgroundColor="@color/colorTransparent"
-        app:aebRippleColor="@color/colorRed"
-        app:aebRippleEffect="true"
-        app:aebSubButtonSizeDp="50dp"
-        app:aebSubButtonTextColor="#000000"
-        app:aebSubButtonTextSizeSp="18dp"
-        app:aebBlurBackground="false"
-        app:aebBlurRadius="0"/>
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/nestedScrollView"

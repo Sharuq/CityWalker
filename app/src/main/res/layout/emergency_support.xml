@@ -1,236 +1,390 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:layout_weight="2">
-<LinearLayout
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <android.support.design.widget.AppBarLayout
+    <android.support.v7.widget.Toolbar
+
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorButton"
+        app:elevation="0dp"
+        app:popupTheme="@style/AppTheme.PopupOverlay"
+        app:theme="@style/ToolBarStyle">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorButton"
-            tools:popupTheme="@style/ThemeOverlay.AppCompat.Dark" />
 
-    </android.support.design.widget.AppBarLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:orientation="vertical"
-        android:layout_marginBottom="15dp"
-        android:layout_marginStart="10dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="5dp"
-            android:text="1. Emergency contact"
-            android:textColor="@color/colorButton"
-            android:textSize="22sp"
-            android:textStyle="bold" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/toolbar_logo"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="15dp"
-            android:gravity="center">
+            android:textColor="@color/colorWhite"
+            android:textSize="20sp"/>
+
+    </android.support.v7.widget.Toolbar>
+
+
+    <ScrollView
+        android:id="@+id/content_home_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        android:background="@color/colorWhite"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
             <LinearLayout
-
+                android:id="@+id/updatecontact"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:layout_weight="3"
-                android:id="@+id/addContactLayout">
+                android:layout_height="wrap_content">
 
-                <Button
-                    android:id="@+id/addContact"
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
-                    android:layout_gravity="right"
-                    android:layout_marginLeft="7dp"
-                    android:background="@drawable/add"
-                    android:backgroundTint="@color/colorButton" />
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorHomeBlockTwo" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:paddingTop="5dp"
-                    android:text="Add Emergency Contact"
-                    android:layout_marginLeft="5dp"
-                    android:textSize="22sp"
-                    android:textStyle="normal"
-                    android:textColor="@color/colorButton"
-                    />
+                <LinearLayout
+                    android:id="@+id/updateeemrgencycontact"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackground"
+                    android:orientation="vertical"
+                    android:paddingBottom="20dp"
+                    android:paddingTop="10dp">
 
 
-                <Button
-                    android:id="@+id/infoAddContact"
-                    android:layout_width="25dp"
-                    android:layout_height="20dp"
-                    android:layout_marginLeft="10dp"
-                    android:layout_gravity="fill_vertical"
-                    android:background="@drawable/tooltips"
-                    android:backgroundTint="@color/colorButton" />
+                    <Button
+                        android:id="@+id/addContact"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="20dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/round_cornered2"
+                        android:text="Add Emergency contact"
+                        android:padding="10dp"/>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorLinearLayoutBorder" />
 
 
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorHomeBlockTwo" />
 
 
             </LinearLayout>
 
-        </LinearLayout>
+            <View
+                android:id="@+id/home_notification_divider"
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/updatecontact"
+                android:background="@color/colorLinearLayoutBorder" />
 
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2px"
-        android:background="@color/colorBlack"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:orientation="vertical"
-        android:layout_marginStart="10dp"
-        android:layout_marginBottom="15dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="2. Emergency call"
-            android:paddingTop="5dp"
-            android:textColor="@color/colorButton"
-            android:textSize="22sp"
-            android:textStyle="bold" />
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/emergencycall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:src="@drawable/emergencycall"
-            android:layout_gravity="center"
-            app:fabCustomSize="80dp"
-            app:fabSize="auto"
-            app:maxImageSize="80dp"  />
-
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2px"
-        android:background="@color/colorBlack"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:orientation="vertical"
-
-        android:layout_marginBottom="15dp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="3. Location sharing"
-
-            android:layout_marginStart="15dp"
-            android:paddingTop="5dp"
-            android:textColor="@color/colorButton"
-            android:textSize="22sp"
-            android:textStyle="bold" />
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:orientation="horizontal">
-
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/sendLocation"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/mpo_layout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:src="@drawable/emergencymessage"
-                android:layout_marginLeft="80dp"
-                app:fabCustomSize="80dp"
-                app:fabSize="auto"
-                app:maxImageSize="80dp" />
+                android:layout_below="@+id/home_notification_divider"
+                android:background="?attr/selectableItemBackground">
 
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/sharelocation"
-                android:layout_width="wrap_content"
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorHomeBlockThree" />
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorHomeBlockThree" />
+
+            </LinearLayout>
+
+
+            <View
+                android:id="@+id/rent_renew_po_diver"
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/mpo_layout"
+                android:background="@color/colorLinearLayoutBorder" />
+
+            <LinearLayout
+                android:id="@+id/emergnecypart"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:src="@drawable/sharelocation"
-                android:layout_alignParentEnd="true"
-                android:layout_marginRight="80dp"
-                app:fabCustomSize="80dp"
-                app:fabSize="auto"
-                app:maxImageSize="80dp"  />
+                android:layout_below="@+id/rent_renew_po_diver">
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/emergnecycolor" />
+
+                <LinearLayout
+                    android:id="@+id/emergencymessage"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="vertical"
+                    android:paddingBottom="30dp"
+                    android:paddingTop="30dp">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/app_name"
+                        android:src="@drawable/message" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="10dp"
+                        android:text="Emergency Message"
+                        android:textAlignment="center"
+                        android:textColor="@color/emergnecycolor"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Send an emergency message to your emergency contact"
+                        android:textAlignment="center"
+                        android:textColor="@color/colorHomeSubTitle"
+                        android:textSize="10sp" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorLinearLayoutBorder" />
+
+                <LinearLayout
+                    android:id="@+id/emergencycall"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="vertical"
+                    android:paddingBottom="30dp"
+                    android:paddingTop="30dp">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/app_name"
+                        android:src="@drawable/emergencycall3" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="10dp"
+                        android:text="Emergency Call"
+                        android:textColor="@color/emergnecycolor"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textAlignment="center"
+                        android:text="Call your emergency contact"
+                        android:textColor="@color/colorHomeSubTitle"
+                        android:textSize="10sp" />
+
+                </LinearLayout>
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorLinearLayoutBorder" />
+                <LinearLayout
+                    android:id="@+id/sharelocation"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="vertical"
+                    android:paddingBottom="30dp"
+                    android:paddingTop="30dp">
+
+                    <ImageView
+                        android:layout_width="50dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/app_name"
+                        android:src="@drawable/share" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="10dp"
+                        android:text="Share Location"
+                        android:textColor="@color/colorButton"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Share location address with your emergency contact"
+                        android:textAlignment="center"
+                        android:textColor="@color/colorHomeSubTitle"
+                        android:textSize="10sp" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorButton" />
+
+
+            </LinearLayout>
+
+            <View
+                android:id="@+id/notification_divider"
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/emergnecypart"
+                android:background="@color/colorLinearLayoutBorder" />
+
+            <LinearLayout
+                android:id="@+id/navigations"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/notification_divider">
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorHomeBlockFour" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorLinearLayoutBorder" />
+
+                <LinearLayout
+                    android:id="@+id/navigatetopolice"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="vertical"
+                    android:paddingTop="30dp"
+                    android:paddingBottom="30dp">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/app_name"
+                        android:src="@drawable/policeman" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="10dp"
+                        android:text="Navigate To Station"
+                        android:textColor="@color/colorHomeBlockFour"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Navigate to the nearest police station"
+                        android:textColor="@color/colorHomeSubTitle"
+                        android:textSize="10sp" />
+
+                </LinearLayout>
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorLinearLayoutBorder" />
+
+                <LinearLayout
+                    android:id="@+id/navigatetoshop"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="vertical"
+                    android:paddingBottom="30dp"
+                    android:paddingTop="30dp">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/app_name"
+                        android:src="@drawable/shopnavigate"
+                        android:backgroundTint="@color/colorHomeBlockFour"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="10dp"
+                        android:text="Navigate to Shop"
+                        android:textColor="@color/colorHomeBlockFour"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="Navigate to the nearest 24 hrs open shop"
+                        android:textColor="@color/colorHomeSubTitle"
+                        android:textSize="10sp" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorHomeBlockFour" />
+
+            </LinearLayout>
+
+
         </RelativeLayout>
-    </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2px"
-        android:background="@color/colorBlack"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="10dp"
-
-        android:layout_marginBottom="15dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="5dp"
-            android:text="4. Navigation to a safe place"
-            android:textColor="@color/colorButton"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:layout_marginStart="15dp"/>
-
-        <Button
-            android:id="@+id/navigatetoshop"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="24 Hours Open Shop"
-            android:layout_marginTop="10dp"
-            android:layout_gravity="center"
-            android:textColor="@color/cardview_light_background"
-            android:background="@drawable/round_cornered2" />
-
-        <Button
-            android:id="@+id/navigatetopolice"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="Police Sation"
-            android:layout_marginTop="17dp"
-            android:layout_gravity="center"
-            android:textColor="@color/cardview_light_background"
-            android:background="@drawable/round_cornered2"/>
-
-    </LinearLayout>
+    </ScrollView>
 
 
-</LinearLayout>
-</ScrollView>
+</RelativeLayout>

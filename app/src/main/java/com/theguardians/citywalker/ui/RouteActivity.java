@@ -11,6 +11,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -83,6 +84,7 @@ import com.theguardians.citywalker.R;
 import com.theguardians.citywalker.Service.DataFromFirebase;
 import com.theguardians.citywalker.Service.DataPointsCountDetail;
 import com.theguardians.citywalker.util.CustomInfoWindowAdapter;
+import com.theguardians.citywalker.util.CustomInfoWindowPolice;
 import com.theguardians.citywalker.util.Util;
 
 import org.json.JSONArray;
@@ -222,11 +224,11 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         safestRoute = findViewById (R.id.safestRoute);
         layout =findViewById (R.id.saflay);
         button = (AllAngleExpandableButton) findViewById(R.id.button_expandable);
-        button2 = (AllAngleExpandableButton) findViewById(R.id.button_expandable2);
+        //button2 = (AllAngleExpandableButton) findViewById(R.id.button_expandable2);
         button.setVisibility (View.INVISIBLE);
 
 
-        installButton110to250();
+       // installButton110to250();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         if (mLocationPermissionGranted) {
             getUserLocation();
@@ -362,7 +364,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         }
         mapFragment.getMapAsync (this);
     }
-
+/*
     private void installButton110to250() {
         final List<ButtonData> buttonDatas = new ArrayList<>();
         int[] drawable = {R.drawable.emergency, R.drawable.emergencycall, R.drawable.emergencymessage,  R.drawable.ic_navigation};
@@ -403,8 +405,10 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 //                showToast("onCollapse");
             }
         });
-    }
 
+
+    }
+*/
     @Override
     public void onMapReady(GoogleMap googleMap) {
         try {
@@ -509,13 +513,15 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         progressDialog.dismiss();
 
         CameraUpdate center = CameraUpdateFactory.newLatLng(start);
-        CameraUpdate zoom = CameraUpdateFactory.zoomTo(16);
+        CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
         map.moveCamera(center);
         map.animateCamera (zoom);
 
         /**
          Removing  Polylines and Markers initially
          */
+        if(startingMarker!=null)
+        {startingMarker.remove ();}
         if(firstTimeRun==true) {
             originMarker.remove ();
             destinationMarker.remove ();
@@ -806,13 +812,15 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             poloptions.position (policeStationLatLng);
             //options1.icon (BitmapDescriptorFactory.fromResource (R.drawable.mappolicestation2));
             poloptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("policenew2",140,150)));
-            poloptions.title (policeStation.getPolice_station ());
-            poloptions.zIndex (2);
-            poloptions.snippet ("Address: "+policeStation.getAddress () + "Telephone: " +policeStation.getTel ());
-
+            String title = policeStation.getPolice_station ();
+           // String subTitle =""+policeStation.getAddress ()+"\n\n\n"+"\nTel: "+policeStation.getTel ();
+            poloptions.title (title);
+           // poloptions.zIndex (2);
+            //poloptions.snippet(subTitle);
             policeStationMarker=map.addMarker (poloptions);
             selectedStationMarkerOptions.add (poloptions);
             selectedStationMarkers.add (policeStationMarker);
+
         }
         /**
          Displaying cctv  markers

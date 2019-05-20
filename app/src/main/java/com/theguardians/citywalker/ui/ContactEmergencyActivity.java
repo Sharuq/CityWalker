@@ -54,20 +54,7 @@ public class ContactEmergencyActivity extends AppCompatActivity {
 
 
     private FusedLocationProviderClient fusedLocationClient;
-    private boolean mLocationPermissionGranted = false;
-    private boolean mSMSPermissionGranted =false;
     private LatLng userLocation;
-
-    private boolean mCallPermissionGranted = false;
-    private static final int ERROR_DIALOG_REQUEST = 9001;
-
-    private static final int  PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9003;
-    private static final int PERMISSIONS_REQUEST_ENABLE_GPS = 9002;
-
-    private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
-
-    private static final int MY_PERMISSIONS_REQUEST_SEND_SMS =0 ;
-
     private String phoneNo;
     private String message;
     private String userLocationAddress;
@@ -97,7 +84,7 @@ public class ContactEmergencyActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate (savedInstanceState);
-        setContentView (R.layout.newemergency);
+        setContentView (R.layout.contact_emergency_support);
         Toolbar toolbar = findViewById (R.id.toolbar);
         toolbar.setTitle ("Emergency Support");
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp);
@@ -113,8 +100,6 @@ public class ContactEmergencyActivity extends AppCompatActivity {
 
 
 
-        //System.out.println ("Json array "+newpoliceStationArray);
-
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -125,7 +110,6 @@ public class ContactEmergencyActivity extends AppCompatActivity {
 
 
         userLocation = getUserLocation ();
-
         extras = getIntent().getExtras();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient (this);
 

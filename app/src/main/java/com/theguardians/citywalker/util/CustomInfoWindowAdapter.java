@@ -37,6 +37,7 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
 
         HashMap<String,String> hashMap = (HashMap<String, String>) marker.getTag ();
+
         if(hashMap!=null) {
             if (hashMap.get ("Id").equals (marker.getId ())) {
 

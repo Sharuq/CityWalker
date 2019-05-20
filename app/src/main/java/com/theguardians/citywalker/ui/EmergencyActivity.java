@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -21,6 +22,7 @@ import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -63,20 +65,15 @@ public class EmergencyActivity extends AppCompatActivity {
     private String phoneNo;
     private String message;
     private String userLocationAddress;
-    private Button infoAddContact;
-    private  Button addContact;
-    private Button navigateToPolice;
-    private Button navigateToShop;
-    private FloatingActionButton sendLocation;
-    private FloatingActionButton shareLocation;
-    private FloatingActionButton emergencycall;
+    private Button addContact;
+    private LinearLayout navigateToPolice;
+    private LinearLayout navigateToShop;
+    private LinearLayout emergencyMessage;
+    private LinearLayout shareLocation;
+    private LinearLayout emergencyCall;
     private Context context;
 
-    //add Firebase Database stuff
 
-    private FirebaseDatabase mFirebaseDatabase;
-    private DatabaseReference policeStationRef;
-    private DatabaseReference openShopRef;
     private PoliceStation nearestStation = new PoliceStation ();
     private OpenShop nearestShop = new OpenShop ();
 
@@ -86,7 +83,7 @@ public class EmergencyActivity extends AppCompatActivity {
     private JSONArray policeStationArray = new JSONArray ();
     private JSONArray openShopArray = new JSONArray ();
     private JSONArray result =new JSONArray ();
-
+    private JSONArray resultShop =new JSONArray ();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // ...
@@ -98,6 +95,16 @@ public class EmergencyActivity extends AppCompatActivity {
         setSupportActionBar (toolbar);
 
         context =this;
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient (this);
+
+        emergencyMessage = findViewById(R.id.emergencymessage);
+        addContact =findViewById (R.id.addContact);
+        navigateToPolice =findViewById (R.id.navigatetopolice);
+        navigateToShop =findViewById (R.id.navigatetoshop);
+        shareLocation =findViewById (R.id.sharelocation);
+        emergencyCall =findViewById (R.id.emergencycall);
+
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -106,44 +113,11 @@ public class EmergencyActivity extends AppCompatActivity {
             }
         });
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient (this);
-        sendLocation = findViewById(R.id.sendLocation);
-        addContact =findViewById (R.id.addContact);
-        infoAddContact = findViewById (R.id.infoAddContact);
-        navigateToPolice = findViewById (R.id.navigatetopolice);
-        navigateToShop=findViewById (R.id.navigatetoshop);
-        shareLocation =findViewById (R.id.sharelocation);
-        emergencycall =findViewById (R.id.emergencycall);
 
 
-        /**
-         Collecting data from Firebase and storing to JSONArray
-         */
-        FirebaseApp.initializeApp(this);
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
-        policeStationRef = mFirebaseDatabase.getReference("police_location");
-        openShopRef = mFirebaseDatabase.getReference ("24hr_stores");
 
-        policeStationArray = getPoliceStationArray (policeStationRef);
-        openShopArray = getOpenShopArray (openShopRef);
+        userLocation = getUserLocation ();
 
-        navigateToPolice.setEnabled (false);
-        navigateToShop.setEnabled (false);
-        if (mLocationPermissionGranted) {
-            userLocation = getUserLocation();
-        }
-        else {
-            getLocationPermission();
-        }
-
-
-        infoAddContact.setOnClickListener (new View.OnClickListener () {
-            @Override
-            public void onClick(View v) {
-
-                Toast.makeText(EmergencyActivity.this, "Press the  Add  Button to add an emergency Guardian contact", Toast.LENGTH_SHORT).show();
-            }
-        });
 
         addContact.setOnClickListener (new View.OnClickListener () {
             @Override
@@ -153,7 +127,7 @@ public class EmergencyActivity extends AppCompatActivity {
             }
         });
 
-        sendLocation.setOnClickListener (new View.OnClickListener () {
+        emergencyMessage.setOnClickListener (new View.OnClickListener () {
                 @Override
                 public void onClick(View v) {
                     AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
@@ -173,7 +147,7 @@ public class EmergencyActivity extends AppCompatActivity {
                 }
             });
 
-        emergencycall.setOnClickListener (new View.OnClickListener () {
+        emergencyCall.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
 
@@ -220,18 +194,19 @@ public class EmergencyActivity extends AppCompatActivity {
                 userLocation=getUserLocation ();
                 if(userLocation!=null){
 
-                    if(policeStationArray.length ()!=0) {
-                        nearestStation = findNearestPoliceStation (policeStationArray);
-                        System.out.println ("nearest police station " + nearestStation.getPolice_station ());
-                        Intent intent = new Intent(EmergencyActivity.this, PoliceMapActivity.class);
-                        Bundle bundle = new Bundle ();
-                        bundle.putParcelable ("originPoint", new com.mapbox.mapboxsdk.geometry.LatLng (userLocation.latitude,userLocation.longitude));
-                        bundle.putParcelable ("destinationPoint", new com.mapbox.mapboxsdk.geometry.LatLng (nearestStation.getLatitude (),nearestStation.getLongitude ()));
-                        bundle.putSerializable ("policestation",nearestStation);
-                        intent.putExtras (bundle);
-                        startActivity(intent);
-                    }
+                    nearestStation = findNearestPoliceStation ();
+                    System.out.println ("nearest police station " + nearestStation.getPolice_station ());
+                    Intent intent = new Intent(EmergencyActivity.this, PoliceMapActivity.class);
+                    Bundle bundle = new Bundle ();
+                    bundle.putParcelable ("originPoint", new com.mapbox.mapboxsdk.geometry.LatLng (userLocation.latitude,userLocation.longitude));
+                    bundle.putParcelable ("destinationPoint", new com.mapbox.mapboxsdk.geometry.LatLng (nearestStation.getLatitude (),nearestStation.getLongitude ()));
+                    bundle.putSerializable ("policestation",nearestStation);
+                    intent.putExtras (bundle);
+                    startActivity(intent);
+
+
                 }
+
             }
         });
 
@@ -241,28 +216,44 @@ public class EmergencyActivity extends AppCompatActivity {
                 userLocation=getUserLocation ();
                 if(userLocation!=null){
 
-                    if(openShopArray.length ()!=0) {
-                        nearestShop = findNearestOpenShop (openShopArray);
-                        System.out.println ("nearest open shop " + nearestShop.getName ());
-                        Intent intent = new Intent(EmergencyActivity.this, ShopMapActivity.class);
-                        Bundle bundle = new Bundle ();
-                        bundle.putParcelable ("originPoint", new com.mapbox.mapboxsdk.geometry.LatLng (userLocation.latitude,userLocation.longitude));
-                        bundle.putParcelable ("destinationPoint", new com.mapbox.mapboxsdk.geometry.LatLng (nearestShop.getLatitude (),nearestShop.getLongitude ()));
-                        bundle.putSerializable ("openshop",nearestShop);
-                        intent.putExtras (bundle);
-                        startActivity(intent);
-                    }
+                    nearestShop = findNearestOpenShop ();
+                    System.out.println ("nearest open shop " + nearestShop.getName ());
+                    Intent intent = new Intent(EmergencyActivity.this, ShopMapActivity.class);
+                    Bundle bundle = new Bundle ();
+                    bundle.putParcelable ("originPoint", new com.mapbox.mapboxsdk.geometry.LatLng (userLocation.latitude,userLocation.longitude));
+                    bundle.putParcelable ("destinationPoint", new com.mapbox.mapboxsdk.geometry.LatLng (nearestShop.getLatitude (),nearestShop.getLongitude ()));
+                    bundle.putSerializable ("openshop",nearestShop);
+                    intent.putExtras (bundle);
+                    startActivity(intent);
+
+
                 }
+
             }
         });
+
     }
 
 
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(EmergencyActivity.this, MainActivity.class);
+        startActivity(intent);
+    }
 
-    private PoliceStation findNearestPoliceStation(JSONArray policeStationArray ) {
+
+    private PoliceStation findNearestPoliceStation() {
 
         userLocation = getUserLocation ();
+        result = new JSONArray ();
+        SharedPreferences sharedPreferences = getSharedPreferences("firebase_data", Context.MODE_PRIVATE);
+        String satValue = sharedPreferences.getString("police_station_data",null);
+        try {
+            policeStationArray= new JSONArray(satValue);
+        } catch (JSONException e) {
+            e.printStackTrace ();
+        }
         List<Float> pathDistances = new ArrayList<> ();
         PoliceStation nearStation = new PoliceStation ();
         float minDistance=0;
@@ -341,9 +332,18 @@ public class EmergencyActivity extends AppCompatActivity {
     }
 
 
-    private OpenShop findNearestOpenShop(JSONArray openShopArray ) {
+    private OpenShop findNearestOpenShop() {
 
         userLocation = getUserLocation ();
+        resultShop = new JSONArray ();
+        SharedPreferences sharedPreferences = getSharedPreferences("firebase_data", Context.MODE_PRIVATE);
+        String shopValue = sharedPreferences.getString("open_shop_data",null);
+        try {
+            openShopArray = new JSONArray(shopValue);
+        } catch (JSONException e) {
+            e.printStackTrace ();
+        }
+
         List<Float> pathDistances = new ArrayList<> ();
         OpenShop nearShop = new OpenShop ();
         float minDistance=0;
@@ -381,7 +381,7 @@ public class EmergencyActivity extends AppCompatActivity {
                     jsonObject1.put ("distance", distance);
                     jsonObject1.put ("openShop", oInfo);
 
-                    result.put (jsonObject1);
+                    resultShop.put (jsonObject1);
 
                 } catch (JSONException e) {
                     e.printStackTrace ();
@@ -401,9 +401,9 @@ public class EmergencyActivity extends AppCompatActivity {
 
 
         try{
-            for(int j=0; j<result.length ();j++){
+            for(int j=0; j<resultShop.length ();j++){
 
-                JSONObject jsonObject = result.getJSONObject (j);
+                JSONObject jsonObject = resultShop.getJSONObject (j);
                 float dis = Float.parseFloat (jsonObject.getString ("distance"));
                 OpenShop openShop = (OpenShop) jsonObject.get ("openShop");
                 if(Float.compare(minDistance, dis) == 0){
@@ -419,108 +419,6 @@ public class EmergencyActivity extends AppCompatActivity {
 
     }
 
-    public JSONArray getPoliceStationArray(DatabaseReference stationReference) {
-
-        stationReference.addValueEventListener (new ValueEventListener () {
-
-            @Override
-
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                for (DataSnapshot ds : dataSnapshot.getChildren ()) {
-
-                    //System.out.println("This is ds " +ds);
-                    pInfo = new PoliceStation ();
-                    pInfo.setLatitude (Double.parseDouble (ds.child ("latitude").getValue ().toString ()));
-                    pInfo.setLongitude (Double.parseDouble (ds.child ("longitude").getValue ().toString ()));
-                    pInfo.setPolice_station (ds.child ("police_station").getValue ().toString ());
-                    pInfo.setAddress (ds.child ("address").getValue ().toString ());
-                    pInfo.setTel (ds.child ("tel").getValue ().toString ());
-
-
-                    try {
-
-                        JSONObject jsonObject = new JSONObject ();
-                        jsonObject.put ("police_station", pInfo.getPolice_station ());
-                        jsonObject.put ("latitude", pInfo.getLatitude ());
-                        jsonObject.put ("longitude", pInfo.getLongitude ());
-                        jsonObject.put ("address", pInfo.getAddress ());
-                        jsonObject.put ("tel", pInfo.getTel ());
-
-                        policeStationArray.put (jsonObject);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace ();
-                    }
-
-                }
-
-                navigateToPolice.setEnabled (true);
-            }
-
-            @Override
-
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-
-        });
-        return policeStationArray;
-    }
-
-
-
-    public JSONArray getOpenShopArray(DatabaseReference openShopReference) {
-        openShopReference.addValueEventListener (new ValueEventListener () {
-
-            @Override
-
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-
-                for (DataSnapshot ds : dataSnapshot.getChildren ()) {
-
-
-                    //System.out.println("This is cctv ds " +ds);
-                    oInfo.setLatitude (Double.parseDouble (ds.child ("latitude").getValue ().toString ()));
-                    oInfo.setLongitude (Double.parseDouble (ds.child ("longitude").getValue ().toString ()));
-                    oInfo.setName (ds.child ("name").getValue ().toString ());
-                    oInfo.setAddress (ds.child ("address").getValue ().toString ());
-                    //display all the information
-
-
-                    try {
-
-                        JSONObject jsonObject = new JSONObject ();
-                        jsonObject.put ("name", oInfo.getName ());
-                        jsonObject.put ("address", oInfo.getAddress ());
-                        jsonObject.put ("latitude", oInfo.getLatitude ());
-                        jsonObject.put ("longitude", oInfo.getLongitude ());
-
-                        openShopArray.put (jsonObject);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace ();
-                    }
-
-                }
-
-                navigateToShop.setEnabled (true);
-
-
-                //Log.d (TAG, "$$$$ Array: " + cctvLocationArray);
-            }
-
-
-            @Override
-
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-
-        });
-        return openShopArray;
-    }
 
     /**
      * Ask for location permission
@@ -548,6 +446,7 @@ public class EmergencyActivity extends AppCompatActivity {
     @SuppressLint("MissingPermission")
     public LatLng getUserLocation(){
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient (this);
 
         fusedLocationClient.getLastLocation ()
                 .addOnSuccessListener (this, new OnSuccessListener<Location> () {
@@ -567,18 +466,6 @@ public class EmergencyActivity extends AppCompatActivity {
     }
 
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode,String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_SEND_SMS: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                          mSMSPermissionGranted = true;
-                }
-            }
-
-        }
-    }
 
     /**
      * Return minimum value
