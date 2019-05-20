@@ -7,6 +7,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -24,7 +25,20 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.theguardians.citywalker.Model.OpenShop;
+import com.theguardians.citywalker.Model.PoliceStation;
 import com.theguardians.citywalker.R;
+import com.theguardians.citywalker.Service.DataFromFirebase;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -45,11 +59,35 @@ public class SplashActivity extends AppCompatActivity {
     private boolean mSMSPermissionGranted = false;
     private boolean mCallPermissionGranted = false;
 
+    //add Firebase Database stuff
+
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference policeStationRef;
+    private DatabaseReference openShopRef;
+    private PoliceStation nearestStation = new PoliceStation ();
+    private OpenShop nearestShop = new OpenShop ();
+
+    private PoliceStation pInfo = new PoliceStation ();
+    private OpenShop oInfo = new OpenShop ();
+
+    private JSONArray policeStationArray = new JSONArray ();
+    private JSONArray openShopArray = new JSONArray ();
+    private JSONArray result =new JSONArray ();
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         logo=(ImageView)findViewById(R.id.logo);
+
+        /**
+         Collecting data from Firebase and storing to JSONArray
+         */
+        FirebaseApp.initializeApp(this);
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        policeStationRef = mFirebaseDatabase.getReference("police_location");
+        openShopRef = mFirebaseDatabase.getReference ("24hr_stores");
+
 
         context=this;
 
@@ -216,19 +254,15 @@ public class SplashActivity extends AppCompatActivity {
     }
     private void getSMSPermission() {
 
-
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.SEND_SMS)
                 != PackageManager.PERMISSION_GRANTED) {
 
-                // Permission is not granted
-                // No explanation needed; request the permission
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.SEND_SMS},
                         MY_PERMISSIONS_REQUEST_SEND_SMS);
 
         } else {
-            // Permission has already been granted
             mSMSPermissionGranted =true;
             //launchActivity ();
         }
@@ -288,7 +322,8 @@ public class SplashActivity extends AppCompatActivity {
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mCallPermissionGranted = true;
                 } else {
-                    Toast.makeText(this, "Call permission not granted", Toast.LENGTH_SHORT).show();
+                    //getCallPermission ();
+                    //Toast.makeText(this, "Call permission not granted", Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -326,10 +361,10 @@ public class SplashActivity extends AppCompatActivity {
         protected void onPostExecute(Boolean aBoolean) {
 
             if (aBoolean) {
-                checkLocationServices();
                 checkSMSServices ();
                 checkCallPermission ();
-                launchActivity ();
+                checkLocationServices();
+                getDataFromFirebase ();
             } else {
 
                 //Toast.makeText(this, "No Internet Connection", Toast.LENGTH_SHORT).show();
@@ -348,6 +383,7 @@ public class SplashActivity extends AppCompatActivity {
             }
         }
     }
+
 
     /**
      * Calling location granting activity for result
@@ -369,5 +405,106 @@ public class SplashActivity extends AppCompatActivity {
             }
         }
 
+    }
+    private void getDataFromFirebase(){
+        SharedPreferences sharedPreferences = getSharedPreferences("firebase_data", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        policeStationRef.addValueEventListener (new ValueEventListener () {
+
+            @Override
+
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot ds : dataSnapshot.getChildren ()) {
+
+                    //System.out.println("This is ds " +ds);
+                    pInfo = new PoliceStation ();
+                    pInfo.setLatitude (Double.parseDouble (ds.child ("latitude").getValue ().toString ()));
+                    pInfo.setLongitude (Double.parseDouble (ds.child ("longitude").getValue ().toString ()));
+                    pInfo.setPolice_station (ds.child ("police_station").getValue ().toString ());
+                    pInfo.setAddress (ds.child ("address").getValue ().toString ());
+                    pInfo.setTel (ds.child ("tel").getValue ().toString ());
+
+
+                    try {
+
+                        JSONObject jsonObject = new JSONObject ();
+                        jsonObject.put ("police_station", pInfo.getPolice_station ());
+                        jsonObject.put ("latitude", pInfo.getLatitude ());
+                        jsonObject.put ("longitude", pInfo.getLongitude ());
+                        jsonObject.put ("address", pInfo.getAddress ());
+                        jsonObject.put ("tel", pInfo.getTel ());
+
+                        policeStationArray.put (jsonObject);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace ();
+                    }
+
+                }
+
+                editor.putString("police_station_data", policeStationArray.toString ());
+                editor.commit ();
+
+                //Log.d (TAG, "$$$$ Array: " + policeStationArray);
+            }
+
+            @Override
+
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
+
+        openShopRef.addValueEventListener (new ValueEventListener () {
+
+            @Override
+
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+
+                for (DataSnapshot ds : dataSnapshot.getChildren ()) {
+
+
+                    //System.out.println("This is cctv ds " +ds);
+                    oInfo.setLatitude (Double.parseDouble (ds.child ("latitude").getValue ().toString ()));
+                    oInfo.setLongitude (Double.parseDouble (ds.child ("longitude").getValue ().toString ()));
+                    oInfo.setName (ds.child ("name").getValue ().toString ());
+                    oInfo.setAddress (ds.child ("address").getValue ().toString ());
+                    //display all the information
+
+
+                    try {
+
+                        JSONObject jsonObject = new JSONObject ();
+                        jsonObject.put ("name", oInfo.getName ());
+                        jsonObject.put ("address", oInfo.getAddress ());
+                        jsonObject.put ("latitude", oInfo.getLatitude ());
+                        jsonObject.put ("longitude", oInfo.getLongitude ());
+
+                        openShopArray.put (jsonObject);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace ();
+                    }
+
+                }
+                editor.putString("open_shop_data", openShopArray.toString ());
+                editor.commit ();
+
+                launchActivity ();
+                //Log.d (TAG, "$$$$ Array: " + cctvLocationArray);
+            }
+
+
+            @Override
+
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
     }
 }

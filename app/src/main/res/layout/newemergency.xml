@@ -224,7 +224,7 @@
                     android:background="@color/emergnecycolor" />
 
                 <LinearLayout
-                    android:id="@+id/emergencymessge"
+                    android:id="@+id/emergencymessage"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -376,6 +376,11 @@
                     android:layout_height="fill_parent"
                     android:background="@color/colorHomeBlockFour" />
 
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorLinearLayoutBorder" />
+
                 <LinearLayout
                     android:id="@+id/navigatetopolice"
                     android:layout_width="0dp"
@@ -386,8 +391,8 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:orientation="vertical"
-                    android:paddingBottom="30dp"
-                    android:paddingTop="30dp">
+                    android:paddingTop="30dp"
+                    android:paddingBottom="30dp">
 
                     <ImageView
                         android:layout_width="40dp"
@@ -414,7 +419,6 @@
                         android:textSize="10sp" />
 
                 </LinearLayout>
-
                 <View
                     android:layout_width="1dp"
                     android:layout_height="fill_parent"

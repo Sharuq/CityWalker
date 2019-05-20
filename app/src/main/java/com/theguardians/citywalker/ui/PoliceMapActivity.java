@@ -97,7 +97,7 @@ public class PoliceMapActivity extends AppCompatActivity implements OnMapReadyCa
         timeValue =findViewById (R.id.timeValue);
         distanceValue =findViewById (R.id.distanceValue);
         maincard =findViewById (R.id.maincard);
-        maincard.setVisibility (View.INVISIBLE);
+        //maincard.setVisibility (View.INVISIBLE);
         button = findViewById(R.id.startButton);
         //originPlace = getCurrentLocation ();
         Bundle bundle = getIntent().getExtras();
@@ -139,9 +139,10 @@ public class PoliceMapActivity extends AppCompatActivity implements OnMapReadyCa
                 }
 
 
-                System.out.println ("Origin: "+originPlace);
 
-                System.out.println ("Origin: "+destinationPlace);
+                System.out.println ("Origin place: "+originPlace);
+
+                System.out.println ("destination place: "+destinationPlace);
 
                 getRoute (originPlace, destinationPlace);
 
@@ -160,7 +161,7 @@ public class PoliceMapActivity extends AppCompatActivity implements OnMapReadyCa
 
                         // Call this method with Context from within an Activity
                         NavigationLauncher.startNavigation(PoliceMapActivity.this, options);
-                        maincard.setVisibility (View.VISIBLE);
+                       // maincard.setVisibility (View.VISIBLE);
                     }
                 });
             }
@@ -211,6 +212,9 @@ public class PoliceMapActivity extends AppCompatActivity implements OnMapReadyCa
                             return;
                         }
 
+                        System.out.println ("Origin"+origin);
+                        System.out.println ("Destination"+destination);
+
                         currentRoute = response.body().routes().get(0);
 
 
@@ -226,7 +230,7 @@ public class PoliceMapActivity extends AppCompatActivity implements OnMapReadyCa
 
                         distanceValue.setText ("("+currentRoute.distance ().toString () + " m"+")");
 
-                        button.callOnClick ();
+                       // button.callOnClick ();
 
                     }
 

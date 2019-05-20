@@ -2,6 +2,7 @@ package com.theguardians.citywalker.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.PendingIntent;
@@ -53,20 +54,17 @@ public class MainActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
 
     private static final String TAG = "MainActivity";
-    private static final int ERROR_DIALOG_REQUEST = 9001;
-    private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
-    private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
-    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 9003;
-    private static final int PERMISSIONS_REQUEST_ENABLE_GPS = 9002;
     private boolean mLocationPermissionGranted = false;
     private boolean mSMSPermissionGranted = false;
     private boolean mCallPermissionGranted = false;
+
+    private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
     private Context context;
     private List<UserContact> contacts;
     private LatLng userLocation;
     private String userLocationAddress;
     private String message;
-
+    private FloatingActionButton fab;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate (savedInstanceState);
@@ -82,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         contacts = handler.readAllContacts ();
         userLocation=getUserLocation ();
         context = this;
-        FloatingActionButton fab = findViewById (R.id.fab);
+        fab = findViewById (R.id.fab);
         fab.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View view) {
@@ -172,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (contacts.size () > 0) {
-                    Intent intent = new Intent (MainActivity.this, NewEmergency.class);
+                    Intent intent = new Intent (MainActivity.this, ContactEmergencyActivity.class);
                     startActivity (intent);
                 } else {
                     Intent intent = new Intent (MainActivity.this, EmergencyActivity.class);
@@ -205,11 +203,41 @@ public class MainActivity extends AppCompatActivity {
     public void callNumber(String phoneNumber) {
         Intent intent = new Intent (Intent.ACTION_CALL);
         intent.setData (Uri.parse ("tel:" + phoneNumber));
-        startActivity (intent);
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.CALL_PHONE)
+                != PackageManager.PERMISSION_GRANTED ) {
 
+            ActivityCompat.requestPermissions (this,
+                    new String[]{Manifest.permission.CALL_PHONE},
+                    MY_PERMISSIONS_REQUEST_CALL_PHONE);
+
+        }
+        else {
+            startActivity (intent);
+        }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
 
+            case MY_PERMISSIONS_REQUEST_CALL_PHONE: {
+
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(), "Permission granted", Toast.LENGTH_SHORT).show();
+                    fab.callOnClick ();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
     @SuppressLint("MissingPermission")
     public LatLng getUserLocation(){
 

@@ -98,7 +98,7 @@ public class ShopMapActivity extends AppCompatActivity implements OnMapReadyCall
         timeValue =findViewById (R.id.timeValue);
         distanceValue =findViewById (R.id.distanceValue);
         maincard =findViewById (R.id.maincard);
-        maincard.setVisibility (View.INVISIBLE);
+        //maincard.setVisibility (View.INVISIBLE);
         button = findViewById(R.id.startButton);
         //originPlace = getCurrentLocation ();
         Bundle bundle = getIntent().getExtras();
@@ -140,9 +140,9 @@ public class ShopMapActivity extends AppCompatActivity implements OnMapReadyCall
                 }
 
 
-                System.out.println ("Origin: "+originPlace);
+                System.out.println ("Shop Origin place: "+originPlace);
 
-                System.out.println ("Origin: "+destinationPlace);
+                System.out.println ("Shop destination place: "+destinationPlace);
 
                 getRoute (originPlace, destinationPlace);
 
@@ -161,7 +161,7 @@ public class ShopMapActivity extends AppCompatActivity implements OnMapReadyCall
 
                         // Call this method with Context from within an Activity
                         NavigationLauncher.startNavigation(ShopMapActivity.this, options);
-                        maincard.setVisibility (View.VISIBLE);
+                        //maincard.setVisibility (View.VISIBLE);
                     }
                 });
             }
@@ -183,15 +183,7 @@ public class ShopMapActivity extends AppCompatActivity implements OnMapReadyCall
         loadedMapStyle.addLayer(destinationSymbolLayer);
     }
 
-    @SuppressLint("MissingPermission")
-    private Point getCurrentLocation(){
 
-        Point originPoint = Point.fromLngLat (locationComponent.getLastKnownLocation ().getLongitude (),
-                locationComponent.getLastKnownLocation ().getLatitude ());
-        System.out.println ("Origin: "+originPoint);
-        return originPoint;
-
-    }
     private void getRoute(Point origin, Point destination) {
         NavigationRoute.builder(this)
                 .accessToken(Mapbox.getAccessToken())
@@ -214,6 +206,9 @@ public class ShopMapActivity extends AppCompatActivity implements OnMapReadyCall
 
                         currentRoute = response.body().routes().get(0);
 
+                        System.out.println ("shop Origin"+origin);
+                        System.out.println ("shop Destination"+destination);
+
 
                         // Draw the route on the map
                         if (navigationMapRoute != null) {
@@ -227,7 +222,7 @@ public class ShopMapActivity extends AppCompatActivity implements OnMapReadyCall
 
                         distanceValue.setText ("("+currentRoute.distance ().toString () + " m"+")");
 
-                        button.callOnClick ();
+                        //button.callOnClick ();
 
                     }
 

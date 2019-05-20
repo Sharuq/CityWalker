@@ -18,22 +18,22 @@ import org.json.JSONObject;
 public class DataFromFirebase {
     //add Firebase Database stuff
 
-    private PoliceStation pInfo = new PoliceStation ();
+    private static PoliceStation pInfo = new PoliceStation ();
     private CCTVLocation cInfo = new CCTVLocation ();
     private PedestrianSensor sInfo = new PedestrianSensor ();
-    private OpenShop oInfo = new OpenShop ();
+    private static OpenShop oInfo = new OpenShop ();
 
-    private JSONArray policeStationArray = new JSONArray ();
+    private static JSONArray policeStationArray = new JSONArray ();
     private JSONArray cctvLocationArray = new JSONArray ();
     private JSONArray pedestrianSensorArray = new JSONArray ();
-    private JSONArray openShopArray = new JSONArray ();
+    private static JSONArray openShopArray = new JSONArray ();
 
    // private DatabaseReference policeStationRef;
    // private DatabaseReference cctvRef;
 
 
 
-    public JSONArray getPoliceStationArray(DatabaseReference stationReference) {
+    public static JSONArray getPoliceStationArray(DatabaseReference stationReference) {
 
         stationReference.addValueEventListener (new ValueEventListener () {
 
@@ -182,7 +182,7 @@ public class DataFromFirebase {
     }
 
 
-    public JSONArray getOpenShopArray(DatabaseReference openShopReference) {
+    public static JSONArray getOpenShopArray(DatabaseReference openShopReference) {
         openShopReference.addValueEventListener (new ValueEventListener () {
 
             @Override
