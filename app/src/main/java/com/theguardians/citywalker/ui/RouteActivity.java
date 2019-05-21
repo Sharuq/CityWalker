@@ -1,7 +1,6 @@
 package com.theguardians.citywalker.ui;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -11,11 +10,8 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -23,17 +19,13 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.util.Log;
-import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -84,19 +76,16 @@ import com.theguardians.citywalker.R;
 import com.theguardians.citywalker.Service.DataFromFirebase;
 import com.theguardians.citywalker.Service.DataPointsCountDetail;
 import com.theguardians.citywalker.util.CustomInfoWindowAdapter;
-import com.theguardians.citywalker.util.CustomInfoWindowPolice;
 import com.theguardians.citywalker.util.Util;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -427,12 +416,17 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         map=googleMap;
         map.setOnPolylineClickListener(this);
+        getUserLocation ();
+        if(userLocation!=null) {
+            startingMarker = map.addMarker (new MarkerOptions ()
+                    .position (new LatLng (userLocation.latitude, userLocation.longitude)));
 
-        startingMarker = map.addMarker (new MarkerOptions ()
-                .position (new LatLng (userLocation.latitude, userLocation.longitude )));
+            map.animateCamera (CameraUpdateFactory.newLatLngZoom (new LatLng (userLocation.latitude, userLocation.longitude), 14));
+        }
+        else{
+            map.animateCamera (CameraUpdateFactory.newLatLngZoom (new LatLng (-37.814593, 144.966520),14 ));
 
-        map.animateCamera (CameraUpdateFactory.newLatLngZoom (new LatLng (userLocation.latitude, userLocation.longitude),14 ));
-
+        }
 
 
     }
@@ -797,7 +791,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
 
 
-        System.out.println("Final Sensor Array:" +pedestrianCountFinalArray);
+        //System.out.println("Final Sensor Array:" +pedestrianCountFinalArray);
 
 
         /**
@@ -807,19 +801,37 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         for (PoliceStation policeStation : selectedPoliceStation.values ()) {
 
             policeStationMarker = null;
+            HashMap<String, String> markerdetails = new HashMap<String, String>();
+            CustomInfoWindowAdapter customInfoWindow = new CustomInfoWindowAdapter(this);
+            map.setInfoWindowAdapter(customInfoWindow);
+
+            String title = policeStation.getPolice_station ();
+            String address = "Address: " + policeStation.getAddress();
+            String tel = "Phone Number: " + policeStation.getTel ();
+
+            System.out.println (address+tel);
             MarkerOptions poloptions = new MarkerOptions ();
             LatLng policeStationLatLng = new LatLng (policeStation.getLatitude (),policeStation.getLongitude ());
             poloptions.position (policeStationLatLng);
-            //options1.icon (BitmapDescriptorFactory.fromResource (R.drawable.mappolicestation2));
             poloptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("policenew2",140,150)));
-            String title = policeStation.getPolice_station ();
-           // String subTitle =""+policeStation.getAddress ()+"\n\n\n"+"\nTel: "+policeStation.getTel ();
             poloptions.title (title);
-           // poloptions.zIndex (2);
-            //poloptions.snippet(subTitle);
+            poloptions.snippet(address+"\n"+tel);
+
             policeStationMarker=map.addMarker (poloptions);
             selectedStationMarkerOptions.add (poloptions);
             selectedStationMarkers.add (policeStationMarker);
+
+
+            policeStationMarker.showInfoWindow ();
+
+
+            markerdetails.put ("address", policeStation.getAddress ());
+            markerdetails.put ("tel", policeStation.getTel ());
+            markerdetails.put("this_is","police_station");
+            markerdetails.put ("Id", policeStationMarker.getId ());
+
+            policeStationMarker.setTag (markerdetails);
+
 
         }
         /**
@@ -831,7 +843,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             MarkerOptions cctvoptions = new MarkerOptions ();
             LatLng policeStationLatLng = new LatLng (cctvLocation.getLatitude (),cctvLocation.getLongitude ());
             cctvoptions.position (policeStationLatLng);
-            //options1.icon (BitmapDescriptorFactory.fromResource (R.drawable.mapcctv));
             cctvoptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("cctvnew3",140,150)));
             cctvoptions.title (cctvLocation.getCctvNo ());
             cctvoptions.snippet ("Detail: "+cctvLocation.getDetail ());
@@ -844,6 +855,11 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         displaySensors();
 
+        if(selectedPedestrianSensor.size ()>0){
+            if(selectedPedestrianSensorMarkers.size ()<=0){
+                displaySensors ();
+            }
+        }
 
         //System.out.println("Final Sensor Array:" +pedestrianCountFinalArray);
 
@@ -853,17 +869,26 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         for (OpenShop openShop : selectedOpenShop.values ()) {
 
             openShopMarker = null;
+
+            HashMap<String, String> markerdetails = new HashMap<String, String>();
+            CustomInfoWindowAdapter customInfoWindow = new CustomInfoWindowAdapter(this);
+            map.setInfoWindowAdapter(customInfoWindow);
             MarkerOptions openshopoptions = new MarkerOptions ();
             LatLng sensorLatLng = new LatLng (openShop.getLatitude (),openShop.getLongitude ());
             openshopoptions.position (sensorLatLng);
-            //options2.icon (BitmapDescriptorFactory.fromResource (R.drawable.peoplesensor));
             openshopoptions.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("shopnew2",140,150)));
             openshopoptions.title (openShop.getName ());
-            openshopoptions.snippet ("Address: "+openShop.getAddress ());
+            openshopoptions.snippet (openShop.getAddress ());
 
             openShopMarker=map.addMarker (openshopoptions);
             selectedOpenShopMarkerOptions.add (openshopoptions);
             selectedOpenShopMarkers.add (openShopMarker);
+
+            markerdetails.put ("address", openShop.getAddress ());
+            markerdetails.put("this_is","open_shop");
+            markerdetails.put ("Id", openShopMarker.getId ());
+
+            openShopMarker.setTag (markerdetails);
         }
 
         // System.out.println ("@@ Selected Stations Marker Size @@  " +selectedStationMarkers.size ());
@@ -1162,6 +1187,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                         markerdetails.put ("predict_time", pedestrianCount.getPrediction_time ());
                         markerdetails.put ("predict_total", pedestrianCount.getPrediction_counts ());
                         markerdetails.put ("busyness", pedestrianCount.getBusyness ());
+                        markerdetails.put("this_is","pedestrian_count");
                         markerdetails.put ("Id", pedestrianSensorMarker.getId ());
 
                         pedestrianSensorMarker.setTag (markerdetails);
@@ -1339,13 +1365,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
 
         if (ActivityCompat.checkSelfPermission (this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission (this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+
             ActivityCompat.requestPermissions(this,
                     new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);

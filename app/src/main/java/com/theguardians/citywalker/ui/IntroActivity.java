@@ -43,14 +43,14 @@ public class IntroActivity extends AppCompatActivity {
 
 
         // For one time use
-
+/*
         if (restorePrefData()) {
 
             Intent mainActivity = new Intent(getApplicationContext(),MainActivity.class );
             startActivity(mainActivity);
             finish();
         }
-
+*/
         setContentView(R.layout.activity_intro);
 
         // hide the action bar

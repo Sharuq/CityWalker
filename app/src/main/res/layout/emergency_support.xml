@@ -69,6 +69,7 @@
                         android:layout_marginTop="20dp"
                         android:layout_marginBottom="20dp"
                         android:layout_gravity="center"
+                        android:textColor="#ffff"
                         android:background="@drawable/round_cornered2"
                         android:text="Add Emergency contact"
                         android:padding="10dp"/>

@@ -28,17 +28,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="10dp"
-        android:text="version 3.0.0"
+        android:text="version 3.2.0"
         android:textSize="12sp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="20dp"
-        android:text="@string/dev"
-        android:textSize="14sp" />
-
 
 
     <ScrollView xmlns:card_view="http://schemas.android.com/apk/res-auto"
@@ -126,6 +117,13 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:text="Let’s find a safer route connecting your starting point and destination."
+                        android:layout_marginTop="8dp"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
                         android:text="@string/routecheck"
                         android:layout_marginTop="8dp"
                         android:textSize="14sp" />
@@ -141,6 +139,13 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:text="Inform your friend or family if an emergency happens with our efficient Emergency Support."
+                        android:layout_marginTop="8dp"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
                         android:layout_marginTop="8dp"
                         android:text="@string/emergencysupport"
                         android:textSize="14sp" />
@@ -150,6 +155,13 @@
                         android:layout_height="match_parent"
                         android:text="Safety Tips"
                         android:textStyle="bold"
+                        android:layout_marginTop="8dp"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Check the tip cards to get prepared."
                         android:layout_marginTop="8dp"
                         android:textSize="14sp" />
 
@@ -174,7 +186,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="- Q and A -"
+                    android:text="- Questions and Answers -"
                     android:textStyle="bold"
                     android:textAllCaps="true"
                     android:textColor="@color/colorSecondaryText"
@@ -406,13 +418,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_marginTop="8dp"
-                        android:text="Datasets containing location coordinates of  city of Melbourne CCTV cameras "
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginTop="8dp"
                         android:autoLink="web"
                         android:clickable="true"
                         android:text="https://www.melbourne.vic.gov.au/community/safety-emergency/Pages/safe-citycameras.aspx"
@@ -441,13 +446,6 @@
                         android:text="Local police station location"
                         android:textSize="16sp"
                         android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginTop="8dp"
-                        android:text="Datasets containing location coordinates and address details of local police stations"
-                        android:textSize="14sp" />
 
                     <TextView
                         android:layout_width="match_parent"
@@ -484,13 +482,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_marginTop="8dp"
-                        android:text="Google Places for places autocomplete  suggestions. For showing walking route on maps."
-                        android:textSize="14sp" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginTop="8dp"
                         android:autoLink="web"
                         android:clickable="true"
                         android:text="https://developers.google.com/android/guides/api-client"
@@ -514,7 +505,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:text="Google Maps and Places API"
+                        android:text="Google Maps Route Directions API"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -522,8 +513,33 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_marginTop="8dp"
-                        android:text="Google Places for places autocomplete  suggestions. For showing walking route on maps."
+                        android:autoLink="web"
+                        android:clickable="true"
+                        android:text="https://developers.google.com/maps/documentation/directions/intro"
                         android:textSize="14sp" />
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                card_view:cardCornerRadius="5dp"
+                card_view:contentPadding="10dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Google Maps SDK for Android"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="match_parent"
@@ -531,11 +547,10 @@
                         android:layout_marginTop="8dp"
                         android:autoLink="web"
                         android:clickable="true"
-                        android:text="https://developers.google.com/android/guides/api-client"
+                        android:text="https://developers.google.com/maps/documentation/"
                         android:textSize="14sp" />
                 </LinearLayout>
             </android.support.v7.widget.CardView>
-
 
             <android.support.v7.widget.CardView
                 android:layout_width="match_parent"
@@ -556,13 +571,6 @@
                         android:text="MapBox Navigation API"
                         android:textSize="16sp"
                         android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginTop="8dp"
-                        android:text="MapBox Navigation helps user to navigate to destination on map."
-                        android:textSize="14sp" />
 
                     <TextView
                         android:layout_width="match_parent"
@@ -591,16 +599,9 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:text="Pedestrian Counting System"
+                        android:text="Pedestrian Counting System - Sensor Locations"
                         android:textSize="16sp"
                         android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginTop="8dp"
-                        android:text="Provide pedestrian sensors' locations and its counting information"
-                        android:textSize="14sp" />
 
                     <TextView
                         android:layout_width="match_parent"
@@ -629,7 +630,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:text="Walking Safety Rules"
+                        android:text="Pedestrian Counting System – 2009 to Present (counts per hour)"
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
@@ -637,8 +638,83 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_marginTop="8dp"
-                        android:text="Provide safety tips for users"
+                        android:autoLink="web"
+                        android:clickable="true"
+                        android:text="https://data.melbourne.vic.gov.au/Transport-Movement/Pedestrian-Counting-System-2009-to-Present-counts-/b2ak-trbp"
                         android:textSize="14sp" />
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                card_view:cardCornerRadius="5dp"
+                card_view:contentPadding="10dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Pedestrian Counting System - Past Hour (counts per minute)"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginTop="8dp"
+                        android:autoLink="web"
+                        android:clickable="true"
+                        android:text="https://data.melbourne.vic.gov.au/Transport-Movement/Pedestrian-Counting-System-Past-Hour-counts-per-mi/d6mv-s43h"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@color/colorLightAddBg"
+                android:orientation="vertical"
+                android:padding="7dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="- Information Source -"
+                    android:textAllCaps="true"
+                    android:textStyle="bold"
+                    android:textColor="@color/colorSecondaryText"
+                    android:textSize="13sp" />
+
+            </LinearLayout>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                card_view:cardCornerRadius="5dp"
+                card_view:contentPadding="10dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="11 Walking Safety Rules. Retrieved from "
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="match_parent"
@@ -647,6 +723,69 @@
                         android:autoLink="web"
                         android:clickable="true"
                         android:text="https://www.elpasotexas.gov/public-health/special-projects/walking-safety-tips"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                card_view:cardCornerRadius="5dp"
+                card_view:contentPadding="10dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Walking Safety Tips. Retrieved from "
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginTop="8dp"
+                        android:autoLink="web"
+                        android:clickable="true"
+                        android:text="https://www.elpasotexas.gov/public-health/special-projects/walking-safety-tips"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp"
+                card_view:cardCornerRadius="5dp"
+                card_view:contentPadding="10dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Almost a third of Victorians feel unsafe at night on public transport. Retrieved from "
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginTop="8dp"
+                        android:autoLink="web"
+                        android:clickable="true"
+                        android:text="https://www.theage.com.au/national/victoria/almost-a-third-of-victorians-feel-unsafe-at-night-on-public-transport-20190123-p50t62.html"
                         android:textSize="14sp" />
                 </LinearLayout>
             </android.support.v7.widget.CardView>

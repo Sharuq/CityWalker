@@ -79,7 +79,7 @@ public class UpdateContactActivity extends AppCompatActivity {
                 }else if (phone.length()==0){
                     et_phone.requestFocus();
                     et_phone.setError("Field cannot be empty");
-                }else if (!phone.matches("^[0][0-9]{9}$")){
+                }else if (!phone.matches("^[0][2-8][0-9]{8}$")){
                     et_phone.requestFocus();
                     et_phone.setError("Please enter a Australia 10 digits phone number start from 0");
                 }else {
