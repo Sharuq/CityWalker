@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -73,7 +74,6 @@ import com.theguardians.citywalker.Model.PedestrianSensor;
 import com.theguardians.citywalker.Model.PoliceStation;
 import com.theguardians.citywalker.Network.PedestrianSensorAPI;
 import com.theguardians.citywalker.R;
-import com.theguardians.citywalker.Service.DataFromFirebase;
 import com.theguardians.citywalker.Service.DataPointsCountDetail;
 import com.theguardians.citywalker.util.CustomInfoWindowAdapter;
 import com.theguardians.citywalker.util.Util;
@@ -119,38 +119,22 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private ProgressDialog progressDialog;
     private List<Polyline> polylines;
 
-    private PoliceStation pInfo = new PoliceStation ();
-    private CCTVLocation cInfo = new CCTVLocation ();
     private boolean firstTimeRun = false;
 
-    private JSONArray policeStationArray = new JSONArray ();
-    private JSONArray cctvLocationArray = new JSONArray ();
-    private JSONArray pedestrianSensorArray = new JSONArray ();
-    private JSONArray openShopArray = new JSONArray ();
+    private JSONArray policeStationArray;
+    private JSONArray cctvLocationArray;
+    private JSONArray pedestrianSensorArray;
+    private JSONArray openShopArray;
 
-    private JSONArray polylineRouteDetailsArray = new JSONArray ();
-    private JSONArray polylineCountDetailsArray =new JSONArray ();
-    private JSONArray pedestrianCountFinalArray =new JSONArray ();
-    private JSONArray totalValues = new JSONArray ();
-    private JSONArray finalTotalValues = new JSONArray ();
+    private JSONArray polylineRouteDetailsArray;
+    private JSONArray polylineCountDetailsArray;
+    private JSONArray totalValues;
+    private JSONArray finalTotalValues;
 
-    //add Firebase Database stuff
-
-    private FirebaseDatabase mFirebaseDatabase;
-    private DatabaseReference policeStationRef;
-    private DatabaseReference cctvRef;
-    private DatabaseReference pedestrianSensorRef;
-    private DatabaseReference openShopRef;
-    private DatabaseReference pedestrianPredictionRef;
-
-
-
-    private HashMap<String,PoliceStation> selectedPoliceStation = new HashMap<> ();
-    private HashMap<String,CCTVLocation> selectedCCTVLocation =new HashMap<> ();
-    private HashMap<String, PedestrianSensor> selectedPedestrianSensor = new HashMap<> ();
-    private HashMap<String, OpenShop> selectedOpenShop = new HashMap<> ();
-
-
+    private HashMap<String,PoliceStation> selectedPoliceStation;
+    private HashMap<String,CCTVLocation> selectedCCTVLocation;
+    private HashMap<String, PedestrianSensor> selectedPedestrianSensor;
+    private HashMap<String, OpenShop> selectedOpenShop;
 
     private Marker startingMarker;
     private Marker originMarker;
@@ -168,8 +152,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private List<MarkerOptions> selectedOpenShopMarkerOptions;
     private List<MarkerOptions> selectedPedstrianSensorMarkerOptions;
 
-    private DataFromFirebase dataFromFirebase = new DataFromFirebase ();
-
     private BottomSheetBehavior mBottomSheetBehaviour;
     private AutocompleteSupportFragment autocompleteFragment1;
     private AutocompleteSupportFragment autocompleteFragment2;
@@ -179,6 +161,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
     private CardView cardView ;
     private LinearLayout layout;
+    private LinearLayout mainLayout;
     private Button info2;
     private Button currentLocation;
     private AllAngleExpandableButton button;
@@ -186,6 +169,11 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     private  ImageView safestRoute;
     private Context context;
     private int maxSafetyScore = 0;
+    private int cctv= 0;
+    private int shop =0;
+    private int station =0;
+    private int dist =0;
+    private int safetyscore =0;
     //private List<PedestrianCount> pedestrianCount;
     private List<PedestrianCount> pedestrianCountDetails = new ArrayList<> ();
     private ArrayList<String> markerPlaces = new ArrayList<>();
@@ -212,6 +200,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         safetyScoreText =findViewById (R.id.safetyScore);
         safestRoute = findViewById (R.id.safestRoute);
         layout =findViewById (R.id.saflay);
+        mainLayout =findViewById (R.id.mainlayout);
         button = (AllAngleExpandableButton) findViewById(R.id.button_expandable);
         //button2 = (AllAngleExpandableButton) findViewById(R.id.button_expandable2);
         button.setVisibility (View.INVISIBLE);
@@ -237,25 +226,51 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         selectedOpenShopMarkerOptions =new ArrayList<> ();
         selectedPedstrianSensorMarkerOptions =new ArrayList<> ();
 
+        policeStationArray = new JSONArray ();
+        cctvLocationArray = new JSONArray ();
+        pedestrianSensorArray = new JSONArray ();
+        openShopArray = new JSONArray ();
+        polylineRouteDetailsArray = new JSONArray ();
+        polylineCountDetailsArray =new JSONArray ();
+        totalValues = new JSONArray ();
+        finalTotalValues = new JSONArray ();
+
+        selectedPoliceStation = new HashMap<> ();
+        selectedCCTVLocation =new HashMap<> ();
+        selectedPedestrianSensor = new HashMap<> ();
+        selectedOpenShop = new HashMap<> ();
+
         context =this;
 
-        /**
-         Collecting data from Firebase and storing to JSONArray
-         */
-        FirebaseApp.initializeApp(this);
-        mFirebaseDatabase = FirebaseDatabase.getInstance();
-        policeStationRef = mFirebaseDatabase.getReference("police_location");
-        cctvRef = mFirebaseDatabase.getReference ("cctv_location");
-        pedestrianSensorRef = mFirebaseDatabase.getReference ("ped_sensor_location");
-        openShopRef = mFirebaseDatabase.getReference ("24hr_stores");
-        pedestrianPredictionRef = mFirebaseDatabase.getReference ();
 
-        policeStationArray = dataFromFirebase.getPoliceStationArray (policeStationRef);
-        cctvLocationArray = dataFromFirebase.getCctvLocationArray (cctvRef);
-        pedestrianSensorArray =dataFromFirebase.getPedestrianSensorArray (pedestrianSensorRef);
-        openShopArray =dataFromFirebase.getOpenShopArray (openShopRef);
+        SharedPreferences sharedPreferences = getSharedPreferences("new_firebase_data", Context.MODE_PRIVATE);
+        String satValue = sharedPreferences.getString("police_station_data",null);
+        try {
+            policeStationArray= new JSONArray(satValue);
+        } catch (JSONException e) {
+            e.printStackTrace ();
+        }
 
+        String shopValue = sharedPreferences.getString("open_shop_data",null);
+        try {
+            openShopArray = new JSONArray(shopValue);
+        } catch (JSONException e) {
+            e.printStackTrace ();
+        }
 
+        String sensorValue = sharedPreferences.getString("pedestrian_sensor_data",null);
+        try {
+            pedestrianSensorArray = new JSONArray(sensorValue);
+        } catch (JSONException e) {
+            e.printStackTrace ();
+        }
+
+        String cctvValue = sharedPreferences.getString("cctv_data",null);
+        try {
+            cctvLocationArray = new JSONArray(cctvValue);
+        } catch (JSONException e) {
+            e.printStackTrace ();
+        }
 
         /**
          Getting and setting values on Places auto complete fragment
@@ -604,7 +619,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         polylineRouteDetailsArray =new JSONArray ();
         polylineCountDetailsArray =new JSONArray ();
-        pedestrianCountFinalArray = new JSONArray ();
+        finalTotalValues = new JSONArray ();
 
         nestedScrollView.setVisibility (View.VISIBLE);
         mBottomSheetBehaviour = BottomSheetBehavior.from (nestedScrollView);
@@ -613,7 +628,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         java.util.List<PatternItem> pattern = Arrays.<PatternItem>asList(new Dot());
 
 
-        layout.setOnClickListener (new View.OnClickListener () {
+        mainLayout.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
@@ -654,10 +669,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             if(route.get (i).getDistanceValue () == minDistance) {
 
                 PolylineOptions polyOptions = new PolylineOptions ();
-                //polyOptions.color (getResources ().getColor (COLORS[colorIndex]));
                 polyOptions.pattern (pattern);
-                //polyOptions.color (colorIndex);
-                //polyOptions.color (R.color.colorBlue);
                 polyOptions.width (28);
                 polyOptions.zIndex (1000);
                 polyOptions.color (Color.parseColor ("#03a8f3"));
@@ -669,9 +681,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             else {
 
                 PolylineOptions polyOptions = new PolylineOptions ();
-                //polyOptions.color (getResources ().getColor (COLORS[colorIndex]));
                 polyOptions.pattern (pattern);
-                //polyOptions.color (colorIndex);
                 polyOptions.color (Color.parseColor ("#757575"));
                 polyOptions.width (28);
                 polyOptions.zIndex (1);
@@ -710,7 +720,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         //System.out.println ("polylineRouteDetailsArray  "+polylineRouteDetailsArray);
 
         totalValues = new JSONArray ();
-
         selectedPoliceStation = new HashMap<> ();
         selectedCCTVLocation = new HashMap<> ();
         selectedPedestrianSensor = new HashMap<> ();
@@ -726,6 +735,9 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         selectedPedestrianSensor =DataPointsCountDetail.getSelectedPedestrianSensor (polylines,pedestrianSensorArray,selectedPedestrianSensor);
         selectedOpenShop = DataPointsCountDetail.getSelectedOpenShop(polylines,openShopArray,selectedOpenShop);
 
+
+
+        System.out.println ("Polyline counts:" +polylineCountDetailsArray);
 
         for(int i =0; i<polylineRouteDetailsArray.length ();i++){
                 try {
@@ -789,9 +801,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         selectedOpenShopMarkerOptions =new ArrayList<> ();
         selectedPedstrianSensorMarkerOptions =new ArrayList<> ();
 
-
-
-        //System.out.println("Final Sensor Array:" +pedestrianCountFinalArray);
 
 
         /**
@@ -861,8 +870,6 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             }
         }
 
-        //System.out.println("Final Sensor Array:" +pedestrianCountFinalArray);
-
         /**
          Displaying open shop markers
          */
@@ -897,12 +904,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         /**
          Finding safety score
          */
-        int cctv= 0;
-        int shop =0;
-        int station =0;
-        int dist =0;
 
-        int safetyscore =0;
 
         List<Integer> safetyScores = new ArrayList<> ();
         try {
@@ -1008,8 +1010,8 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         button.setVisibility (View.VISIBLE);
 
         final List<ButtonData> buttonDatas = new ArrayList<>();
-        int[] drawable = {R.drawable.allselected, R.drawable.shopicon, R.drawable.policeicon, R.drawable.cctvicon,R.drawable.sensoricon};
-        int[] color = {R.color.colorDivider, R.color.colorRed, R.color.colorOrange, R.color.colorButton,R.color.color1};
+        int[] drawable = {R.drawable.select_all, R.drawable.shopicon, R.drawable.policeicon, R.drawable.cctvicon,R.drawable.sensoricon};
+        int[] color = {R.color.quantum_cyan900, R.color.colorRed, R.color.colorOrange, R.color.colorButton,R.color.sensorcolor};
         //String[] texts ={"Filter","shops","police","cctv","sensor"};
         for (int i = 0; i < 5; i++) {
             ButtonData buttonData;
@@ -1032,7 +1034,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
             @Override
             public void onButtonClicked(int index) {
                 if(index==1) {
-                    showToast ("All safety factors option selected");
+                    showToast ("All safety factors filter option selected");
 
                     for (Marker m : selectedStationMarkers) {
                         if(m!=null)
@@ -1054,7 +1056,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                 }
                 if(index==2)
                 {
-                    showToast("24 hour open shops option selected");
+                    showToast("24 hours open shops filter option selected");
                     for (Marker m : selectedStationMarkers) {
                             if(m!=null)
                             { m.setVisible (false);}
@@ -1073,7 +1075,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                     }
                 }
                 if(index==3) {
-                    showToast ("Police stations option selected");
+                    showToast ("Police stations filter option selected");
                     for (Marker m : selectedStationMarkers) {
                         if(m!=null)
                         { m.setVisible (true);}
@@ -1092,7 +1094,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                     }
                 }
                 if(index==4){
-                    showToast("Safe cameras options selected");
+                    showToast("Safe city cameras filter option selected");
                     for (Marker m : selectedStationMarkers) {
                         if(m!=null)
                         { m.setVisible (false);}
@@ -1111,7 +1113,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
                     }
                 }
                 if(index==5){
-                    showToast("Pedestrian sensors option selected");
+                    showToast("Pedestrian sensors filter option selected");
                     for (Marker m : selectedStationMarkers) {
                         if(m!=null)
                         { m.setVisible (false);}
@@ -1222,7 +1224,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
         Toast toast = new Toast(getApplicationContext());
 
-        toast.setGravity(Gravity.CENTER_VERTICAL | 0, 0, 0);
+        toast.setGravity(Gravity.BOTTOM | 0, 0, 550);
 
         toast.setDuration(Toast.LENGTH_SHORT);
 
@@ -1265,7 +1267,7 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
     @Override
     public void onPolylineClick(Polyline polyline) {
 
-        System.out.println ("highlight polyline id" + polyline.getId ());
+        //System.out.println ("highlight polyline id" + polyline.getId ());
         for (Polyline polyline1 : polylines) {
             //Log.d(TAG, "onPolylineClick: toString: " + polylineData.toString());
             if (polyline.getId ().equals (polyline1.getId ())) {

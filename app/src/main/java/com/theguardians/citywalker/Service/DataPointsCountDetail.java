@@ -25,6 +25,7 @@ public class DataPointsCountDetail {
 
     public  static JSONArray getpolylineCountDetailsArray(List<Polyline> polylines, JSONArray policeStationArray, JSONArray cctvLocationArray, JSONArray pedestrianSensorArray, JSONArray openShopArray, HashMap<String,PoliceStation> selectedPoliceStation, HashMap<String,CCTVLocation> selectedCCTVLocation, HashMap<String,PedestrianSensor> selectedPedestrianSensor, HashMap<String, OpenShop> selectedOpenShop, JSONArray polylineCountDetailsArray) {
 
+
         for (Polyline polyline : polylines) {
 
             int cctvCount = 0;
@@ -45,8 +46,6 @@ public class DataPointsCountDetail {
 
 
                     pInfo = new PoliceStation ();
-                    //System.out.println("This is ds " +ds);
-
                     pInfo.setLatitude (Double.parseDouble (lat));
                     pInfo.setLongitude (Double.parseDouble (lon));
                     pInfo.setPolice_station (polSat);
@@ -83,8 +82,6 @@ public class DataPointsCountDetail {
 
 
                     cInfo = new CCTVLocation ();
-                    //System.out.println("This is ds " +ds);
-
                     cInfo.setLatitude (Double.parseDouble (lat));
                     cInfo.setLongitude (Double.parseDouble (lon));
                     cInfo.setCctvNo (cctvLocNo);
@@ -118,8 +115,6 @@ public class DataPointsCountDetail {
 
 
                     sInfo = new PedestrianSensor ();
-                    //System.out.println("This is ds " +ds);
-
                     sInfo.setLatitude (Double.parseDouble (lat));
                     sInfo.setLongitude (Double.parseDouble (lon));
                     sInfo.setSensor_id (sensor_id);
@@ -190,6 +185,10 @@ public class DataPointsCountDetail {
             } catch (JSONException e) {
                 e.printStackTrace ();
             }
+
+            System.out.println ("Station count" +stationCount+" pol: "+polyline.getId ());
+
+            System.out.println ("Open shop count" +openShopCount+" pol: "+polyline.getId ());
         }
 
 
@@ -201,7 +200,6 @@ public class DataPointsCountDetail {
 
         for (Polyline polyline : polylines) {
 
-            int cctvCount = 0;
             int stationCount = 0;
             try {
 
@@ -241,6 +239,7 @@ public class DataPointsCountDetail {
             } catch (JSONException e) {
                 e.printStackTrace ();
             }
+
         }
 
         return selectedPoliceStation;
@@ -356,8 +355,6 @@ public class DataPointsCountDetail {
 
 
                     oInfo = new OpenShop ();
-                    //System.out.println("This is ds " +ds);
-
                     oInfo.setLatitude (Double.parseDouble (lat));
                     oInfo.setLongitude (Double.parseDouble (lon));
                     oInfo.setName (name);
@@ -378,6 +375,7 @@ public class DataPointsCountDetail {
             } catch (JSONException e) {
                 e.printStackTrace ();
             }
+
 
         }
         return selectedOpenShop;

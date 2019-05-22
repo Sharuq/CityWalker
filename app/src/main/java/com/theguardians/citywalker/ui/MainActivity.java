@@ -29,6 +29,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -59,12 +60,14 @@ public class MainActivity extends AppCompatActivity {
     private boolean mCallPermissionGranted = false;
 
     private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
+    private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
     private Context context;
     private List<UserContact> contacts;
     private LatLng userLocation;
     private String userLocationAddress;
     private String message;
-    private FloatingActionButton fab;
+    private ImageView fab;
+    private ImageView fab1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate (savedInstanceState);
@@ -107,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        FloatingActionButton fab1 = findViewById (R.id.fab2);
+        fab1 = findViewById (R.id.fab2);
         fab1.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View view) {
@@ -234,6 +237,15 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
+            case MY_PERMISSIONS_REQUEST_SEND_SMS: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    fab1.callOnClick ();
+                }else {
+                    Toast.makeText(this, "SMS permission not granted", Toast.LENGTH_SHORT).show();
+                }
+            }
+
             // other 'case' lines to check for other
             // permissions this app might request
         }
@@ -261,29 +273,41 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void sendSMSMessage(String phoneNo,String message){
-        try{
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.SEND_SMS)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.SEND_SMS},
+                    MY_PERMISSIONS_REQUEST_SEND_SMS);
+
+        } else {
+            try{
 
 
-            String SENT = "SMS_SENT";
-            String DELIVERED = "SMS_DELIVERED";
-            SmsManager sms = SmsManager.getDefault();
-            ArrayList<String> parts = sms.divideMessage(message);
+                String SENT = "SMS_SENT";
+                String DELIVERED = "SMS_DELIVERED";
+                SmsManager sms = SmsManager.getDefault();
+                ArrayList<String> parts = sms.divideMessage(message);
 
 
-            ArrayList<PendingIntent> sentPIarr = new ArrayList<PendingIntent>();
-            ArrayList<PendingIntent> deliveredPIarr = new ArrayList<PendingIntent>();
+                ArrayList<PendingIntent> sentPIarr = new ArrayList<PendingIntent>();
+                ArrayList<PendingIntent> deliveredPIarr = new ArrayList<PendingIntent>();
 
-            for (int i = 0; i < parts.size(); i++) {
-                sentPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(SENT), 0));
-                deliveredPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(DELIVERED), 0));
+                for (int i = 0; i < parts.size(); i++) {
+                    sentPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(SENT), 0));
+                    deliveredPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(DELIVERED), 0));
+                }
+
+                sms.sendMultipartTextMessage(phoneNo, null, parts, sentPIarr, deliveredPIarr);
+                Toast.makeText(MainActivity.this, "Message Sent Successfully to Your Guardian", Toast.LENGTH_SHORT).show();
             }
+            catch (Exception e){
+                Toast.makeText(MainActivity.this, "SMS Failed to Send, Please try again", Toast.LENGTH_SHORT).show();
+            }
+        }
 
-            sms.sendMultipartTextMessage(phoneNo, null, parts, sentPIarr, deliveredPIarr);
-            Toast.makeText(MainActivity.this, "Message Sent Successfully to Your Guardian", Toast.LENGTH_SHORT).show();
-        }
-        catch (Exception e){
-            Toast.makeText(MainActivity.this, "SMS Failed to Send, Please try again", Toast.LENGTH_SHORT).show();
-        }
+
     }
 
     private String getUserLocationDetails(Double latitude,Double longitude) throws IOException {

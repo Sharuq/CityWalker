@@ -207,6 +207,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_gravity="center_vertical"
+        android:id="@+id/mainlayout"
         android:weightSum="4">
 
         <ImageView
@@ -420,7 +421,7 @@
                 android:layout_weight="1.7"
                 android:textStyle="bold"
                 android:textSize="20sp"
-                android:text="Safe Cameras"></TextView>
+                android:text="Safe City Cameras"></TextView>
 
             <TextView
                 android:id="@+id/cctvCount"
@@ -464,7 +465,7 @@
             android:layout_weight="1.7"
             android:textStyle="bold"
             android:textSize="20dp"
-            android:text="Pedestrian Sensor"></TextView>
+            android:text="Pedestrian Sensors"></TextView>
 
         <TextView
             android:id="@+id/sensorCount"

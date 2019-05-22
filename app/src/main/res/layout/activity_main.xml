@@ -71,19 +71,15 @@
         android:textStyle="bold"
         android:typeface="sans" />
 
-        <android.support.design.widget.FloatingActionButton
+        <ImageView
             android:id="@+id/fab2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
             android:layout_marginTop="50dp"
             android:layout_marginStart="30dp"
             android:layout_gravity="center|bottom|left"
-            android:src="@drawable/newemergencymessage"
+            android:src="@drawable/em8"
             android:tooltipText="Send an emergency message"
-            app:borderWidth="0dp"
-            app:maxImageSize = "72dp"
-            app:fabSize="auto"
-            app:fabCustomSize="70dp"
             />
 
     </LinearLayout>
@@ -137,19 +133,17 @@
             android:textStyle="bold"
             android:typeface="sans" />
 
-        <android.support.design.widget.FloatingActionButton
+        <ImageView
             android:id="@+id/fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:clickable="true"
+            android:focusable="true"
             android:layout_gravity="center|bottom|right"
             android:layout_marginTop="50dp"
             android:layout_marginEnd="30dp"
-            android:src="@drawable/newemergencycall"
-            android:tooltipText="Call an emergency guardian"
-            app:borderWidth="0dp"
-            app:fabCustomSize="70dp"
-            app:fabSize="auto"
-            app:maxImageSize="72dp" />
+            android:src="@drawable/em7"
+            android:tooltipText="Call an emergency guardian" />
     </LinearLayout>
 
 

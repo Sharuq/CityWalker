@@ -13,6 +13,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -31,10 +32,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.theguardians.citywalker.Model.CCTVLocation;
 import com.theguardians.citywalker.Model.OpenShop;
+import com.theguardians.citywalker.Model.PedestrianSensor;
 import com.theguardians.citywalker.Model.PoliceStation;
 import com.theguardians.citywalker.R;
-import com.theguardians.citywalker.Service.DataFromFirebase;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -64,15 +66,20 @@ public class SplashActivity extends AppCompatActivity {
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference policeStationRef;
     private DatabaseReference openShopRef;
-    private PoliceStation nearestStation = new PoliceStation ();
-    private OpenShop nearestShop = new OpenShop ();
+    private DatabaseReference cctvRef;
+    private DatabaseReference pedestrianSensorRef;
 
     private PoliceStation pInfo = new PoliceStation ();
     private OpenShop oInfo = new OpenShop ();
+    private CCTVLocation cInfo = new CCTVLocation ();
+    private PedestrianSensor sInfo = new PedestrianSensor ();
 
+
+
+    private JSONArray cctvLocationArray = new JSONArray ();
+    private JSONArray pedestrianSensorArray = new JSONArray ();
     private JSONArray policeStationArray = new JSONArray ();
     private JSONArray openShopArray = new JSONArray ();
-    private JSONArray result =new JSONArray ();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,11 +94,10 @@ public class SplashActivity extends AppCompatActivity {
         mFirebaseDatabase = FirebaseDatabase.getInstance();
         policeStationRef = mFirebaseDatabase.getReference("police_location");
         openShopRef = mFirebaseDatabase.getReference ("24hr_stores");
-
+        cctvRef = mFirebaseDatabase.getReference ("cctv_location");
+        pedestrianSensorRef = mFirebaseDatabase.getReference ("ped_sensor_location");
 
         context=this;
-
-
 
     }
 
@@ -101,6 +107,9 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        SharedPreferences sharedPreferences = getSharedPreferences("new_firebase_data", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.clear ().apply ();
         new CheckInternetConnection().execute();
 
     }
@@ -305,7 +314,7 @@ public class SplashActivity extends AppCompatActivity {
                     mLocationPermissionGranted = true;
                 }
                 else {
-                   Toast.makeText(this, "Location permission not granted", Toast.LENGTH_SHORT).show();
+                   //Toast.makeText(this, "Location permission not granted", Toast.LENGTH_SHORT).show();
                 }
             }
             case MY_PERMISSIONS_REQUEST_SEND_SMS: {
@@ -313,7 +322,7 @@ public class SplashActivity extends AppCompatActivity {
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mSMSPermissionGranted =true;
                 }else {
-                    Toast.makeText(this, "SMS permission not granted", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(this, "SMS permission not granted", Toast.LENGTH_SHORT).show();
                 }
             }
             case MY_PERMISSIONS_REQUEST_CALL_PHONE: {
@@ -407,9 +416,13 @@ public class SplashActivity extends AppCompatActivity {
 
     }
     private void getDataFromFirebase(){
-        SharedPreferences sharedPreferences = getSharedPreferences("firebase_data", Context.MODE_PRIVATE);
+        policeStationArray = new JSONArray ();
+        cctvLocationArray = new JSONArray ();
+        pedestrianSensorArray = new JSONArray ();
+        openShopArray = new JSONArray ();
+        SharedPreferences sharedPreferences = getSharedPreferences("new_firebase_data", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-
+        editor.clear();
         policeStationRef.addValueEventListener (new ValueEventListener () {
 
             @Override
@@ -447,8 +460,98 @@ public class SplashActivity extends AppCompatActivity {
                 editor.putString("police_station_data", policeStationArray.toString ());
                 editor.commit ();
 
-                //Log.d (TAG, "$$$$ Array: " + policeStationArray);
             }
+
+            @Override
+
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
+        cctvRef.addValueEventListener (new ValueEventListener () {
+
+            @Override
+
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+
+                for (DataSnapshot ds : dataSnapshot.getChildren ()) {
+
+
+                    //System.out.println("This is cctv ds " +ds);
+                    cInfo.setLatitude (Double.parseDouble (ds.child ("lat").getValue ().toString ()));
+                    cInfo.setLongitude (Double.parseDouble (ds.child ("lon").getValue ().toString ()));
+                    cInfo.setCctvNo (ds.child ("title").getValue ().toString ());
+                    cInfo.setDetail (ds.child ("detail").getValue ().toString ());
+                    //display all the information
+
+
+                    try {
+
+                        JSONObject jsonObject = new JSONObject ();
+                        jsonObject.put ("cctv", cInfo.getCctvNo ());
+                        jsonObject.put ("detail", cInfo.getDetail ());
+                        jsonObject.put ("latitude", cInfo.getLatitude ());
+                        jsonObject.put ("longitude", cInfo.getLongitude ());
+
+                        cctvLocationArray.put (jsonObject);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace ();
+                    }
+
+                }
+                editor.putString("cctv_data", cctvLocationArray.toString ());
+                editor.commit ();
+            }
+
+
+            @Override
+
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        });
+        pedestrianSensorRef.addValueEventListener (new ValueEventListener () {
+
+            @Override
+
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+
+                for (DataSnapshot ds : dataSnapshot.getChildren ()) {
+
+
+                    //System.out.println("This is cctv ds " +ds);
+                    sInfo.setLatitude (Double.parseDouble (ds.child ("latitude").getValue ().toString ()));
+                    sInfo.setLongitude (Double.parseDouble (ds.child ("longitude").getValue ().toString ()));
+                    sInfo.setSensor_id (ds.child ("sensor_id").getValue ().toString ());
+                    sInfo.setSensor_description (ds.child ("sensor_description").getValue ().toString ());
+                    //display all the information
+
+
+                    try {
+
+                        JSONObject jsonObject = new JSONObject ();
+                        jsonObject.put ("sensor_id", sInfo.getSensor_id ());
+                        jsonObject.put ("sensor_description", sInfo.getSensor_description ());
+                        jsonObject.put ("latitude", sInfo.getLatitude ());
+                        jsonObject.put ("longitude", sInfo.getLongitude ());
+
+                        pedestrianSensorArray.put (jsonObject);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace ();
+                    }
+
+                }
+                editor.putString("pedestrian_sensor_data", pedestrianSensorArray.toString ());
+                editor.commit ();
+
+            }
+
 
             @Override
 
@@ -495,7 +598,6 @@ public class SplashActivity extends AppCompatActivity {
                 editor.commit ();
 
                 launchActivity ();
-                //Log.d (TAG, "$$$$ Array: " + cctvLocationArray);
             }
 
 

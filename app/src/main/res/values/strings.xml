@@ -15,7 +15,6 @@
     <string name="emergencysupport"> User can set their emergency contact stored locally. When an emergency happens, the user can press the emergency call button to call their emergency contact or click the location sharing buttons to send a message containing their real-time location to the emergency contact. Moreover, the user can navigate to the nearest safety place(police station or 24-hour open stores) from your current location with one-click buttons.</string>
     <string name="safetytips"> User can see some safety with cartoon images in Safety Tips in order to get prepared and achieve confidence before walking alone at night.</string>
 
-
     <string name="q1">The busyness degree of each sensor is defined based on the prediction of total counts of the pedestrian at the current hour. With the history records of hourly readings of Pedestrian Counting System from May 2009 to March 2019, a Neural Network model is built to predict the total counts of specific sensors in particular hours of each day.</string>
     <string name="m1"> • When the prediction of the specific hour is less than 600 - Usually not busy</string>
     <string name="m2"> • When the prediction of the specific hour is between 600 and 1799 - Usually not too busy</string>

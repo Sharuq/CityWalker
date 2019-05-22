@@ -76,6 +76,9 @@ public class ContactEmergencyActivity extends AppCompatActivity {
     private static PoliceStation pInfo = new PoliceStation ();
     private static OpenShop oInfo = new OpenShop ();
 
+    private static final int MY_PERMISSIONS_REQUEST_CALL_PHONE = 1;
+
+    private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
     private JSONArray policeStationArray = new JSONArray ();
     private JSONArray openShopArray = new JSONArray ();
     private JSONArray result =new JSONArray ();
@@ -143,11 +146,14 @@ public class ContactEmergencyActivity extends AppCompatActivity {
             public void onClick(View v) {
                 try {
                     userLocation=getUserLocation ();
+                    if(userLocation==null){
+                        userLocation=getUserLocation ();
+                    }
                     userLocationAddress = getUserLocationDetails (userLocation.latitude, userLocation.longitude);
                     phoneNo = contacts.get (0).getPhoneNumber ();
                     message = "HELP ME !!!! I am at Location: " + userLocationAddress + " Coordinates: " + userLocation + " **Emergency Distress Message sent from CityWalker App**";
 
-                    sendSMSMessage ();
+                    sendSMSMessage (phoneNo,message);
                 } catch (IOException e) {
                     e.printStackTrace ();
                 }
@@ -172,11 +178,14 @@ public class ContactEmergencyActivity extends AppCompatActivity {
 
                 try {
                     userLocation=getUserLocation ();
+                    if(userLocation==null){
+                        userLocation=getUserLocation ();
+                    }
                     userLocationAddress = getUserLocationDetails (userLocation.latitude, userLocation.longitude);
                     phoneNo = userPhoneNumber;
                     message = "Hi, I am at Location: " + userLocationAddress + " Coordinates: " + userLocation + " **Message sent from CityWalker App**";
 
-                    sendSMSMessage ();
+                    sendSMSMessage (phoneNo,message);
                 } catch (IOException e) {
                     e.printStackTrace ();
                 }
@@ -237,18 +246,56 @@ public class ContactEmergencyActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+
     public void callNumber(String phoneNumber) {
         Intent intent = new Intent (Intent.ACTION_CALL);
         intent.setData (Uri.parse ("tel:" + phoneNumber));
-        startActivity (intent);
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.CALL_PHONE)
+                != PackageManager.PERMISSION_GRANTED ) {
 
+            ActivityCompat.requestPermissions (this,
+                    new String[]{Manifest.permission.CALL_PHONE},
+                    MY_PERMISSIONS_REQUEST_CALL_PHONE);
+
+        }
+        else {
+            startActivity (intent);
+        }
     }
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
 
+            case MY_PERMISSIONS_REQUEST_CALL_PHONE: {
+
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(), "Permission granted", Toast.LENGTH_SHORT).show();
+                    emergencyCall.callOnClick ();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+            case MY_PERMISSIONS_REQUEST_SEND_SMS: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //emergencyMessage.callOnClick ();
+                }else {
+                    Toast.makeText(this, "SMS permission not granted", Toast.LENGTH_SHORT).show();
+                }
+            }
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
     private PoliceStation findNearestPoliceStation() {
 
         userLocation = getUserLocation ();
         result = new JSONArray ();
-        SharedPreferences sharedPreferences = getSharedPreferences("firebase_data", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("new_firebase_data", Context.MODE_PRIVATE);
         String satValue = sharedPreferences.getString("police_station_data",null);
         try {
             policeStationArray= new JSONArray(satValue);
@@ -337,7 +384,7 @@ public class ContactEmergencyActivity extends AppCompatActivity {
 
         userLocation = getUserLocation ();
         resultShop = new JSONArray ();
-        SharedPreferences sharedPreferences = getSharedPreferences("firebase_data", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("new_firebase_data", Context.MODE_PRIVATE);
         String shopValue = sharedPreferences.getString("open_shop_data",null);
         try {
             openShopArray = new JSONArray(shopValue);
@@ -457,31 +504,44 @@ public class ContactEmergencyActivity extends AppCompatActivity {
          return userLocation;
     }
 
-    public void sendSMSMessage(){
-        try{
 
-            String SENT = "SMS_SENT";
-            String DELIVERED = "SMS_DELIVERED";
-            SmsManager sms = SmsManager.getDefault();
-            ArrayList<String> parts = sms.divideMessage(message);
+    public void sendSMSMessage(String phoneNo,String message){
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.SEND_SMS)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.SEND_SMS},
+                    MY_PERMISSIONS_REQUEST_SEND_SMS);
+
+        } else {
+            try{
 
 
-            ArrayList<PendingIntent> sentPIarr = new ArrayList<PendingIntent>();
-            ArrayList<PendingIntent> deliveredPIarr = new ArrayList<PendingIntent>();
+                String SENT = "SMS_SENT";
+                String DELIVERED = "SMS_DELIVERED";
+                SmsManager sms = SmsManager.getDefault();
+                ArrayList<String> parts = sms.divideMessage(message);
 
-            for (int i = 0; i < parts.size(); i++) {
-                sentPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(SENT), 0));
-                deliveredPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(DELIVERED), 0));
+
+                ArrayList<PendingIntent> sentPIarr = new ArrayList<PendingIntent>();
+                ArrayList<PendingIntent> deliveredPIarr = new ArrayList<PendingIntent>();
+
+                for (int i = 0; i < parts.size(); i++) {
+                    sentPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(SENT), 0));
+                    deliveredPIarr.add(PendingIntent.getBroadcast(this, 0,new Intent(DELIVERED), 0));
+                }
+
+                sms.sendMultipartTextMessage(phoneNo, null, parts, sentPIarr, deliveredPIarr);
+                Toast.makeText(ContactEmergencyActivity.this, "Message Sent Successfully to Your Guardian", Toast.LENGTH_SHORT).show();
             }
+            catch (Exception e){
+                Toast.makeText(ContactEmergencyActivity.this, "SMS Failed to Send, Please try again", Toast.LENGTH_SHORT).show();
+            }
+        }
 
-            sms.sendMultipartTextMessage(phoneNo, null, parts, sentPIarr, deliveredPIarr);
-            Toast.makeText(ContactEmergencyActivity.this, "Message Sent Successfully to Your Guardian", Toast.LENGTH_SHORT).show();
-        }
-        catch (Exception e){
-            Toast.makeText(ContactEmergencyActivity.this, "SMS Failed to Send, Please try again", Toast.LENGTH_SHORT).show();
-        }
+
     }
-
 
     /**
      * Return minimum value

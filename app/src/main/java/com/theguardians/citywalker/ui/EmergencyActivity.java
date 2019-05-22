@@ -247,7 +247,7 @@ public class EmergencyActivity extends AppCompatActivity {
 
         userLocation = getUserLocation ();
         result = new JSONArray ();
-        SharedPreferences sharedPreferences = getSharedPreferences("firebase_data", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("new_firebase_data", Context.MODE_PRIVATE);
         String satValue = sharedPreferences.getString("police_station_data",null);
         try {
             policeStationArray= new JSONArray(satValue);
@@ -336,7 +336,7 @@ public class EmergencyActivity extends AppCompatActivity {
 
         userLocation = getUserLocation ();
         resultShop = new JSONArray ();
-        SharedPreferences sharedPreferences = getSharedPreferences("firebase_data", Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getSharedPreferences("new_firebase_data", Context.MODE_PRIVATE);
         String shopValue = sharedPreferences.getString("open_shop_data",null);
         try {
             openShopArray = new JSONArray(shopValue);
