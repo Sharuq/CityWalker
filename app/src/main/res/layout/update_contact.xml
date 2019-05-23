@@ -87,6 +87,7 @@
                 android:layout_gravity="center"
                 android:gravity="left"
                 android:hint="Phone Number"
+                android:inputType="number"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
         </android.support.v7.widget.CardView>

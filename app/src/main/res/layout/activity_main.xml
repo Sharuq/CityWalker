@@ -7,19 +7,34 @@
     android:background="@drawable/wallpaper"
     tools:context=".ui.MainActivity">
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorButton"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            android:background="@color/colorButton">
 
-    </android.support.design.widget.AppBarLayout>
+            <ImageView
+                android:id="@+id/logo"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/app_logo"
+                android:padding="5dp"
+                />
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CityWalker"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/cardview_light_background"
+                android:textSize="25dp"
+                android:textStyle="bold"
+                android:typeface="sans"
+                android:gravity="left"
+                />
+    </android.support.v7.widget.Toolbar>
+
 
     <include layout="@layout/content_main" />
 

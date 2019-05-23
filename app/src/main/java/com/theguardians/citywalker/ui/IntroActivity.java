@@ -67,10 +67,10 @@ public class IntroActivity extends AppCompatActivity {
         // fill list screen
 
         final List<ScreenItem> mList = new ArrayList<>();
-        mList.add(new ScreenItem("CityWalker","CityWalker is an application for people who feel unsafe while walking in the City of Melbourne.Users can check safety situation of their routes.The application also provides the emergency support and safety tips for users.",R.drawable.app_logo));
-        mList.add(new ScreenItem("Route check"," The route check section is for users to find the safest route among the suggested routes to go. ",R.drawable.route_colour));
-        mList.add(new ScreenItem("Emergency support"," Users can get some help during an emergency under the emergency support section.",R.drawable.emergency_colour));
-        mList.add(new ScreenItem("Safety tips"," Users can learn some safety tips under this section.",R.drawable.tips_colour));
+        mList.add(new ScreenItem("CityWalker","CityWalker an application designed for people who feel unsafe to walk alone in the city of Melbourne at night.Users can check safety situation of their routes.The application also provides the emergency support and safety tips for users.",R.drawable.app_logo));
+        mList.add(new ScreenItem("Route check","Find out the safest route by considering various safety factors along the route.",R.drawable.route_colour));
+        mList.add(new ScreenItem("Emergency support","Inform your guardian and navigate to a safe point when an emergency situation happens.",R.drawable.emergency_colour));
+        mList.add(new ScreenItem("Safety tips","Learn about safety precautions in case of emergencies.",R.drawable.tips_colour));
 
         // setup viewpager
         screenPager =findViewById(R.id.screen_viewpager);
