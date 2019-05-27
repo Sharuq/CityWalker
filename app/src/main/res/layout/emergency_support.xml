@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar
+
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorButton"
+        app:elevation="0dp"
+        app:popupTheme="@style/AppTheme.PopupOverlay"
+        app:theme="@style/ToolBarStyle">
+
+
+        <android.support.v7.widget.AppCompatTextView
+            android:id="@+id/toolbar_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="@color/colorWhite"
+            android:textSize="20sp"/>
+
+    </android.support.v7.widget.Toolbar>
+
+
+    <ScrollView
+        android:id="@+id/content_home_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        android:background="@color/colorWhite"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/updatecontact"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorHomeBlockTwo" />
+
+                <LinearLayout
+                    android:id="@+id/updateeemrgencycontact"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackground"
+                    android:orientation="vertical"
+                    android:paddingBottom="20dp"
+                    android:paddingTop="10dp">
+
+
+                    <Button
+                        android:id="@+id/addContact"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="20dp"
+                        android:layout_gravity="center"
+                        android:textColor="#ffff"
+                        android:background="@drawable/round_cornered2"
+                        android:text="Add Emergency contact"
+                        android:padding="10dp"/>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorLinearLayoutBorder" />
+
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorHomeBlockTwo" />
+
+
+            </LinearLayout>
+
+            <View
+                android:id="@+id/home_notification_divider"
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/updatecontact"
+                android:background="@color/colorLinearLayoutBorder" />
+
+            <LinearLayout
+                android:id="@+id/mpo_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/home_notification_divider"
+                android:background="?attr/selectableItemBackground">
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorHomeBlockThree" />
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorHomeBlockThree" />
+
+            </LinearLayout>
+
+
+            <View
+                android:id="@+id/rent_renew_po_diver"
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/mpo_layout"
+                android:background="@color/colorLinearLayoutBorder" />
+
+            <LinearLayout
+                android:id="@+id/emergnecypart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/rent_renew_po_diver">
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/emergnecycolor" />
+
+                <LinearLayout
+                    android:id="@+id/emergencymessage"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="vertical"
+                    android:paddingBottom="30dp"
+                    android:paddingTop="30dp">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/app_name"
+                        android:src="@drawable/message" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="10dp"
+                        android:text="Emergency Message"
+                        android:textAlignment="center"
+                        android:textColor="@color/emergnecycolor"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textAlignment="center"
+                        android:text="Send an emergency message to your emergency contact"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:textColor="@color/colorHomeSubTitle"
+                        android:textSize="10sp" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorLinearLayoutBorder" />
+
+                <LinearLayout
+                    android:id="@+id/emergencycall"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="vertical"
+                    android:paddingBottom="30dp"
+                    android:paddingTop="30dp">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/app_name"
+                        android:src="@drawable/emergencycall3" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="10dp"
+                        android:text="Emergency Call"
+                        android:textColor="@color/emergnecycolor"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textAlignment="center"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_marginTop="5dp"
+                        android:text="Call your emergency contact"
+                        android:textColor="@color/colorHomeSubTitle"
+                        android:textSize="10sp" />
+
+                </LinearLayout>
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorLinearLayoutBorder" />
+                <LinearLayout
+                    android:id="@+id/sharelocation"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="vertical"
+                    android:paddingBottom="30dp"
+                    android:paddingTop="30dp">
+
+                    <ImageView
+                        android:layout_width="50dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/app_name"
+                        android:src="@drawable/share" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="10dp"
+                        android:text="Share Location"
+                        android:textColor="@color/colorButton"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textAlignment="center"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_marginTop="5dp"
+                        android:text="Share location address with your emergency contact"
+
+                        android:textColor="@color/colorHomeSubTitle"
+                        android:textSize="10sp" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorButton" />
+
+
+            </LinearLayout>
+
+            <View
+                android:id="@+id/notification_divider"
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/emergnecypart"
+                android:background="@color/colorLinearLayoutBorder" />
+
+
+            <LinearLayout
+                android:id="@+id/navigations"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/notification_divider">
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorHomeBlockFour" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorLinearLayoutBorder" />
+
+                <LinearLayout
+                    android:id="@+id/navigatetopolice"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="vertical"
+                    android:paddingTop="30dp"
+                    android:paddingBottom="30dp">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/app_name"
+                        android:src="@drawable/policeman"
+                        android:backgroundTint="@color/colorHomeBlockFour"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="10dp"
+                        android:id="@+id/polText"
+                        android:drawableRight="@drawable/ic_navigation"
+                        android:drawablePadding="5dp"
+                        android:drawableTint="@color/colorHomeBlockFour"
+                        android:text="Police Station"
+                        android:textColor="@color/colorHomeBlockFour"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_marginTop="5dp"
+                        android:text="Navigate to the nearest police station"
+                        android:textColor="@color/colorHomeSubTitle"
+                        android:textSize="10sp" />
+
+                </LinearLayout>
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorLinearLayoutBorder" />
+
+                <LinearLayout
+                    android:id="@+id/navigatetoshop"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="vertical"
+                    android:paddingBottom="30dp"
+                    android:paddingTop="30dp">
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/app_name"
+                        android:src="@drawable/shopnavigate"
+                        android:backgroundTint="@color/colorHomeBlockFour"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="10dp"
+                        android:text="24 hours Open Shop"
+                        android:drawableRight="@drawable/ic_navigation"
+                        android:drawablePadding="5dp"
+                        android:drawableTint="@color/colorHomeBlockFour"
+                        android:textColor="@color/colorHomeBlockFour"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_marginTop="5dp"
+                        android:text="Navigate to the nearest 24 hrs open shop"
+                        android:textColor="@color/colorHomeSubTitle"
+                        android:textSize="10sp" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorHomeBlockFour" />
+
+            </LinearLayout>
+
+            <View
+                android:id="@+id/notification_divider3"
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/navigations"
+                android:background="@color/colorLinearLayoutBorder" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/notification_divider3">
+                <View
+                    android:layout_width="5dp"
+                    android:layout_height="fill_parent"
+                    android:background="@color/colorHomeBlockFour" />
+                <Button
+                    android:id="@+id/info"
+                    android:layout_marginLeft="10dp"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:background="@drawable/tooltips"
+                    android:backgroundTint="@color/colorButton"
+                    android:layout_marginVertical="4dp"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="4dp"
+                    android:text="Currently only available for Melbourne city area."
+                    android:textSize="12sp"
+                    android:layout_marginBottom="5dp"
+                    android:textColor="@color/colorButton"
+                    android:gravity="center"
+                    android:typeface="sans"
+                    android:textStyle="bold"/>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+
+</RelativeLayout>

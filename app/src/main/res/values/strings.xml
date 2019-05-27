@@ -1,6 +1,36 @@
 <resources>
     <string name="app_name">CityWalker</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">About</string>
 
     <string name="google_maps_API_key">AIzaSyA6BPdyQ9lbcBv2vyarJbjqyrQ95JqhX4g</string>
+    <string name="version_1">NightWalker</string>
+    <string name="dev"> Developed by The Guardians (TA16)</string>
+    <string name="access_token" translatable="false">pk.eyJ1Ijoic2hhcnVxMTIzIiwiYSI6ImNqdTB5czJwejAyMDk0M21uejAzeDBqMGsifQ.ePUP-omRILrdkobR5b3VEQ</string>
+    <string name="intro">CityWalker is an application designed for people walking alone in the City of Melbourne at night feeling unsafe. Users can use it to check the road situation before they walk alone at night and call their emergency contact or send the current location to the emergency contact if an emergency happens during walking.</string>
+
+    <string name="user_location_permission_explanation">This app needs location permissions to show its functionality.</string>
+    <string name="user_location_permission_not_granted">You didn\'t grant location permissions.</string>
+    <string name="slogan"> Build a sense of safety while walking at night.</string>
+    <string name="routecheck">User can find the safest route among the suggested routes before walking alone at night. By inputting the starting point and destination, several walking routes associated with CCTV cameras, police stations, pedestrian counting system sensors and 24-hour open stores and restaurants along the routes will be provided for users. Each route shows its safety score and the most suggested route with highest safety score among all suggested routes will be highlighted by default. When the user selects one of the other routes, the distance, walking duration and numbers of CCTV cameras and police stations of the corresponding route will be displayed in the bottom slidable hidden area with corresponding safety score.</string>
+    <string name="emergencysupport"> User can set their emergency contact stored locally. When an emergency happens, the user can press the emergency call button to call their emergency contact or click the location sharing buttons to send a message containing their real-time location to the emergency contact. Moreover, the user can navigate to the nearest safety place(police station or 24-hour open stores) from your current location with one-click buttons.</string>
+    <string name="safetytips"> User can see some safety with cartoon images in Safety Tips in order to get prepared and achieve confidence before walking alone at night.</string>
+
+    <string name="q1">The busyness degree of each sensor is defined based on the prediction of total counts of the pedestrian at the current hour. With the history records of hourly readings of Pedestrian Counting System from May 2009 to March 2019, a Neural Network model is built to predict the total counts of specific sensors in particular hours of each day.</string>
+    <string name="m1"> • When the prediction of the specific hour is less than 600 - Usually not busy</string>
+    <string name="m2"> • When the prediction of the specific hour is between 600 and 1799 - Usually not too busy</string>
+    <string name="m3"> • When the prediction of the specific hour is between 1800 and 2999 - Usually a little busy</string>
+    <string name="m4"> • When the prediction of the specific hour is more than 2999 - Usually busy</string>
+    <string name="q2"> The safest route among all suggested routes is provided by comparing the safety scores of all routes. The safety score is calculated based on the distance of the route and the quantities of safety factors (CCTV cameras, 24-hour open stores and police stations) along the routes, which means the more safety factors it has per meter, the higher safety score the route would have. </string>
+    <string name="pp"> We collect information to provide better services to all our users and we respect the rights to privacy of everyone. The information we collect will never be published, sharing, abused or suffer any other forms of privacy violation from us. The locations of our users are collected and used only in the following situations:</string>
+    <string name="pp1"> • When users use their current location as the starting point or destination in Route Check</string>
+    <string name="pp2"> • When users send emergency messages or location sharing messages which contain the current location coordinates of users in Emergency Support; And</string>
+    <string name="pp3"> • When users click the buttons of navigation to a safe place in Emergency Support and the current location is set as the starting point.</string>
+    <string name="ppp"> The names and phone numbers of emergency contact of our users are collected, stored in the local databases in users’ phones and used only in the following situations:</string>
+    <string name="pp4"> • When users use their current location as the starting point or destination in Route Check</string>
+    <string name="pp5"> • When users send emergency messages or location sharing messages to their emergency contact in Emergency Support</string>
+    <string name="pp6"> • When users call their emergency contact in Emergency Support.</string>
+    <string name="ts"> By using our application, you agree that our application only provides suggestions based on analysing data and information from the government or organizations. In case of any discrepancy or inconsistency between the actual conditions and the information from our application, the actual conditions shall prevail.</string>
+
+    <string name="dataset">Open Data Source: \u2022 MapBox API (https://www.mapbox.com/maps/) \u2022 Google Map API (https://developers.google.com/maps/documentation/) \u2022 Safe City cameras of the City of Melbourne (https://www.melbourne.vic.gov.au/community/safety-emergency/Pages/safe-citycameras.aspx) \u2022 Local police station location (https://www.police.vic.gov.au/location)</string>
+
 </resources>
