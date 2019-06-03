@@ -1,5 +1,9 @@
 package com.theguardians.citywalker.ui;
-
+/**
+ * This class is utilised for main page of the application
+ * @Author Sharuq
+ * @Version 3.1
+ */
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -28,10 +32,12 @@ import android.telephony.SmsManager;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -75,8 +81,20 @@ public class MainActivity extends AppCompatActivity {
         //Toolbar toolbar = findViewById (R.id.toolbar);
        //toolbar.setNavigationIcon(R.drawable.small_app_logo);
         //setSupportActionBar (toolbar);
+/*
+Crashlytics test case
+        Button crashButton = new Button(this);
+        crashButton.setText("Crash!");
+        crashButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                Crashlytics.getInstance().crash(); // Force a crash
+            }
+        });
 
-
+        addContentView(crashButton, new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+*/
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient (this);
         ContactHandler handler = new ContactHandler (this);
@@ -161,6 +179,9 @@ public class MainActivity extends AppCompatActivity {
         Button btnMap2 = (Button) findViewById (R.id.emergencySupportBtn);
         Button btnMap3 = (Button) findViewById (R.id.aboutUs);
         Button btnMap4 = (Button) findViewById (R.id.safetyTips);
+        /**
+         * When route check button clicked
+         */
         btnMap.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
@@ -169,7 +190,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        /**
+         * When emergency support button cliked
+         */
         btnMap2.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
@@ -182,7 +205,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
+        /**
+         * When about us page clicked
+         */
         btnMap3.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
@@ -190,7 +215,9 @@ public class MainActivity extends AppCompatActivity {
                 startActivity (intent);
             }
         });
-
+        /**
+         * when safety tips page clicked
+         */
         btnMap4.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
@@ -202,7 +229,9 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
+    /**
+     *Emergency call function
+     */
 
     public void callNumber(String phoneNumber) {
         Intent intent = new Intent (Intent.ACTION_CALL);
@@ -272,7 +301,9 @@ public class MainActivity extends AppCompatActivity {
         return userLocation;
     }
 
-
+    /**
+     * Emergency message function
+     */
     public void sendSMSMessage(String phoneNo,String message){
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.SEND_SMS)

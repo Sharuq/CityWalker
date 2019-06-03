@@ -1,5 +1,9 @@
 package com.theguardians.citywalker.ui;
-
+/**
+ * This class is utilised for safety tip page
+ * @Author Richard
+ * @Version 1.1
+ */
 import android.animation.ArgbEvaluator;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;

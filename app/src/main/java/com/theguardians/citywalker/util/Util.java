@@ -5,7 +5,10 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-/**.
+/**
+ * This class is utilised for validating internet connection
+ * @Author Sharuq
+ * @Version 1.1
  */
 public final class Util {
     public static final class Operations {

@@ -1,4 +1,10 @@
 package com.theguardians.citywalker.Service;
+/**
+ * This class is utilised for finding the data points along the route.
+ * Google polyutil library methods been used to get specific datapoint details
+ * @Author Sharuq
+ * @Version 2.1
+ */
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;
@@ -22,6 +28,10 @@ public class DataPointsCountDetail {
     private static CCTVLocation cInfo = new CCTVLocation ();
     private static PedestrianSensor sInfo = new PedestrianSensor ();
     private static OpenShop oInfo = new OpenShop ();
+
+    /**
+     * function to get all route situations count and storing in json array
+     */
 
     public  static JSONArray getpolylineCountDetailsArray(List<Polyline> polylines, JSONArray policeStationArray, JSONArray cctvLocationArray, JSONArray pedestrianSensorArray, JSONArray openShopArray, HashMap<String,PoliceStation> selectedPoliceStation, HashMap<String,CCTVLocation> selectedCCTVLocation, HashMap<String,PedestrianSensor> selectedPedestrianSensor, HashMap<String, OpenShop> selectedOpenShop, JSONArray polylineCountDetailsArray) {
 
@@ -195,6 +205,9 @@ public class DataPointsCountDetail {
         return polylineCountDetailsArray;
     }
 
+    /**
+     * function to get the police stations near the route
+     */
 
     public  static HashMap<String,PoliceStation> getSelectedPoliceStation(List<Polyline> polylines,JSONArray policeStationArray,HashMap<String,PoliceStation> selectedPoliceStation) {
 
@@ -245,6 +258,10 @@ public class DataPointsCountDetail {
         return selectedPoliceStation;
     }
 
+    /**
+     * function to get the cctv locations near the route
+     */
+
 
     public  static HashMap<String,CCTVLocation> getSelectedCCTVLocation(List<Polyline> polylines,JSONArray cctvLocationArray,HashMap<String,CCTVLocation> selectedCCTVLocation) {
 
@@ -291,6 +308,9 @@ public class DataPointsCountDetail {
         return selectedCCTVLocation;
     }
 
+    /**
+     * function to get the pedestrian sensors near the route
+     */
 
     public  static HashMap<String,PedestrianSensor> getSelectedPedestrianSensor(List<Polyline> polylines,JSONArray pedestrianSensorArray,HashMap<String,PedestrianSensor> selectedPedestrianSensor) {
 
@@ -336,6 +356,10 @@ public class DataPointsCountDetail {
         }
         return selectedPedestrianSensor;
     }
+
+    /**
+     * function to get the open shop near the route
+     */
 
     public  static HashMap<String,OpenShop> getSelectedOpenShop(List<Polyline> polylines,JSONArray openShopArray,HashMap<String,OpenShop> selectedOpenShop) {
 

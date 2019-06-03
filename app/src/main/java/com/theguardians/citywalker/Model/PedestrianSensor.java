@@ -1,5 +1,9 @@
 package com.theguardians.citywalker.Model;
-
+/**
+ * This class is utilised as model for pedestrian sensor locations
+ * @Author Sharuq
+ * @Version 2.0
+ */
 public class PedestrianSensor {
     private String sensor_id;
     private String sensor_description;

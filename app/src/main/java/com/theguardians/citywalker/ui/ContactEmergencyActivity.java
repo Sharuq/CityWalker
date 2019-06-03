@@ -1,4 +1,8 @@
 package com.theguardians.citywalker.ui;
+/**
+ * This class is utilised displaying the functions after adding contact details
+ * @Version 2.1
+ */
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -193,6 +197,9 @@ public class ContactEmergencyActivity extends AppCompatActivity {
 
             }
         });
+        /**
+         * On navigate to police button click
+        */
 
         navigateToPolice.setOnClickListener (new View.OnClickListener () {
             @Override
@@ -215,7 +222,9 @@ public class ContactEmergencyActivity extends AppCompatActivity {
 
             }
         });
-
+    /**
+     * On navigate to shop click
+     */
         navigateToShop.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
@@ -291,6 +300,9 @@ public class ContactEmergencyActivity extends AppCompatActivity {
             // permissions this app might request
         }
     }
+    /**
+     * Function to find the nearest police station
+     */
     private PoliceStation findNearestPoliceStation() {
 
         userLocation = getUserLocation ();
@@ -379,7 +391,9 @@ public class ContactEmergencyActivity extends AppCompatActivity {
 
     }
 
-
+    /**
+     * Function to find the nearest open shop
+     */
     private OpenShop findNearestOpenShop() {
 
         userLocation = getUserLocation ();

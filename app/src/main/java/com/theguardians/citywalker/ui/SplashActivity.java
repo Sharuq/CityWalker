@@ -1,6 +1,9 @@
-//Class splash screen activity
 package com.theguardians.citywalker.ui;
-
+/**
+ * This class is utilised for splash screen activity and allowing user permissions
+ * @Author Sharuq
+ * @Version 2.1
+ */
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;

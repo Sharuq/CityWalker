@@ -1,4 +1,11 @@
 package com.theguardians.citywalker.ui;
+/**
+ * This class is utilised for the route check functions.
+ * Includes searching routes, providing safety situation details in bottom sheet,
+ * markers on map with popup details, and safety score calculation
+ * @Author Sharuq
+ * @Version 4.1
+ */
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -29,7 +36,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.directions.route.AbstractRouting;
 import com.directions.route.Route;
 import com.directions.route.RouteException;
@@ -77,16 +83,13 @@ import com.theguardians.citywalker.R;
 import com.theguardians.citywalker.Service.DataPointsCountDetail;
 import com.theguardians.citywalker.util.CustomInfoWindowAdapter;
 import com.theguardians.citywalker.util.Util;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -368,51 +371,10 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         }
         mapFragment.getMapAsync (this);
     }
-/*
-    private void installButton110to250() {
-        final List<ButtonData> buttonDatas = new ArrayList<>();
-        int[] drawable = {R.drawable.emergency, R.drawable.emergencycall, R.drawable.emergencymessage,  R.drawable.ic_navigation};
-        int[] color = {R.color.colorOrange, R.color.colorRed, R.color.colorRed, R.color.colorRed};
-        for (int i = 0; i < 4; i++) {
-            ButtonData buttonData;
-            if (i == 0) {
-                buttonData = ButtonData.buildIconButton(this, drawable[i], 15);
-            } else {
-                buttonData = ButtonData.buildIconButton(this, drawable[i], 0);
-            }
-            buttonData.setBackgroundColorId(this, color[i]);
-            buttonDatas.add(buttonData);
-        }
-        button2.setButtonDatas(buttonDatas);
-        setListener(button2);
-    }
+    /**
+     On map ready activated
+     */
 
-    private void setListener(AllAngleExpandableButton button) {
-        button.setButtonEventListener(new ButtonEventListener() {
-            @Override
-            public void onButtonClicked(int index) {
-                if(index==1)
-                showToast("Emergency Call Clicked");
-                if(index==2)
-                    showToast("Emergency Message  Clicked");
-                if(index==3)
-                    showToast("Emergency Navigation Clicked");
-            }
-
-            @Override
-            public void onExpand() {
-//                showToast("onExpand");
-            }
-
-            @Override
-            public void onCollapse() {
-//                showToast("onCollapse");
-            }
-        });
-
-
-    }
-*/
     @Override
     public void onMapReady(GoogleMap googleMap) {
         try {
@@ -1210,6 +1172,9 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
 
     }
 
+    /**
+     * Showing toast messages
+     */
 
     private void showToast(String Msg) {
         //Toast.makeText(this, toast, Toast.LENGTH_SHORT).show();
@@ -1340,6 +1305,9 @@ public class RouteActivity extends AppCompatActivity implements RoutingListener,
         }
         return maxValue;
     }
+    /**
+     * Calculating safety score
+     */
 
 
     public int calculateSafetyScore(int cctv,int shop,int station,int dist){

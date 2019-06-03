@@ -1,5 +1,9 @@
 package com.theguardians.citywalker.Model;
-
+/**
+ * This class is utilised as a model for pedestrian count details
+ * @Author Sharuq
+ * @Version 2.0
+ */
 
 public class PedestrianCount {
 

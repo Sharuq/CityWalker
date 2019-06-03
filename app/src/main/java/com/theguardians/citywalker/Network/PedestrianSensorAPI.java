@@ -1,5 +1,9 @@
 package com.theguardians.citywalker.Network;
-
+/**
+ * This class is utilised as an interface for rest framework api
+ * @Author Sharuq
+ * @Version 2.1
+ */
 
 import com.theguardians.citywalker.Model.PedestrianCount;
 import com.theguardians.citywalker.Model.PedestrianSensor;

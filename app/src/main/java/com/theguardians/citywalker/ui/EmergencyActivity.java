@@ -1,5 +1,9 @@
 package com.theguardians.citywalker.ui;
-
+/**
+ * This class is utilised for  functions of emergency support page
+ * @Author Sharuq
+ * @Version 3.1
+ */
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -118,7 +122,7 @@ public class EmergencyActivity extends AppCompatActivity {
 
         userLocation = getUserLocation ();
 
-
+        //when add contact button clicked
         addContact.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
@@ -126,7 +130,7 @@ public class EmergencyActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
+        //when emergency message button clikced
         emergencyMessage.setOnClickListener (new View.OnClickListener () {
                 @Override
                 public void onClick(View v) {
@@ -146,7 +150,7 @@ public class EmergencyActivity extends AppCompatActivity {
 
                 }
             });
-
+        // when emergency call button clicked
         emergencyCall.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
@@ -166,7 +170,7 @@ public class EmergencyActivity extends AppCompatActivity {
                 alert11.show();
             }
         });
-
+        //when share location button clicked
         shareLocation.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
@@ -188,6 +192,7 @@ public class EmergencyActivity extends AppCompatActivity {
 
             }
         });
+        // when navigate to police station button clicked
         navigateToPolice.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
@@ -209,7 +214,7 @@ public class EmergencyActivity extends AppCompatActivity {
 
             }
         });
-
+        //when navigate to open shop button clicked
         navigateToShop.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View v) {
@@ -242,7 +247,9 @@ public class EmergencyActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-
+    /**
+     * Function find the nearest police station
+     */
     private PoliceStation findNearestPoliceStation() {
 
         userLocation = getUserLocation ();
@@ -330,7 +337,9 @@ public class EmergencyActivity extends AppCompatActivity {
         return  nearStation;
 
     }
-
+    /**
+     * Function to find the nearest open shop
+     */
 
     private OpenShop findNearestOpenShop() {
 
