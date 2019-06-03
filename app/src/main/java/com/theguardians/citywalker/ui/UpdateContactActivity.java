@@ -1,4 +1,10 @@
 package com.theguardians.citywalker.ui;
+/**
+ * This class is utilised for updating emergency contact
+ * @Author Sharuq
+ * @Version 2.1
+ */
+
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;

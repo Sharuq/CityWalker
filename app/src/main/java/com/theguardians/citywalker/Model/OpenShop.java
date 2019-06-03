@@ -1,7 +1,11 @@
 package com.theguardians.citywalker.Model;
 
 import java.io.Serializable;
-
+/**
+ * This class is utilised as model for open shop locations
+ * @Author Sharuq
+ * @Version 2.0
+ */
 public class OpenShop implements Serializable {
 
     private String name;

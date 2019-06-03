@@ -12,7 +12,11 @@ import android.widget.Toast;
 import com.theguardians.citywalker.Model.ContactHandler;
 import com.theguardians.citywalker.Model.UserContact;
 import com.theguardians.citywalker.R;
-
+/**
+ * This class is utilised for adding emergency contact
+ * @Author Sharuq
+ * @Version 2.1
+ */
 
 public class AddContactActivity extends AppCompatActivity {
 

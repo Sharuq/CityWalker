@@ -1,3 +1,8 @@
+/**
+* This class is utilised for custom marker popups
+ * @Author Sharuq
+ * @Version 2.1
+*/
 package com.theguardians.citywalker.util;
 
 

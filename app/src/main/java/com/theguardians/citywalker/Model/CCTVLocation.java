@@ -1,5 +1,9 @@
 package com.theguardians.citywalker.Model;
-
+/**
+ * This class is utilised as model for cctv cameras locations
+ * @Author Sharuq
+ * @Version 2.0
+ */
 public class CCTVLocation {
     private String cctvNo;
     private String detail;

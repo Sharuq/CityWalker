@@ -1,5 +1,9 @@
 package com.theguardians.citywalker.ui;
-
+/**
+ * This class is utilised for navigation screen to nearest open shop
+ * @Author Sharuq
+ * @Version 2.1
+ */
 import android.annotation.SuppressLint;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;

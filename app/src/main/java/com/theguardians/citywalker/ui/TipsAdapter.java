@@ -1,5 +1,9 @@
 package com.theguardians.citywalker.ui;
-
+/**
+ * This class is utilised for safety tip page
+ * @Author Richard
+ * @Version 1.1
+ */
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;

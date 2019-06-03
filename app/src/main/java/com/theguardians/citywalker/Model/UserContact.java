@@ -1,5 +1,9 @@
 package com.theguardians.citywalker.Model;
-
+/**
+ * This class is utilised as model for user details
+ * @Author Sharuq
+ * @Version 2.0
+ */
 public class UserContact {
     // Variables
     private int id;

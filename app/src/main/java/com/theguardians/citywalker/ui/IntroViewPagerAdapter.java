@@ -1,5 +1,9 @@
 package com.theguardians.citywalker.ui;
-
+/**
+ * This class is utilised for intro tutorial pages
+ * @Author Richard
+ * @Version 2.1
+ */
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
