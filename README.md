@@ -2,6 +2,8 @@
 
 **Builds a sense of safety when walking alone at night**
 
+![](CityWalker/app/src/main/res/drawable/CityWalkerPoster.png)
+
 CityWalker is an Android application designed for people who feel unsafe to walk alone in the city of Melbourne at night. It provides awesome features which includes route checking, emergency support and safety tips.
 
 * Route Check
