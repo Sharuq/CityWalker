@@ -19,3 +19,8 @@ Inform your guardian and navigate to a safe point when an emergency situation ha
 * Safety Tips
 
 Learn about safety precautions in case of emergencies.
+
+
+Download the application apk from release folder:
+
+https://github.com/Sharuq/CityWalker/blob/master/app/release/app-release.apk
