@@ -2,10 +2,10 @@
     <string name="app_name">CityWalker</string>
     <string name="action_settings">About</string>
 
-    <string name="google_maps_API_key">AIzaSyA6BPdyQ9lbcBv2vyarJbjqyrQ95JqhX4g</string>
+    <string name="google_maps_API_key">YOUR API KEY</string>
     <string name="version_1">NightWalker</string>
     <string name="dev"> Developed by The Guardians (TA16)</string>
-    <string name="access_token" translatable="false">pk.eyJ1Ijoic2hhcnVxMTIzIiwiYSI6ImNqdTB5czJwejAyMDk0M21uejAzeDBqMGsifQ.ePUP-omRILrdkobR5b3VEQ</string>
+    <string name="access_token" translatable="false">YOUR API KEY</string>
     <string name="intro">CityWalker is an application designed for people walking alone in the City of Melbourne at night feeling unsafe. Users can use it to check the road situation before they walk alone at night and call their emergency contact or send the current location to the emergency contact if an emergency happens during walking.</string>
 
     <string name="user_location_permission_explanation">This app needs location permissions to show its functionality.</string>
